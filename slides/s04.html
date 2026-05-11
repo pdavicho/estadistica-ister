@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S4 · Análisis Exploratorio EDA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bd:#0d2137;--bm:#1a3a6b;--bl:#2563eb;--bll:#3b82f6;--blp:#dbeafe;--w:#fff;--wa:#f8fafc;--t:#0f172a;--tm:#334155;--tl:#64748b;--gr:#22c55e;--am:#f59e0b;--rd:#ef4444;--pu:#a855f7}
+html,body{width:100%;height:100%;overflow:hidden;background:#0d2137}
+body{font-family:'Inter',sans-serif}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--bll);transition:width .3s;z-index:999}
+.deck{width:100%;height:100vh;position:relative}
+.slide{position:absolute;inset:0;flex-direction:column}
+.slide:not(.on){display:none!important}
+.slide.on{display:flex;animation:fi .25s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.s-title{background:linear-gradient(135deg,var(--bd),var(--bm) 60%,#1e4080);color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-title .tit{font-size:2.4rem;font-weight:800;line-height:1.15;margin-bottom:.5rem;letter-spacing:-.03em}
+.s-title .sub{font-size:1.05rem;opacity:.8;margin-bottom:1.5rem}
+.s-title .meta{font-size:.82rem;opacity:.6;border-top:1px solid rgba(255,255,255,.15);padding-top:1rem;margin-top:1rem}
+.s-title .meta span{margin:0 .75rem}
+.s-section{background:linear-gradient(135deg,var(--bl),var(--bm));color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-section .num{font-size:1rem;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.15em;margin-bottom:.75rem}
+.s-section .tit{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+.s-section .desc{font-size:.92rem;opacity:.75;margin-top:.75rem;max-width:600px}
+.s-body{background:var(--w);display:flex;flex-direction:column}
+.sh{background:var(--bm);color:var(--w);padding:.55rem 2rem;display:flex;justify-content:space-between;align-items:center;font-size:.82rem;font-weight:600}
+.sh .sn{opacity:.6;font-size:.72rem}
+.sc{flex:1;padding:1.4rem 2.5rem;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.sf{background:var(--bd);color:#64748b;font-size:.65rem;padding:.25rem 2rem;display:flex;justify-content:space-between}
+.s-dark{background:var(--bd);color:var(--w);display:flex;flex-direction:column}
+.s-dark .sh{background:rgba(255,255,255,.08);color:var(--w)}
+.s-code{background:#0f172a;color:var(--w);display:flex;flex-direction:column}
+.s-code .sh{background:rgba(255,255,255,.06);color:#93c5fd}
+.def-box{background:var(--blp);border-left:4px solid var(--bl);border-radius:0 8px 8px 0;padding:.9rem 1.2rem;margin:.6rem 0}
+.def-box .dl{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bl);margin-bottom:.3rem}
+.def-box .dt{font-size:.9rem;color:var(--t);font-weight:500;line-height:1.5}
+.warn-box{background:#fef3c7;border-left:4px solid var(--am);border-radius:0 8px 8px 0;padding:.85rem 1.2rem;margin:.6rem 0}
+.warn-box .dl{color:#92400e;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.warn-box .dt{color:#78350f;font-size:.86rem}
+.tip-box{background:#f0fdf4;border-left:4px solid var(--gr);border-radius:0 8px 8px 0;padding:.8rem 1.2rem;margin:.6rem 0}
+.tip-box .dl{color:#166534;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.tip-box .dt{color:#14532d;font-size:.85rem}
+h1.t{font-size:1.45rem;font-weight:800;color:var(--t);margin-bottom:.8rem;letter-spacing:-.02em}
+ul.b{list-style:none;padding:0;margin:.4rem 0}
+ul.b li{padding:.38rem 0 .38rem 1.4rem;position:relative;font-size:.87rem;color:var(--tm);border-bottom:1px solid #f1f5f9}
+ul.b li:last-child{border-bottom:none}
+ul.b li::before{content:'›';position:absolute;left:0;color:var(--bl);font-weight:700;font-size:1rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin:.6rem 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin:.6rem 0}
+.card{border-radius:8px;padding:.9rem;border:1px solid #e2e8f0;background:#fff}
+.card-b{border-top:3px solid var(--bl);background:#f0f9ff}
+.card-g{border-top:3px solid var(--gr);background:#f0fdf4}
+.card-a{border-top:3px solid var(--am);background:#fefce8}
+.card-p{border-top:3px solid var(--pu);background:#fdf4ff}
+.card-r{border-top:3px solid var(--rd);background:#fff1f2}
+.card h4{font-size:.83rem;font-weight:700;margin-bottom:.3rem}
+.card p{font-size:.77rem;color:var(--tm);line-height:1.4;margin-bottom:.25rem}
+.card code{font-family:'JetBrains Mono',monospace;font-size:.74rem;background:rgba(0,0,0,.06);padding:.1rem .35rem;border-radius:3px}
+/* EDA steps visual */
+.eda-flow{display:flex;gap:0;margin:.85rem 0;align-items:stretch}
+.eda-step{flex:1;padding:.85rem .75rem;text-align:center;position:relative;background:var(--wa);border:1px solid #e2e8f0}
+.eda-step:first-child{border-radius:8px 0 0 8px}
+.eda-step:last-child{border-radius:0 8px 8px 0}
+.eda-step::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--bll);font-size:.9rem;z-index:1}
+.eda-step:last-child::after{display:none}
+.eda-num{background:var(--bl);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;margin:0 auto .4rem}
+.eda-title{font-size:.75rem;font-weight:700;color:var(--t);margin-bottom:.2rem}
+.eda-desc{font-size:.68rem;color:var(--tl)}
+/* stat comparison */
+.stat-compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:.75rem 0}
+.stat-box{border-radius:8px;padding:1rem;text-align:center}
+.sb-blue{background:#eff6ff;border:2px solid var(--bl)}
+.sb-green{background:#f0fdf4;border:2px solid var(--gr)}
+.sb-red{background:#fff1f2;border:2px solid var(--rd)}
+.stat-val{font-size:2rem;font-weight:800;font-family:'JetBrains Mono',monospace}
+.stat-label{font-size:.78rem;font-weight:600;margin-top:.2rem}
+.stat-desc{font-size:.72rem;color:var(--tl);margin-top:.25rem}
+table.st{width:100%;border-collapse:collapse;font-size:.8rem}
+table.st th{background:var(--bm);color:#fff;padding:.5rem .85rem;text-align:left;font-weight:600}
+table.st td{padding:.45rem .85rem;border-bottom:1px solid #e2e8f0;color:var(--tm)}
+table.st tr:hover td{background:var(--wa)}
+table.st code{font-family:'JetBrains Mono',monospace;font-size:.76rem;background:var(--wa);padding:.1rem .35rem;border-radius:3px}
+pre{background:#1e293b;color:#e2e8f0;padding:.9rem 1.1rem;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.74rem;line-height:1.55;overflow-x:auto;margin:.5rem 0}
+.out{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.71rem;padding:.6rem 1rem;border-radius:8px;margin:.35rem 0;line-height:1.4}
+.kp-list{list-style:none;padding:0;margin:.4rem 0}
+.kp-list li{display:flex;align-items:flex-start;gap:.65rem;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.kp-list li:last-child{border-bottom:none}
+.knum{background:var(--bll);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kt{font-size:.87rem;color:#cbd5e1;line-height:1.45}
+/* CIERRE TEMA 1 */
+.t1-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin:1rem 0}
+.t1-item{background:rgba(255,255,255,.08);border-radius:8px;padding:.85rem;text-align:center}
+.t1-icon{font-size:1.4rem;margin-bottom:.3rem}
+.t1-title{font-size:.75rem;font-weight:700;color:#93c5fd;margin-bottom:.2rem}
+.t1-desc{font-size:.68rem;color:#94a3b8}
+#controls{position:fixed;bottom:0;left:0;right:0;background:rgba(13,33,55,.95);padding:.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between;z-index:100;backdrop-filter:blur(8px)}
+#counter{font-size:.75rem;color:#64748b;font-family:'JetBrains Mono',monospace}
+.nbtns{display:flex;gap:.5rem;align-items:center}
+.nb{height:34px;padding:0 1rem;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.79rem;font-weight:600;transition:.15s}
+.nb.p{background:rgba(255,255,255,.08);color:#94a3b8}.nb.p:hover{background:rgba(255,255,255,.15);color:#fff}
+.nb.n{background:var(--bl);color:#fff}.nb.n:hover{background:var(--bll)}
+.nb:disabled{opacity:.3;cursor:not-allowed}
+#fs{background:none;border:1px solid rgba(255,255,255,.15);color:#64748b;height:34px;width:34px;border-radius:6px;cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center;transition:.15s}
+#fs:hover{border-color:var(--bll);color:var(--bll)}
+#dots{display:flex;gap:.28rem;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:.15s}
+.dot.on{background:var(--bll);width:16px;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="deck">
+
+<!-- 1 TITLE -->
+<div class="slide s-title on">
+  <div style="font-size:2.8rem;margin-bottom:1.25rem">🔍</div>
+  <div style="font-size:.82rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:.65rem">Instituto Superior Tecnológico Rumiñahui</div>
+  <div class="tit">Semana 4</div>
+  <div class="sub">Análisis Exploratorio de Datos (EDA)</div>
+  <div style="font-size:.88rem;opacity:.6;margin-bottom:1.75rem">Cierre del Tema 1 · Integración de estadística, muestreo y visualización</div>
+  <div class="meta"><span>👨‍🏫 Ing. David Minango, PhD.</span><span>📅 11 de mayo, 2026</span><span>⏱ ~20 minutos</span></div>
+</div>
+
+<!-- 2 QUÉ ES EDA -->
+<div class="slide s-body">
+  <div class="sh">¿Qué es el EDA? <span class="sn">2 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">El <strong>EDA (Exploratory Data Analysis)</strong> es el proceso sistemático de explorar un dataset <em>antes</em> de aplicar modelos estadísticos. Permite entender la estructura, distribución y calidad de los datos.</div></div>
+    <p style="font-size:.88rem;color:var(--tm);margin:.75rem 0 .5rem">El EDA integra todo lo aprendido en el Tema 1:</p>
+    <div class="g2">
+      <div class="card card-b"><h4>📊 S1 + S2</h4><p>Estadística, tipos de variables y técnicas de muestreo — ¿qué datos tengo y cómo los obtuve?</p></div>
+      <div class="card card-g"><h4>📈 S3</h4><p>Representación gráfica — ¿cómo visualizo las distribuciones y relaciones?</p></div>
+    </div>
+    <div class="tip-box"><div class="dl">💡 Analogía</div><div class="dt">El EDA es como hacer un "chequeo médico completo" a los datos antes de operarlos.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 4 · EDA</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 3 PROCESO EDA -->
+<div class="slide s-body">
+  <div class="sh">El Proceso EDA en 5 Pasos <span class="sn">3 / 18</span></div>
+  <div class="sc">
+    <div class="eda-flow">
+      <div class="eda-step"><div class="eda-num">1</div><div class="eda-title">Inspección</div><div class="eda-desc">Dimensiones, tipos, primeras filas</div></div>
+      <div class="eda-step"><div class="eda-num">2</div><div class="eda-title">Calidad</div><div class="eda-desc">Nulos, duplicados, tipos incorrectos</div></div>
+      <div class="eda-step"><div class="eda-num">3</div><div class="eda-title">Estadísticos</div><div class="eda-desc">Media, mediana, std, min, max, Q1/Q3</div></div>
+      <div class="eda-step"><div class="eda-num">4</div><div class="eda-title">Visualización</div><div class="eda-desc">Distribuciones, outliers, correlaciones</div></div>
+      <div class="eda-step"><div class="eda-num">5</div><div class="eda-title">Conclusiones</div><div class="eda-desc">Hipótesis, patrones, decisiones</div></div>
+    </div>
+    <div style="background:var(--blp);border-radius:8px;padding:1rem 1.25rem;margin-top:.75rem"><div style="font-size:.8rem;font-weight:700;color:var(--bm);margin-bottom:.4rem">🎯 Objetivo del EDA</div><div style="font-size:.85rem;color:var(--t)">Antes de tomar decisiones estadísticas, necesitas <em>conocer tus datos</em> — ¿qué contienen? ¿son confiables? ¿hay anomalías?</div></div>
+    <div class="warn-box" style="margin-top:.65rem"><div class="dl">⚠️ Error frecuente</div><div class="dt">Saltarse el EDA y aplicar directamente un modelo estadístico puede llevar a conclusiones completamente incorrectas con datos sucios o mal distribuidos.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 4 · EDA Pasos</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 4 PASOS 1 Y 2 -->
+<div class="slide s-body">
+  <div class="sh">Paso 1: Inspección · Paso 2: Calidad <span class="sn">4 / 18</span></div>
+  <div class="sc">
+    <div class="g2">
+      <div>
+        <div style="background:#eff6ff;border-radius:8px;padding:1rem;border-top:3px solid var(--bl)">
+          <h4 style="color:var(--bm);font-size:.9rem;margin-bottom:.65rem">🔍 Paso 1: Inspección</h4>
+          <ul class="b">
+            <li>¿Cuántas filas y columnas? (<code>df.shape</code>)</li>
+            <li>¿Qué tipos de datos? (<code>df.dtypes</code> / <code>str(df)</code>)</li>
+            <li>¿Cómo se ven los primeros registros? (<code>df.head()</code>)</li>
+            <li>¿Cuáles son los nombres de las variables?</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div style="background:#fef3c7;border-radius:8px;padding:1rem;border-top:3px solid var(--am)">
+          <h4 style="color:#92400e;font-size:.9rem;margin-bottom:.65rem">⚠️ Paso 2: Calidad</h4>
+          <ul class="b">
+            <li>¿Hay valores nulos? (<code>df.isnull().sum()</code>)</li>
+            <li>¿Hay duplicados? (<code>df.duplicated().sum()</code>)</li>
+            <li>¿Los tipos son correctos? (fechas como string, números como object…)</li>
+            <li>¿Hay valores imposibles? (edad=-5, precio=-100)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="tip-box"><div class="dl">💡 Regla</div><div class="dt">Los datos nunca están limpios la primera vez. El 80% del tiempo en un proyecto de datos se gasta limpiando y entendiendo los datos.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 4 · Pasos 1-2</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 5 ESTADÍSTICOS BÁSICOS -->
+<div class="slide s-body">
+  <div class="sh">Paso 3: Estadísticos Descriptivos <span class="sn">5 / 18</span></div>
+  <div class="sc">
+    <table class="st">
+      <thead><tr><th>Estadístico</th><th>Mide</th><th>Python</th><th>R</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Mínimo / Máximo</strong></td><td>Rango de los datos</td><td><code>df.min() / df.max()</code></td><td><code>min(x) / max(x)</code></td></tr>
+        <tr><td><strong>Media (x̄)</strong></td><td>Promedio aritmético</td><td><code>df.mean()</code></td><td><code>mean(x)</code></td></tr>
+        <tr><td><strong>Mediana</strong></td><td>Valor central real</td><td><code>df.median()</code></td><td><code>median(x)</code></td></tr>
+        <tr><td><strong>Desv. Estándar</strong></td><td>Dispersión promedio</td><td><code>df.std()</code></td><td><code>sd(x)</code></td></tr>
+        <tr><td><strong>Q1 / Q3</strong></td><td>Percentiles 25% y 75%</td><td><code>df.quantile([.25,.75])</code></td><td><code>quantile(x, c(.25,.75))</code></td></tr>
+      </tbody>
+    </table>
+    <div class="tip-box" style="margin-top:.65rem"><div class="dl">💡 Atajo</div><div class="dt">Python: <code>df.describe()</code> genera todos los estadísticos de una vez. R: <code>summary(df)</code> hace lo mismo.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 4 · Estadísticos</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 6 MEDIA VS MEDIANA -->
+<div class="slide s-body">
+  <div class="sh">Media vs Mediana: El Sesgo de los Datos <span class="sn">6 / 18</span></div>
+  <div class="sc">
+    <div class="stat-compare">
+      <div class="stat-box sb-blue"><div class="stat-val" style="color:var(--bl)">$2,500</div><div class="stat-label" style="color:var(--bm)">Media salarial</div><div class="stat-desc">Distorsionada por salarios de CEO y directivos muy altos.</div></div>
+      <div class="stat-box sb-green"><div class="stat-val" style="color:#166534">$1,800</div><div class="stat-label" style="color:#166534">Mediana salarial</div><div class="stat-desc">El valor que divide en 50/50 — más representativo del "empleado típico".</div></div>
+    </div>
+    <div style="background:var(--blp);border-radius:8px;padding:1rem;margin-top:.65rem">
+      <div style="font-size:.84rem;font-weight:700;color:var(--bm);margin-bottom:.4rem">📐 Interpretación del sesgo:</div>
+      <div style="font-size:.82rem;color:var(--t)">
+        <div style="margin-bottom:.3rem">• <strong>Media &gt; Mediana</strong> → Sesgo positivo (cola hacia valores altos). Ej: salarios, precios de vivienda.</div>
+        <div style="margin-bottom:.3rem">• <strong>Media &lt; Mediana</strong> → Sesgo negativo (cola hacia valores bajos).</div>
+        <div>• <strong>Media ≈ Mediana</strong> → Distribución aproximadamente simétrica.</div>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:.6rem"><div class="dl">⚠️ Cuándo usar cada una</div><div class="dt">Con <strong>outliers o sesgo</strong>: usa la Mediana. Con distribución simétrica sin outliers: la Media es igual de válida.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 4 · Media/Mediana</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 7 PASOS 4 Y 5 -->
+<div class="slide s-body">
+  <div class="sh">Paso 4: Visualización · Paso 5: Conclusiones <span class="sn">7 / 18</span></div>
+  <div class="sc">
+    <div class="g2">
+      <div style="background:#f0fdf4;border-radius:8px;padding:1rem;border-top:3px solid var(--gr)">
+        <h4 style="color:#166534;font-size:.9rem;margin-bottom:.65rem">📈 Paso 4: Visualización</h4>
+        <ul class="b">
+          <li>Histograma para ver la distribución de cada variable cuantitativa.</li>
+          <li>Boxplot para detectar outliers y comparar grupos.</li>
+          <li>Dispersión para explorar relaciones entre variables.</li>
+          <li>Barras para comparar frecuencias de variables categóricas.</li>
+        </ul>
+      </div>
+      <div style="background:#eff6ff;border-radius:8px;padding:1rem;border-top:3px solid var(--bl)">
+        <h4 style="color:var(--bm);font-size:.9rem;margin-bottom:.65rem">📝 Paso 5: Conclusiones</h4>
+        <ul class="b">
+          <li>¿Qué distribución tienen los datos?</li>
+          <li>¿Hay variables que se correlacionan?</li>
+          <li>¿Cuáles son los outliers y qué significan?</li>
+          <li>¿Los datos son suficientes y confiables para inferir?</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tip-box"><div class="dl">🔑 Resultado del EDA</div><div class="dt">El EDA no solo limpia los datos — genera <strong>hipótesis iniciales</strong> que guiarán el análisis estadístico formal.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 4 · Pasos 4-5</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 8 SECTION PYTHON -->
+<div class="slide s-section">
+  <div class="num">4.4</div>
+  <div class="tit">Python: EDA con pandas</div>
+  <div class="desc">pandas.describe() genera los estadísticos básicos de un DataFrame en una sola línea. Es el punto de partida de todo EDA en Python.</div>
+</div>
+
+<!-- 9 PYTHON DESCRIBE -->
+<div class="slide s-code">
+  <div class="sh">🐍 Python: df.describe() + inspección <span class="sn" style="color:#475569">9 / 18</span></div>
+  <div class="sc">
+<pre>import pandas as pd
+import numpy as np
+np.random.seed(42)
+
+# Dataset e-commerce Ecuador
+df = pd.DataFrame({
+    'precio':   np.abs(np.random.lognormal(3.5, 0.8, 1000)).round(2),
+    'cantidad': np.random.randint(1, 6, 1000),
+    'rating':   np.random.choice([1,2,3,4,5], 1000, p=[.05,.10,.20,.40,.25]),
+    'producto': np.random.choice(['Electrónico','Ropa','Alimentos'], 1000),
+    'region':   np.random.choice(['Sierra','Costa','Oriente'], 1000)
+})
+df['total'] = (df['precio'] * df['cantidad']).round(2)
+
+# PASO 1: Inspección
+print(f"Shape: {df.shape}")   # (1000, 6)
+print(df.dtypes)
+
+# PASO 2: Calidad
+print(f"Nulos: {df.isnull().sum().sum()}")
+
+# PASO 3: Estadísticos (1 línea!)
+print(df.describe().round(2))</pre>
+    <div class="out">Shape: (1000, 6) | Nulos: 0<br>        precio  cantidad  rating   total<br>mean    55.43     3.01    3.70  167.14<br>50%     35.87     3.00    4.00  107.60<br>max    850.33     5.00    5.00 4251.65<br>→ Media precio ($55) > Mediana ($36) = SESGO POSITIVO</div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 4 · Python</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 10 PYTHON EDA COMPLETO -->
+<div class="slide s-code">
+  <div class="sh">🐍 Python: EDA Visual completo <span class="sn" style="color:#475569">10 / 18</span></div>
+  <div class="sc">
+<pre>import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+fig.suptitle('EDA: E-Commerce Ecuador', fontweight='bold')
+
+# Histograma de precios (con media y mediana)
+axes[0,0].hist(df['precio'], bins=35, color='#3b82f6', alpha=0.8, edgecolor='white')
+axes[0,0].axvline(df.precio.mean(), color='red', linestyle='--', label=f"Media ${df.precio.mean():.0f}")
+axes[0,0].axvline(df.precio.median(), color='green', linestyle='--', label=f"Mediana ${df.precio.median():.0f}")
+axes[0,0].legend(); axes[0,0].set_title('Distribución Precios')
+
+# Boxplot por categoría (detectar outliers)
+df.boxplot(column='total', by='producto', ax=axes[0,1],
+           medianprops={'color':'red','linewidth':2})
+axes[0,1].set_title('Total por Categoría')
+
+# Ventas por región
+df.groupby('region')['total'].sum().plot(kind='bar', ax=axes[1,0], color='#8b5cf6')
+axes[1,0].set_title('Ventas por Región')
+
+# Distribución de ratings
+df.rating.value_counts().sort_index().plot(kind='bar', ax=axes[1,1], color='#f59e0b')
+axes[1,1].set_title(f'Ratings (Promedio: {df.rating.mean():.1f}/5)')
+
+plt.tight_layout(); plt.show()</pre>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 4 · Python Visual</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 11 R SUMMARY -->
+<div class="slide s-code">
+  <div class="sh" style="color:#86efac">📊 R: summary() + EDA básico <span class="sn" style="color:#475569">11 / 18</span></div>
+  <div class="sc">
+<pre>library(ggplot2); library(dplyr)
+set.seed(42)
+
+df &lt;- data.frame(
+  precio   = abs(rlnorm(1000, 3.5, 0.8)),
+  cantidad = sample(1:5, 1000, replace=TRUE),
+  rating   = sample(1:5, 1000, replace=TRUE, prob=c(.05,.10,.20,.40,.25)),
+  producto = sample(c("Electrónico","Ropa","Alimentos"), 1000, replace=TRUE),
+  region   = sample(c("Sierra","Costa","Oriente"), 1000, replace=TRUE)
+)
+df$total &lt;- df$precio * df$cantidad
+
+# PASO 1+2: Inspección y calidad
+cat(sprintf("Shape: %d filas × %d columnas\n", nrow(df), ncol(df)))
+cat(sprintf("Nulos: %d\n", sum(is.na(df))))
+str(df)  # tipos de cada columna
+
+# PASO 3: Estadísticos (1 línea!)
+summary(df[, c("precio","total","rating")])
+
+# SESGO: media vs mediana
+cat(sprintf("\nPrecio → Media: $%.0f | Mediana: $%.0f\n",
+            mean(df$precio), median(df$precio)))
+cat("Media > Mediana → Distribución con sesgo positivo\n")</pre>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 4 · R</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 12 ERROR 1 -->
+<div class="slide s-body">
+  <div class="sh">❌ Errores Comunes — Parte 1 <span class="sn">12 / 18</span></div>
+  <div class="sc">
+    <div style="display:flex;flex-direction:column;gap:.75rem">
+      <div style="display:flex;gap:.85rem;background:#fff1f2;border-radius:8px;padding:1rem;border-left:4px solid var(--rd)">
+        <div style="font-size:1.5rem;flex-shrink:0">❌</div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;color:var(--rd);margin-bottom:.3rem">Error 1: Usar la media cuando hay outliers extremos</div>
+          <div style="font-size:.83rem;color:var(--tm)">Un solo salario de $100,000 en una empresa de 99 empleados con $800 promedio lleva la media a $1,790 — representando a nadie. <strong>Usa la mediana</strong> en distribuciones sesgadas.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.85rem;background:#fff1f2;border-radius:8px;padding:1rem;border-left:4px solid var(--rd)">
+        <div style="font-size:1.5rem;flex-shrink:0">❌</div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;color:var(--rd);margin-bottom:.3rem">Error 2: Gráfico de barras con eje Y que no empieza en 0</div>
+          <div style="font-size:.83rem;color:var(--tm)">Truncar el eje Y hace que diferencias pequeñas parezcan enormes visualmente. Es una forma de manipulación visual. <strong>Siempre desde 0</strong> o advierte explícitamente.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.85rem;background:#fff1f2;border-radius:8px;padding:1rem;border-left:4px solid var(--rd)">
+        <div style="font-size:1.5rem;flex-shrink:0">❌</div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;color:var(--rd);margin-bottom:.3rem">Error 3: Rellenar valores nulos con 0 sin análisis previo</div>
+          <div style="font-size:.83rem;color:var(--tm)">Un precio nulo puede significar "producto gratuito", "datos faltantes" o "error de registro". <strong>Analiza el patrón</strong> antes de decidir cómo manejarlo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 4 · Errores 1-3</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 13 ERROR 2 -->
+<div class="slide s-body">
+  <div class="sh">❌ Errores Comunes — Parte 2 <span class="sn">13 / 18</span></div>
+  <div class="sc">
+    <div style="display:flex;flex-direction:column;gap:.75rem">
+      <div style="display:flex;gap:.85rem;background:#fff1f2;border-radius:8px;padding:1rem;border-left:4px solid var(--rd)">
+        <div style="font-size:1.5rem;flex-shrink:0">❌</div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;color:var(--rd);margin-bottom:.3rem">Error 4: Confundir correlación con causalidad</div>
+          <div style="font-size:.83rem;color:var(--tm)">El precio del helado y las muertes por ahogamiento están correlacionados (verano). Ninguno causa al otro. <strong>La correlación nunca implica causalidad</strong> por sí sola.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.85rem;background:#fff1f2;border-radius:8px;padding:1rem;border-left:4px solid var(--rd)">
+        <div style="font-size:1.5rem;flex-shrink:0">❌</div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;color:var(--rd);margin-bottom:.3rem">Error 5: Porcentajes sin N total</div>
+          <div style="font-size:.83rem;color:var(--tm)">"El 50% tuvo problemas." ¿De 4 personas o de 40,000? El contexto del N es crucial para la interpretación estadística. <strong>Siempre indica el tamaño de la muestra</strong>.</div>
+        </div>
+      </div>
+    </div>
+    <div class="tip-box" style="margin-top:.75rem"><div class="dl">✅ La regla general</div><div class="dt">Cualquier conclusión estadística debe incluir: el estadístico, el tamaño de la muestra, el nivel de confianza y las limitaciones del análisis.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 4 · Errores 4-5</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 14 CIERRE TEMA 1 -->
+<div class="slide s-dark">
+  <div class="sh">🏆 Cierre del Tema 1 <span class="sn" style="color:#475569">14 / 18</span></div>
+  <div class="sc">
+    <h1 class="t" style="color:#93c5fd;text-align:center;margin-bottom:1.1rem">¡Completaste el Tema 1: Introducción a la Estadística!</h1>
+    <div class="t1-grid">
+      <div class="t1-item"><div class="t1-icon">📊</div><div class="t1-title">Semana 1</div><div class="t1-desc">Estadística, divisiones D/I, Población N y Muestra n</div></div>
+      <div class="t1-item"><div class="t1-icon">🎲</div><div class="t1-title">Semana 2</div><div class="t1-desc">Muestreo probabilístico y no probabilístico, variables, escalas NOIR</div></div>
+      <div class="t1-item"><div class="t1-icon">📈</div><div class="t1-title">Semana 3</div><div class="t1-desc">6 tipos de gráficos, matplotlib, seaborn, ggplot2</div></div>
+      <div class="t1-item"><div class="t1-icon">🔍</div><div class="t1-title">Semana 4</div><div class="t1-desc">EDA en 5 pasos, estadísticos, visualización, errores comunes</div></div>
+    </div>
+    <div style="text-align:center;margin-top:1rem;font-size:.85rem;color:#94a3b8">La siguiente semana iniciamos el <strong style="color:#93c5fd">Tema 2: Distribuciones de Frecuencias</strong></div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.3)"><span>Estadística · ISTER</span><span>Semana 4 · Cierre Tema 1</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 15 PRÓXIMO: TEMA 2 -->
+<div class="slide s-body">
+  <div class="sh">📅 Próximo: Tema 2 — Distribuciones de Frecuencias <span class="sn">15 / 18</span></div>
+  <div class="sc">
+    <h1 class="t">Semanas 5–8: Distribuciones y Representaciones Gráficas</h1>
+    <div class="g2">
+      <div class="card card-b"><h4>📋 Semana 5: Tipos de Frecuencias</h4><p>Frecuencias absolutas, relativas y acumuladas.</p></div>
+      <div class="card card-b"><h4>📊 Semana 6: Distribución de Frecuencias</h4><p>APP: Técnicas de muestreo (8h). Construcción de tablas.</p></div>
+      <div class="card card-b"><h4>📐 Semana 7: Tamaño de Clase</h4><p>Regla de Sturges y construcción de intervalos.</p></div>
+      <div class="card card-b"><h4>📈 Semana 8: Histogramas y Polígonos</h4><p>Visualización avanzada de distribuciones de frecuencia.</p></div>
+    </div>
+    <div class="tip-box"><div class="dl">💡 Conexión con Tema 1</div><div class="dt">El Tema 2 construye directamente sobre lo aprendido: usarás EDA, tipos de variables, gráficos y muestreo para construir tablas y distribuciones de frecuencias.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 4 · Próximo</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 16 REPASO INTEGRADOR -->
+<div class="slide s-body">
+  <div class="sh">🔄 Repaso Integrador: La Gran Imagen <span class="sn">16 / 18</span></div>
+  <div class="sc">
+    <p style="font-size:.88rem;color:var(--tm);margin-bottom:.85rem">Todo el Tema 1 responde a estas preguntas en secuencia:</p>
+    <div style="display:flex;flex-direction:column;gap:.55rem">
+      <div style="display:flex;align-items:center;gap:.75rem;background:var(--blp);border-radius:8px;padding:.75rem 1rem">
+        <div style="background:var(--bl);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0">1</div>
+        <div style="font-size:.86rem;color:var(--t)"><strong>¿Qué datos tengo?</strong> → Identificar variables y sus tipos (Semana 2)</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;background:#f0fdf4;border-radius:8px;padding:.75rem 1rem">
+        <div style="background:var(--gr);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0">2</div>
+        <div style="font-size:.86rem;color:var(--t)"><strong>¿Cómo los obtuve?</strong> → Técnica de muestreo utilizada (Semana 2)</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;background:#fdf4ff;border-radius:8px;padding:.75rem 1rem">
+        <div style="background:var(--pu);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0">3</div>
+        <div style="font-size:.86rem;color:var(--t)"><strong>¿Cómo los visualizo?</strong> → Gráfico apropiado según el tipo de variable (Semana 3)</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.75rem;background:#fef3c7;border-radius:8px;padding:.75rem 1rem">
+        <div style="background:var(--am);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0">4</div>
+        <div style="font-size:.86rem;color:var(--t)"><strong>¿Qué me dicen?</strong> → EDA: estadísticos, distribuciones, conclusiones (Semana 4)</div>
+      </div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 4 · Integrador</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 17 PUNTOS CLAVE -->
+<div class="slide s-dark">
+  <div class="sh">Puntos Clave de la Semana 4 · Cierre Tema 1 <span class="sn" style="color:#475569">17 / 18</span></div>
+  <div class="sc">
+    <ul class="kp-list">
+      <li><div class="knum">1</div><div class="kt">El EDA es el proceso de <strong style="color:#93c5fd">entender, limpiar, resumir y visualizar</strong> datos antes de cualquier análisis formal.</div></li>
+      <li><div class="knum">2</div><div class="kt"><code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">df.describe()</code> en Python y <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">summary()</code> en R son los comandos de EDA por excelencia.</div></li>
+      <li><div class="knum">3</div><div class="kt">Cuando <strong style="color:#93c5fd">Media &gt; Mediana</strong> hay sesgo positivo. Cuando <strong style="color:#93c5fd">Media &lt; Mediana</strong> hay sesgo negativo.</div></li>
+      <li><div class="knum">4</div><div class="kt">Los 5 errores clave: media con outliers, ejes truncados, nulos ignorados, correlación ≠ causalidad, % sin N.</div></li>
+      <li><div class="knum">5</div><div class="kt">El Tema 1 unifica: <em>¿qué datos? → ¿cómo los tomé? → ¿de qué tipo? → ¿cómo los visualizo? → ¿qué dicen?</em></div></li>
+    </ul>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.3)"><span>Estadística · ISTER</span><span>Semana 4 · Resumen</span><span>11 may 2026</span></div>
+</div>
+
+<!-- 18 CIERRE -->
+<div class="slide s-title">
+  <div style="font-size:2.8rem;margin-bottom:1.25rem">🎓</div>
+  <div class="tit" style="font-size:1.9rem">¿Preguntas?</div>
+  <div class="sub" style="margin-top:.5rem">Próxima semana:</div>
+  <div style="font-size:1.15rem;font-weight:700;color:#93c5fd;margin-top:.4rem">Tema 2 · Distribuciones de Frecuencias</div>
+  <div style="font-size:.88rem;opacity:.65;margin-top:.5rem">Tipos de frecuencias · Tablas · Histogramas avanzados</div>
+  <div style="margin-top:1.75rem;font-size:.79rem;opacity:.5;border-top:1px solid rgba(255,255,255,.12);padding-top:.85rem">Ing. David Minango, PhD. · Instituto Superior Tecnológico Rumiñahui</div>
+</div>
+
+</div>
+<div id="controls">
+  <span id="counter">1 / 18</span>
+  <div id="dots"></div>
+  <div class="nbtns">
+    <button class="nb p" id="pb" onclick="mv(-1)" disabled>← Anterior</button>
+    <button class="nb n" id="nb2" onclick="mv(1)">Siguiente →</button>
+    <button id="fs" onclick="tFS()">⛶</button>
+  </div>
+</div>
+<script>
+const sl=document.querySelectorAll('.slide'),tot=sl.length;let cur=0;
+const pr=document.getElementById('progress'),ct=document.getElementById('counter'),pb=document.getElementById('pb'),nb=document.getElementById('nb2'),de=document.getElementById('dots');
+for(let i=0;i<tot;i++){const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>go(i);de.appendChild(d);}
+function go(n){sl[cur].classList.remove('on');de.children[cur].classList.remove('on');cur=Math.max(0,Math.min(n,tot-1));sl[cur].classList.add('on');de.children[cur].classList.add('on');pr.style.width=((cur+1)/tot*100)+'%';ct.textContent=(cur+1)+' / '+tot;pb.disabled=cur===0;nb.disabled=cur===tot-1;nb.textContent=cur===tot-1?'✓ Fin':'Siguiente →';}
+function mv(d){go(cur+d);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')mv(1);if(e.key==='ArrowLeft')mv(-1);});
+function tFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+</script>
+</body>
+</html>

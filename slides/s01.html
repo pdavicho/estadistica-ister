@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S1 · Introducción a la Estadística</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bd:#0d2137;--bm:#1a3a6b;--bl:#2563eb;--bll:#3b82f6;--blp:#dbeafe;
+  --w:#ffffff;--wa:#f8fafc;--t:#0f172a;--tm:#334155;--tl:#64748b;
+  --gr:#22c55e;--am:#f59e0b;--rd:#ef4444;--pu:#a855f7;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:#0d2137}
+body{font-family:'Inter',sans-serif}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--bll);transition:width .3s;z-index:999;width:0}
+.deck{width:100%;height:100vh;position:relative}
+.slide{position:absolute;inset:0;flex-direction:column}
+.slide:not(.on){display:none!important}
+.slide.on{display:flex;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* ── SLIDE TYPES ── */
+.s-title{background:linear-gradient(135deg,var(--bd) 0%,var(--bm) 60%,#1e4080 100%);color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-title .tit{font-size:2.4rem;font-weight:800;line-height:1.15;margin-bottom:.5rem;letter-spacing:-.03em}
+.s-title .sub{font-size:1.1rem;opacity:.8;margin-bottom:1.5rem}
+.s-title .meta{font-size:.85rem;opacity:.6;border-top:1px solid rgba(255,255,255,.15);padding-top:1rem;margin-top:1rem}
+.s-title .meta span{margin:0 .75rem}
+.s-section{background:linear-gradient(135deg,var(--bl) 0%,var(--bm) 100%);color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-section .num{font-size:1.1rem;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.15em;margin-bottom:.75rem}
+.s-section .tit{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+.s-section .desc{font-size:.95rem;opacity:.75;margin-top:.75rem;max-width:600px}
+/* Content slide */
+.s-body{background:var(--w);display:flex;flex-direction:column}
+.sh{background:var(--bm);color:var(--w);padding:.55rem 2rem;display:flex;justify-content:space-between;align-items:center;font-size:.82rem;font-weight:600}
+.sh .sn{opacity:.6;font-size:.72rem}
+.sc{flex:1;padding:1.5rem 2.5rem;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.sf{background:var(--bd);color:#64748b;font-size:.65rem;padding:.25rem 2rem;display:flex;justify-content:space-between}
+/* Dark slide */
+.s-dark{background:var(--bd);color:var(--w)}
+.s-dark .sh{background:rgba(255,255,255,.08);color:var(--w)}
+.s-dark .sc{color:var(--w)}
+.s-dark .sf{background:rgba(0,0,0,.3)}
+/* Code slide */
+.s-code{background:#0f172a;color:var(--w)}
+.s-code .sh{background:rgba(255,255,255,.06);color:#93c5fd}
+.s-code .sc{color:var(--w)}
+/* ── CONTENT COMPONENTS ── */
+.def-box{background:var(--blp);border-left:4px solid var(--bl);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:.75rem 0}
+.def-box .def-label{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bl);margin-bottom:.35rem}
+.def-box .def-text{font-size:1rem;color:var(--t);font-weight:500;line-height:1.5}
+.warn-box{background:#fef3c7;border-left:4px solid var(--am);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:.75rem 0}
+.warn-box .def-label{color:#92400e}
+.warn-box .def-text{color:#78350f;font-size:.95rem}
+.red-box{background:#fee2e2;border-left:4px solid var(--rd);border-radius:0 8px 8px 0;padding:1rem 1.25rem;margin:.75rem 0}
+.red-box .def-label{color:#991b1b}.red-box .def-text{color:#7f1d1d;font-size:.95rem}
+.tip-box{background:#f0fdf4;border-left:4px solid var(--gr);border-radius:0 8px 8px 0;padding:.85rem 1.25rem;margin:.75rem 0}
+.tip-box .def-label{color:#166534}.tip-box .def-text{color:#14532d;font-size:.88rem}
+h1.title{font-size:1.6rem;font-weight:800;color:var(--t);margin-bottom:1rem;letter-spacing:-.02em}
+h2.title{font-size:1.35rem;font-weight:700;color:var(--t);margin-bottom:.85rem}
+.subline{font-size:.9rem;color:var(--tm);margin-bottom:1rem;font-style:italic;opacity:.8}
+ul.bullets{list-style:none;padding:0;margin:.5rem 0}
+ul.bullets li{padding:.45rem 0 .45rem 1.5rem;position:relative;font-size:.9rem;color:var(--tm);border-bottom:1px solid #f1f5f9}
+ul.bullets li:last-child{border-bottom:none}
+ul.bullets li::before{content:'›';position:absolute;left:0;color:var(--bl);font-weight:700;font-size:1rem}
+.num-list{list-style:none;padding:0;margin:.5rem 0;counter-reset:nl}
+.num-list li{counter-increment:nl;padding:.55rem 0 .55rem 2.25rem;position:relative;font-size:.9rem;color:var(--tm);border-bottom:1px solid #f1f5f9}
+.num-list li:last-child{border-bottom:none}
+.num-list li::before{content:counter(nl);position:absolute;left:0;background:var(--bl);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;top:.65rem}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:.75rem 0}
+.col-box{border-radius:8px;padding:1.1rem;border:1px solid #e2e8f0}
+.col-blue{background:#eff6ff;border-top:3px solid var(--bl)}
+.col-purple{background:#fdf4ff;border-top:3px solid var(--pu)}
+.col-box h4{font-size:.88rem;font-weight:700;margin-bottom:.5rem}
+.col-box p{font-size:.82rem;color:var(--tm);line-height:1.5}
+.col-box .ex{font-size:.76rem;color:var(--tl);font-style:italic;margin-top:.4rem}
+.ex-item{background:var(--wa);border-radius:8px;padding:.85rem 1rem;margin:.5rem 0;border:1px solid #e2e8f0;cursor:pointer;transition:.15s}
+.ex-item:hover{border-color:var(--bll)}
+.ex-item .scenario{font-size:.85rem;color:var(--t);margin-bottom:.35rem;font-style:italic}
+.ex-item .answer{display:none;font-size:.82rem;font-weight:700;padding:.3rem .6rem;border-radius:5px;display:inline-block;margin-top:.3rem}
+.ans-d{background:#dbeafe;color:#1e40af}.ans-i{background:#f3e8ff;color:#6b21a8}
+.answer.visible{display:inline-block}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.85rem;margin:.75rem 0}
+.g3-item{background:var(--wa);border-radius:8px;padding:1rem;border-top:3px solid var(--bl);text-align:center}
+.g3-icon{font-size:1.6rem;margin-bottom:.4rem}
+.g3-title{font-size:.82rem;font-weight:700;color:var(--t);margin-bottom:.25rem}
+.g3-desc{font-size:.76rem;color:var(--tm)}
+.g4{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin:.75rem 0}
+.g4-item{display:flex;align-items:flex-start;gap:.75rem;background:var(--wa);border-radius:8px;padding:.85rem 1rem;border:1px solid #e2e8f0}
+.g4-icon{font-size:1.25rem;flex-shrink:0}
+.g4-text strong{display:block;font-size:.82rem;margin-bottom:.2rem;color:var(--t)}
+.g4-text span{font-size:.77rem;color:var(--tm)}
+pre{background:#1e293b;color:#e2e8f0;padding:1.1rem 1.25rem;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.6;overflow-x:auto;margin:.75rem 0}
+.out{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.76rem;padding:.75rem 1.1rem;border-radius:8px;margin:.5rem 0;line-height:1.5}
+.tag{font-size:.72rem;padding:.2rem .55rem;border-radius:4px;font-weight:600;display:inline-block;margin-top:.25rem}
+.tag-d{background:#dbeafe;color:#1e40af}.tag-i{background:#f3e8ff;color:#6b21a8}
+.kp-list{list-style:none;padding:0;counter-reset:kp;margin:.5rem 0}
+.kp-list li{counter-increment:kp;display:flex;align-items:flex-start;gap:.75rem;padding:.65rem 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.kp-list li:last-child{border-bottom:none}
+.kp-num{background:var(--bll);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kp-text{font-size:.9rem;color:#cbd5e1;line-height:1.5}
+/* ── CONTROLS ── */
+#controls{position:fixed;bottom:0;left:0;right:0;background:rgba(13,33,55,.95);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;z-index:100;backdrop-filter:blur(8px)}
+#counter{font-size:.78rem;color:#64748b;font-family:'JetBrains Mono',monospace}
+.nav-btns{display:flex;gap:.5rem;align-items:center}
+.nbtn{height:36px;padding:0 1rem;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;transition:.15s;display:flex;align-items:center;gap:.35rem}
+.nbtn.prev{background:rgba(255,255,255,.08);color:#94a3b8}
+.nbtn.prev:hover{background:rgba(255,255,255,.15);color:#fff}
+.nbtn.next{background:var(--bl);color:#fff}
+.nbtn.next:hover{background:var(--bll)}
+.nbtn:disabled{opacity:.3;cursor:not-allowed}
+#fsBtn{background:none;border:1px solid rgba(255,255,255,.15);color:#64748b;height:36px;width:36px;border-radius:6px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:.15s}
+#fsBtn:hover{border-color:var(--bll);color:var(--bll)}
+#dots{display:flex;gap:.35rem;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:.15s}
+.dot.on{background:var(--bll);width:18px;border-radius:4px}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="deck" id="deck">
+
+<!-- S1: TITLE -->
+<div class="slide s-title on">
+  <div style="margin-bottom:1.5rem;font-size:3rem">📊</div>
+  <div style="font-size:.85rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:.75rem">Instituto Superior Tecnológico Rumiñahui</div>
+  <div class="tit">Semana 1</div>
+  <div class="sub">Introducción a la Estadística</div>
+  <div style="font-size:.95rem;opacity:.65;margin-bottom:2rem">Fundamentos para Sistemas y Gestión de Data</div>
+  <div class="meta">
+    <span>👨‍🏫 Ing. David Minango, PhD.</span>
+    <span>📅 20 de abril, 2026</span>
+    <span>⏱ ~20 minutos</span>
+  </div>
+</div>
+
+<!-- S2: AGENDA -->
+<div class="slide s-body">
+  <div class="sh">¿Qué aprenderemos hoy? <span class="sn">2 / 18</span></div>
+  <div class="sc">
+    <h1 class="title">Agenda de la Sesión</h1>
+    <ol class="num-list">
+      <li>Concepto e Importancia de la Estadística</li>
+      <li>División: Estadística Descriptiva vs Inferencial</li>
+      <li>Población (N) y Muestra (n)</li>
+      <li>Metodología del Muestreo — ABP</li>
+      <li>Simulación en Python y R</li>
+      <li>Ética y Valores del Analista de Datos</li>
+    </ol>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · Introducción</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S3: QUÉ ES ESTADÍSTICA -->
+<div class="slide s-body">
+  <div class="sh">1.1 ¿Qué es la Estadística? <span class="sn">3 / 18</span></div>
+  <div class="sc">
+    <div class="def-box">
+      <div class="def-label">📖 Definición Técnica</div>
+      <div class="def-text">Es la <strong>ciencia de recolectar, organizar y analizar datos</strong> para la toma de decisiones informadas.</div>
+    </div>
+    <ul class="bullets" style="margin-top:.75rem">
+      <li><strong>En Sistemas:</strong> Es la herramienta que transforma el "ruido" de los datos masivos en "señal" de conocimiento útil.</li>
+      <li>Permite <strong>identificar problemas</strong> y optimizar procesos empresariales.</li>
+      <li>Fundamento de: Machine Learning, Business Intelligence, Data Science.</li>
+    </ul>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · Introducción</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S4: IMPORTANCIA -->
+<div class="slide s-body">
+  <div class="sh">1.2 Importancia en la Gestión de Data <span class="sn">4 / 18</span></div>
+  <div class="sc">
+    <h1 class="title">¿Por qué es crucial para un profesional de Sistemas?</h1>
+    <div class="grid-3">
+      <div class="g3-item" style="border-top-color:var(--bl)"><div class="g3-icon">🎯</div><div class="g3-title">Toma de Decisiones</div><div class="g3-desc">Brinda información fundamentada para decisiones estratégicas en la organización.</div></div>
+      <div class="g3-item" style="border-top-color:var(--gr)"><div class="g3-icon">🏆</div><div class="g3-title">Calidad Empresarial</div><div class="g3-desc">Mejora procesos mediante el análisis de evidencia científica y detección de anomalías.</div></div>
+      <div class="g3-item" style="border-top-color:var(--pu)"><div class="g3-icon">🔭</div><div class="g3-title">Perspectiva Holística</div><div class="g3-desc">Desarrolla visión integral para implementar soluciones responsables con datos.</div></div>
+    </div>
+    <div class="tip-box"><div class="def-label">💡 Analogía</div><div class="def-text">Sin estadística, un data center lleno de registros es solo ruido. Con estadística, esos mismos datos se convierten en decisiones estratégicas.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · Introducción</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S5: SECTION DIVISIÓN -->
+<div class="slide s-section">
+  <div class="num">1.3</div>
+  <div class="tit">División de la Estadística</div>
+  <div class="desc">La estadística se divide en dos grandes ramas según su objetivo: describir o predecir.</div>
+</div>
+
+<!-- S6: DESCRIPTIVA -->
+<div class="slide s-body">
+  <div class="sh">1.3 Estadística Descriptiva <span class="sn">6 / 18</span></div>
+  <div class="sc">
+    <div style="background:#eff6ff;border-left:4px solid var(--bl);border-radius:0 8px 8px 0;padding:1rem 1.5rem;margin-bottom:1rem">
+      <div style="font-size:1rem;font-weight:700;color:var(--bm);margin-bottom:.3rem">Describe lo que ya ocurrió</div>
+      <div style="font-size:1.3rem;font-weight:800;color:var(--bl)">¿Qué pasó?</div>
+    </div>
+    <ul class="bullets">
+      <li>Se enfoca en métodos para <strong>organizar y resumir</strong> datos.</li>
+      <li>Presenta información a través de <strong>gráficos</strong> para su fácil comprensión.</li>
+      <li>No hace predicciones: trabaja con los <strong>datos que ya existen</strong>.</li>
+    </ul>
+    <div class="tip-box" style="margin-top:.75rem"><div class="def-label">📊 Ejemplo</div><div class="def-text">Un reporte de ventas diarias o un dashboard de tráfico de red. <span class="tag tag-d">Descriptivo (D)</span></div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · División</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S7: INFERENCIAL -->
+<div class="slide s-body">
+  <div class="sh">1.3 Estadística Inferencial <span class="sn">7 / 18</span></div>
+  <div class="sc">
+    <div style="background:#fdf4ff;border-left:4px solid var(--pu);border-radius:0 8px 8px 0;padding:1rem 1.5rem;margin-bottom:1rem">
+      <div style="font-size:1rem;font-weight:700;color:#6b21a8;margin-bottom:.3rem">Predice lo que podría ocurrir</div>
+      <div style="font-size:1.3rem;font-weight:800;color:var(--pu)">¿Qué esperamos?</div>
+    </div>
+    <ul class="bullets">
+      <li>Realiza <strong>deducciones y predicciones</strong> sobre una población basándose en una muestra.</li>
+      <li>Generaliza comportamientos a partir de <strong>datos parciales</strong>.</li>
+      <li>Implica un grado de <strong>incertidumbre</strong> cuantificable.</li>
+    </ul>
+    <div style="background:#fdf4ff;border-radius:8px;padding:.8rem 1rem;margin-top:.75rem"><div class="def-label" style="color:#6b21a8">🔮 Ejemplo</div><div class="def-text" style="font-size:.85rem">Predecir el éxito de un software encuestando solo a un grupo de usuarios. <span class="tag tag-i">Inferencial (I)</span></div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · División</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S8: COMPARATIVA -->
+<div class="slide s-body">
+  <div class="sh">Descriptiva vs Inferencial <span class="sn">8 / 18</span></div>
+  <div class="sc">
+    <div class="two-col">
+      <div class="col-box col-blue">
+        <h4>📊 Descriptiva</h4>
+        <p><strong>¿Qué hace?</strong> Describe y resume datos existentes.</p>
+        <p><strong>Datos:</strong> Toda la muestra o población.</p>
+        <p><strong>Certeza:</strong> Alta — trabaja con hechos.</p>
+        <p class="ex">Ej: "El 35% de los servidores fallaron" — esto ya pasó.</p>
+        <span class="tag tag-d">Pasado</span>
+      </div>
+      <div class="col-box col-purple">
+        <h4>🔮 Inferencial</h4>
+        <p><strong>¿Qué hace?</strong> Predice y extrapola resultados.</p>
+        <p><strong>Datos:</strong> Muestra → generaliza a población.</p>
+        <p><strong>Certeza:</strong> Probabilística — implica incertidumbre.</p>
+        <p class="ex">Ej: "Estimamos que el 2% de transacciones son fraude".</p>
+        <span class="tag tag-i">Futuro / Estimación</span>
+      </div>
+    </div>
+    <div class="tip-box"><div class="def-label">🎯 Regla rápida</div><div class="def-text">Si el enunciado <em>describe hechos ya conocidos</em> → Descriptivo. Si <em>estima o predice</em> sobre algo más amplio → Inferencial.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · División</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S9: EJERCICIO D O I -->
+<div class="slide s-body">
+  <div class="sh">🎯 Ejercicio: ¿Descriptivo (D) o Inferencial (I)? <span class="sn">9 / 18</span></div>
+  <div class="sc">
+    <p style="font-size:.85rem;color:var(--tm);margin-bottom:.85rem">Haz clic en cada enunciado para revelar la respuesta:</p>
+    <div class="ex-item" onclick="toggleAns(this)">
+      <div class="scenario">1. "El promedio de temperatura en Quito durante marzo fue de 14°C."</div>
+      <div class="answer ans-d">✅ D — Descriptivo: describe un hecho pasado y medido.</div>
+    </div>
+    <div class="ex-item" onclick="toggleAns(this)">
+      <div class="scenario">2. "Encuestamos a 500 consumidores para predecir si el nuevo producto tendrá éxito en el mercado."</div>
+      <div class="answer ans-i">✅ I — Inferencial: usa 500 para estimar el comportamiento de todo el mercado.</div>
+    </div>
+    <div class="ex-item" onclick="toggleAns(this)">
+      <div class="scenario">3. "El 35% de los servidores del data center fallaron el mes pasado."</div>
+      <div class="answer ans-d">✅ D — Descriptivo: describe exactamente el 35% que ya falló.</div>
+    </div>
+    <div class="ex-item" onclick="toggleAns(this)">
+      <div class="scenario">4. "Con base en 1000 transacciones revisadas, estimamos que el 2% de todas las transacciones del banco son fraudulentas."</div>
+      <div class="answer ans-i">✅ I — Inferencial: extrapola de 1,000 transacciones a toda la población.</div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · División</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S10: SECTION POBLACIÓN -->
+<div class="slide s-section">
+  <div class="num">1.4</div>
+  <div class="tit">Población y Muestra</div>
+  <div class="desc">Dos conceptos fundamentales: N y n, la base de todo análisis estadístico.</div>
+</div>
+
+<!-- S11: POBLACIÓN -->
+<div class="slide s-body">
+  <div class="sh">1.4 Población (N) <span class="sn">11 / 18</span></div>
+  <div class="sc">
+    <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1rem">
+      <div style="font-size:4rem;line-height:1">🌍</div>
+      <div>
+        <div style="font-size:2rem;font-weight:800;color:var(--bl);font-family:'JetBrains Mono',monospace">N</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--t)">Puede ser finita o infinita</div>
+      </div>
+    </div>
+    <div class="def-box">
+      <div class="def-label">📖 Definición</div>
+      <div class="def-text">Es el conjunto total de elementos, individuos o medidas que son <strong>objeto de estudio</strong>.</div>
+    </div>
+    <ul class="bullets" style="margin-top:.75rem">
+      <li><strong>Finita:</strong> La base de datos completa de clientes de un banco (1 millón de registros).</li>
+      <li><strong>Infinita:</strong> Todas las transacciones futuras de una plataforma de pagos.</li>
+      <li>En estadística inferencial, queremos <em>conocer la población</em> a través de la muestra.</li>
+    </ul>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · Pob. y Muestra</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S12: MUESTRA -->
+<div class="slide s-body">
+  <div class="sh">1.4 Muestra (n) <span class="sn">12 / 18</span></div>
+  <div class="sc">
+    <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1rem">
+      <div style="font-size:4rem;line-height:1">🎯</div>
+      <div>
+        <div style="font-size:2rem;font-weight:800;color:var(--pu);font-family:'JetBrains Mono',monospace">n</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--t)">Parte seleccionada de la N</div>
+      </div>
+    </div>
+    <div class="def-box" style="background:#fdf4ff;border-color:var(--pu)">
+      <div class="def-label" style="color:var(--pu)">📖 Definición</div>
+      <div class="def-text">Es un <strong>subconjunto representativo</strong> extraído de la población para su análisis.</div>
+    </div>
+    <ul class="bullets" style="margin-top:.75rem">
+      <li><strong>Ejemplo:</strong> 5,000 clientes seleccionados aleatoriamente para una encuesta de satisfacción.</li>
+      <li>Si está bien seleccionada, permite <strong>inferir sobre toda la N</strong> con precisión estadística.</li>
+      <li>El proceso de selección debe ser <strong>científico y ético</strong>.</li>
+    </ul>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · Pob. y Muestra</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S13: MUESTREO -->
+<div class="slide s-body">
+  <div class="sh">La Clave: Metodología del Muestreo <span class="sn">13 / 18</span></div>
+  <div class="sc">
+    <div class="warn-box">
+      <div class="def-label">⚠️ Importante</div>
+      <div class="def-text">La selección debe ser <strong>ÉTICA Y CIENTÍFICA</strong> para evitar sesgos en los resultados.</div>
+    </div>
+    <p style="font-size:.9rem;color:var(--tm);margin:.85rem 0 .5rem">Aplicaremos el Aprendizaje Basado en Problemas (ABP):</p>
+    <div style="background:var(--blp);border-radius:8px;padding:1rem 1.25rem;font-size:.95rem;font-weight:600;color:var(--bm)">¿Cómo garantizamos que el 1% de los datos represente a todos?</div>
+    <div class="g4" style="margin-top:.85rem">
+      <div class="g4-item"><div class="g4-icon">💰</div><div class="g4-text"><strong>Costo</strong><span>Probar toda la población puede ser prohibitivamente caro.</span></div></div>
+      <div class="g4-item"><div class="g4-icon">⏱</div><div class="g4-text"><strong>Tiempo</strong><span>Las muestras permiten obtener resultados mucho más rápido.</span></div></div>
+      <div class="g4-item"><div class="g4-icon">🔧</div><div class="g4-text"><strong>Practicidad</strong><span>En muchos casos la población es inaccesible en su totalidad.</span></div></div>
+      <div class="g4-item"><div class="g4-icon">🎯</div><div class="g4-text"><strong>Precisión</strong><span>Con diseño correcto, los resultados son estadísticamente válidos.</span></div></div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · Muestreo</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S14: PYTHON -->
+<div class="slide s-code">
+  <div class="sh" style="background:rgba(255,255,255,.06);color:#93c5fd">🐍 Python: Simulación de Muestreo <span class="sn" style="color:#475569">14 / 18</span></div>
+  <div class="sc">
+    <p style="font-size:.85rem;color:#94a3b8;margin-bottom:.5rem">Demostramos que una muestra de solo 100 empleados (1%) estima la media de 10,000:</p>
+<pre>import numpy as np
+np.random.seed(42)
+
+# Generamos una población de 10,000 salarios
+poblacion = np.random.normal(1000, 500, 10000)
+
+# Tomamos una muestra de 100 empleados (solo el 1%)
+muestra = np.random.choice(poblacion, 100, replace=False)
+
+print(f"Media Real (Población):  ${poblacion.mean():.2f}")
+print(f"Media Estimada (Muestra): ${muestra.mean():.2f}")
+print(f"Diferencia:              ${abs(poblacion.mean()-muestra.mean()):.2f}")</pre>
+    <div class="out">
+      Media Real (Población):  $999.87<br>
+      Media Estimada (Muestra): $1004.52<br>
+      Diferencia:              $4.65
+    </div>
+    <p style="font-size:.82rem;color:#6ee7b7;margin-top:.5rem">✅ Con solo el 1% de los datos, el error es de <strong>$4.65</strong> — menos del 0.5%.</p>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 1 · Python</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S15: R -->
+<div class="slide s-code">
+  <div class="sh" style="background:rgba(255,255,255,.06);color:#86efac">📊 R: Simulación de Muestreo <span class="sn" style="color:#475569">15 / 18</span></div>
+  <div class="sc">
+    <p style="font-size:.85rem;color:#94a3b8;margin-bottom:.5rem">El mismo análisis en R — idéntico resultado, diferente sintaxis:</p>
+<pre>set.seed(42)
+
+# Generamos una población de 10,000 salarios
+poblacion &lt;- rnorm(10000, mean = 1000, sd = 500)
+
+# Tomamos una muestra de 100 empleados
+muestra &lt;- sample(poblacion, size = 100, replace = FALSE)
+
+cat(sprintf("Media Real (Población):   $%.2f\n", mean(poblacion)))
+cat(sprintf("Media Estimada (Muestra): $%.2f\n", mean(muestra)))
+cat(sprintf("Representatividad:        %.1f%%\n",
+            length(muestra)/length(poblacion)*100))</pre>
+    <div class="out">
+      Media Real (Población):   $999.87<br>
+      Media Estimada (Muestra): $1004.52<br>
+      Representatividad:        1.0%
+    </div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 1 · R</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S16: ÉTICA -->
+<div class="slide s-body">
+  <div class="sh">⚖️ Ética y Valores del Analista de Datos <span class="sn">16 / 18</span></div>
+  <div class="sc">
+    <p style="font-size:.9rem;color:var(--tm);margin-bottom:1rem">Como futuros profesionales, debemos actuar con:</p>
+    <div class="two-col">
+      <div style="background:#fef3c7;border-radius:8px;padding:1.1rem;border-left:3px solid var(--am)">
+        <div style="font-weight:700;font-size:.95rem;color:#92400e;margin-bottom:.5rem">🎯 Honestidad y Ética</div>
+        <p style="font-size:.83rem;color:#78350f">Vitales para evitar sesgos y desinformación. Un dato manipulado puede destruir la confianza en una organización y llevar a decisiones empresariales incorrectas.</p>
+      </div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:1.1rem;border-left:3px solid var(--gr)">
+        <div style="font-weight:700;font-size:.95rem;color:#166534;margin-bottom:.5rem">🧠 Pensamiento Crítico</div>
+        <p style="font-size:.83rem;color:#14532d">Analizar causas y soluciones considerando implicaciones éticas. No aceptar datos sin cuestionarlos. Reportar siempre las limitaciones del análisis.</p>
+      </div>
+    </div>
+    <div class="tip-box" style="margin-top:1rem"><div class="def-label">💡 Recuerda</div><div class="def-text">Los datos no mienten, pero las personas pueden interpretarlos de forma sesgada. Tu responsabilidad como analista es presentar los resultados con objetividad y transparencia.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 1 · Ética</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S17: PUNTOS CLAVE -->
+<div class="slide s-dark">
+  <div class="sh">Puntos Clave de la Semana 1 <span class="sn" style="color:#475569">17 / 18</span></div>
+  <div class="sc">
+    <h1 class="title" style="color:#93c5fd;font-size:1.3rem;margin-bottom:1.25rem">Lo que debes recordar:</h1>
+    <ul class="kp-list">
+      <li><div class="kp-num">1</div><div class="kp-text">La estadística <strong style="color:#93c5fd">transforma datos en decisiones</strong> — es la herramienta central de Gestión de Data.</div></li>
+      <li><div class="kp-num">2</div><div class="kp-text">La <strong style="color:#93c5fd">descriptiva</strong> resume lo que pasó; la <strong style="color:#93c5fd">inferencial</strong> predice lo que podría ocurrir.</div></li>
+      <li><div class="kp-num">3</div><div class="kp-text">Muestra <code style="background:rgba(255,255,255,.1);padding:.1rem .35rem;border-radius:3px">(n)</code> es subconjunto de Población <code style="background:rgba(255,255,255,.1);padding:.1rem .35rem;border-radius:3px">(N)</code>. Bien seleccionada, permite inferir sobre el todo.</div></li>
+      <li><div class="kp-num">4</div><div class="kp-text">La selección de la muestra debe ser <strong style="color:#93c5fd">ética y científica</strong> para evitar sesgos que invaliden el análisis.</div></li>
+      <li><div class="kp-num">5</div><div class="kp-text">Python y R permiten simular muestreos con <code style="background:rgba(255,255,255,.1);padding:.1rem .35rem;border-radius:3px">np.random.choice()</code> y <code style="background:rgba(255,255,255,.1);padding:.1rem .35rem;border-radius:3px">sample()</code>.</div></li>
+    </ul>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.3)"><span>Estadística · ISTER</span><span>Semana 1 · Resumen</span><span>20 abr 2026</span></div>
+</div>
+
+<!-- S18: CIERRE -->
+<div class="slide s-title">
+  <div style="font-size:3rem;margin-bottom:1.5rem">🎓</div>
+  <div class="tit" style="font-size:2rem">¿Preguntas?</div>
+  <div class="sub" style="font-size:1rem;margin-top:.5rem">Próxima semana:</div>
+  <div style="font-size:1.2rem;font-weight:700;color:#93c5fd;margin-top:.5rem">Técnicas de Muestreo y Tipos de Variables</div>
+  <div style="margin-top:2rem;font-size:.85rem;opacity:.6">Semana 2 · 27 de abril, 2026</div>
+  <div style="margin-top:1.5rem;font-size:.82rem;opacity:.5;border-top:1px solid rgba(255,255,255,.12);padding-top:1rem">Ing. David Minango, PhD. · Instituto Superior Tecnológico Rumiñahui</div>
+</div>
+
+</div><!-- end deck -->
+
+<div id="controls">
+  <span id="counter">1 / 18</span>
+  <div id="dots"></div>
+  <div class="nav-btns">
+    <button class="nbtn prev" id="prevBtn" onclick="move(-1)" disabled>← Anterior</button>
+    <button class="nbtn next" id="nextBtn" onclick="move(1)">Siguiente →</button>
+    <button id="fsBtn" onclick="toggleFS()" title="Pantalla completa">⛶</button>
+  </div>
+</div>
+
+<script>
+const slides=document.querySelectorAll('.slide');
+const total=slides.length;
+let cur=0;
+const prog=document.getElementById('progress');
+const counter=document.getElementById('counter');
+const prevBtn=document.getElementById('prevBtn');
+const nextBtn=document.getElementById('nextBtn');
+const dotsEl=document.getElementById('dots');
+
+// Build dots
+for(let i=0;i<total;i++){
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' on':'');
+  d.onclick=()=>go(i);
+  dotsEl.appendChild(d);
+}
+
+function go(n){
+  slides[cur].classList.remove('on');
+  dotsEl.children[cur].classList.remove('on');
+  cur=Math.max(0,Math.min(n,total-1));
+  slides[cur].classList.add('on');
+  dotsEl.children[cur].classList.add('on');
+  prog.style.width=((cur+1)/total*100)+'%';
+  counter.textContent=(cur+1)+' / '+total;
+  prevBtn.disabled=cur===0;
+  nextBtn.disabled=cur===total-1;
+  nextBtn.textContent=cur===total-1?'✓ Fin':'Siguiente →';
+}
+
+function move(dir){go(cur+dir);}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ')move(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')move(-1);
+});
+
+function toggleAns(el){
+  const a=el.querySelector('.answer');
+  a.style.display=a.style.display==='inline-block'?'none':'inline-block';
+}
+
+function toggleFS(){
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+</script>
+</body>
+</html>

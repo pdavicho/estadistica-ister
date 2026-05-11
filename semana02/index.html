@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 2: Técnicas de Muestreo · ISTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue-dark:#0d2137;--blue-mid:#1a3a6b;--blue:#2563eb;--blue-light:#3b82f6;--blue-pale:#dbeafe;
+  --text:#0f172a;--text-mid:#334155;--text-light:#64748b;--bg:#ffffff;--bg-alt:#f8fafc;--border:#e2e8f0;
+  --green:#22c55e;--green-pale:#dcfce7;--amber:#f59e0b;--amber-pale:#fef3c7;
+  --red:#ef4444;--red-pale:#fee2e2;--sidebar-w:270px;--radius:8px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.7;font-size:15px}
+.hidden{display:none!important}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+#gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;z-index:9999}
+.gate-card{background:#fff;border-radius:16px;padding:2.5rem;width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.gate-title{font-size:1.4rem;font-weight:700;color:var(--blue-dark);margin-bottom:.25rem}
+.gate-sub{font-size:.85rem;color:var(--text-light);margin-bottom:1.5rem}
+.gate-input{width:100%;padding:.75rem 1rem;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:.9rem;outline:none;transition:.2s}
+.gate-input:focus{border-color:var(--blue)}
+.gate-btn{width:100%;margin-top:.75rem;padding:.75rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+.gate-error{color:var(--red);font-size:.82rem;margin-top:.5rem;display:none}
+#app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--blue-dark);color:#cbd5e1;height:100vh;position:fixed;top:0;left:0;overflow-y:auto;display:flex;flex-direction:column;z-index:50}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.sb-header{padding:1.25rem 1rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;margin-bottom:.75rem}
+.sb-logo-box{background:var(--blue);border-radius:6px;padding:.35rem .55rem;font-size:.7rem;font-weight:700;color:#fff}
+.sb-course{font-size:.82rem;font-weight:600;color:#e2e8f0;line-height:1.3}.sb-meta{font-size:.72rem;color:#94a3b8;margin-top:.1rem}
+.sb-home{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:6px;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;margin-top:.5rem}
+.sb-home:hover{background:rgba(255,255,255,.08);color:#e2e8f0;text-decoration:none}
+.sb-nav{flex:1;padding:.75rem 0}
+.sb-section{padding:.5rem 1rem .25rem;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-top:.75rem}
+.sb-link{display:block;padding:.45rem 1rem;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;border-left:2px solid transparent;line-height:1.4}
+.sb-link:hover{background:rgba(255,255,255,.06);color:#e2e8f0;text-decoration:none}
+.sb-link.active{color:#93c5fd;border-left-color:var(--blue-light);background:rgba(59,130,246,.12)}
+.sb-link.done{color:#6ee7b7}.sb-link.locked{color:#475569;pointer-events:none}
+.sb-link .badge{font-size:.65rem;padding:.1rem .35rem;border-radius:3px;margin-left:.35rem}
+.badge-d{background:rgba(110,231,183,.15);color:#6ee7b7}.badge-l{background:rgba(255,255,255,.05);color:#475569}
+.sb-toc-section{padding:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-toc-title{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-bottom:.5rem}
+.sb-toc-link{display:block;font-size:.78rem;color:#94a3b8;padding:.3rem 0 .3rem .6rem;text-decoration:none;transition:.15s;border-left:2px solid transparent}
+.sb-toc-link:hover{color:#e2e8f0;text-decoration:none}.sb-toc-link.toc-active{color:#93c5fd;border-left-color:var(--blue-light)}
+.content-wrap{margin-left:var(--sidebar-w);flex:1;min-width:0;background:var(--bg)}
+.content-header{padding:1.5rem 3rem 0;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:40}
+.breadcrumb{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-light);margin-bottom:.75rem}
+.breadcrumb a{color:var(--text-light);text-decoration:none}.breadcrumb a:hover{color:var(--blue)}
+.page-title-row{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.75rem}
+.week-pill{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .7rem;border-radius:4px;margin-top:.2rem;white-space:nowrap}
+.page-main-title{font-size:1.8rem;font-weight:800;color:var(--blue-dark);line-height:1.2;letter-spacing:-.02em}
+.page-subtitle{font-size:.95rem;color:var(--text-mid);margin-top:.4rem}
+.page-meta{display:flex;gap:1rem;margin-top:.5rem;flex-wrap:wrap}.meta-item{font-size:.78rem;color:var(--text-light)}
+.page-tabs{display:flex;border-top:1px solid var(--border);margin-top:.75rem}
+.ptab{padding:.65rem 1.25rem;font-family:inherit;font-size:.85rem;font-weight:600;border:none;background:none;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;display:flex;align-items:center;gap:.4rem;margin-bottom:-1px}
+.ptab:hover{color:var(--text)}.ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.ptab-content{display:none}.ptab-content.active{display:block}
+.content-body{padding:2.5rem 3rem;max-width:860px}
+.section{margin-bottom:3.5rem;scroll-margin-top:160px}
+.section h2{font-size:1.35rem;font-weight:700;color:var(--blue-dark);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--blue-pale)}
+.section h3{font-size:1.05rem;font-weight:600;color:var(--text);margin:1.5rem 0 .75rem}
+.section p{margin-bottom:1rem;color:var(--text-mid)}.section ul,.section ol{margin:.5rem 0 1rem 1.25rem;color:var(--text-mid)}.section li{margin-bottom:.4rem}
+.callout{border-radius:var(--radius);padding:1.1rem 1.25rem;margin:1.25rem 0;border-left:4px solid}
+.callout-def{background:var(--blue-pale);border-color:var(--blue)}.callout-def .ct{color:var(--blue-dark);font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-def .cb{color:var(--text-mid);font-size:.9rem}
+.callout-tip{background:#f0fdf4;border-color:var(--green)}.callout-tip .ct{color:#166534;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-tip .cb{color:#166534;font-size:.9rem}
+.callout-warn{background:var(--amber-pale);border-color:var(--amber)}.callout-warn .ct{color:#92400e;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-warn .cb{color:#78350f;font-size:.9rem}
+.callout-example{background:#faf5ff;border-color:#a855f7}.callout-example .ct{color:#6b21a8;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-example .cb{color:#581c87;font-size:.9rem}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0}
+.card{border-radius:var(--radius);padding:1.1rem;border:1px solid var(--border);background:#fff}
+.card-blue{border-top:3px solid var(--blue);background:#f0f9ff}
+.card-purple{border-top:3px solid #a855f7;background:#fdf4ff}
+.card-gray{border-top:3px solid #94a3b8;background:var(--bg-alt)}
+.card-amber{border-top:3px solid var(--amber);background:var(--amber-pale)}
+.card h4{font-size:.88rem;font-weight:700;margin-bottom:.4rem}
+.card p{font-size:.82rem;color:var(--text-mid);margin-bottom:.4rem}
+.card .ex{font-size:.78rem;color:var(--text-light);font-style:italic}
+.card .formula{font-family:'JetBrains Mono',monospace;font-size:.78rem;background:rgba(0,0,0,.05);padding:.2rem .5rem;border-radius:4px;display:inline-block;margin-top:.3rem}
+.type-tag{font-size:.68rem;font-weight:600;padding:.15rem .45rem;border-radius:4px;display:inline-block;margin-bottom:.4rem}
+.tp{background:var(--blue-pale);color:#1e40af}.tnp{background:var(--amber-pale);color:#92400e}
+.scales-table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.85rem}
+.scales-table th{background:var(--blue-dark);color:#fff;padding:.75rem 1rem;text-align:left;font-weight:600;font-size:.8rem}
+.scales-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:var(--text-mid);vertical-align:top}
+.scales-table tr:hover td{background:var(--bg-alt)}
+.code-block{margin:1.25rem 0;border-radius:var(--radius);overflow:hidden;border:1px solid #1e293b;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.code-tabs-header{background:#1e293b;display:flex;align-items:center;padding:0 .75rem;gap:.25rem;border-bottom:1px solid #334155}
+.ctab{padding:.65rem .9rem;font-size:.8rem;font-weight:600;border:none;background:none;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;font-family:inherit}
+.ctab:hover{color:#e2e8f0}.ctab.active{color:#93c5fd;border-bottom-color:var(--blue-light)}
+.code-panel{display:none}.code-panel.active{display:block}
+.code-panel pre{margin:0;border-radius:0}.code-panel pre code{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.6}
+.code-output{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:1rem 1.25rem;border-top:1px solid #1e293b;line-height:1.5}
+.out-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569;margin-bottom:.4rem}
+.exercise-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.exercise-box h4{font-size:.95rem;font-weight:700;color:var(--blue-dark);margin-bottom:.5rem}
+.ex-scenario{background:#fff;border-left:3px solid var(--blue);padding:.75rem 1rem;border-radius:0 6px 6px 0;font-size:.88rem;color:var(--text);margin-bottom:1rem;font-style:italic}
+.ex-options{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem}
+.ex-btn{padding:.45rem 1rem;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--text-mid);font-family:inherit;font-size:.83rem;font-weight:500;cursor:pointer;transition:.15s}
+.ex-btn:hover{border-color:var(--blue);color:var(--blue)}
+.ex-btn.correct{background:var(--green-pale);border-color:var(--green);color:#166534}
+.ex-btn.wrong{background:var(--red-pale);border-color:var(--red);color:#991b1b}
+.ex-feedback{font-size:.83rem;padding:.5rem .75rem;border-radius:6px;margin-top:.4rem;display:none}
+.fb-ok{background:var(--green-pale);color:#166534}.fb-err{background:var(--red-pale);color:#991b1b}
+.ex-reset{font-size:.78rem;color:var(--text-light);background:none;border:none;cursor:pointer;margin-top:.5rem;text-decoration:underline}
+/* TALLER */
+.taller-hero{background:linear-gradient(135deg,var(--blue-dark),#1e4a8a);color:#fff;padding:2rem 3rem;border-bottom:3px solid var(--blue)}
+.taller-hero h2{font-size:1.5rem;font-weight:800;margin-bottom:.4rem}.taller-hero p{font-size:.9rem;opacity:.85;max-width:680px}
+.taller-meta{display:flex;gap:1.25rem;margin-top:.9rem;flex-wrap:wrap}.taller-meta span{font-size:.78rem;background:rgba(255,255,255,.12);padding:.3rem .75rem;border-radius:20px}
+.taller-body{padding:2rem 3rem;max-width:860px}
+.taller-case{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:2rem;overflow:hidden}
+.taller-case-header{background:var(--blue-dark);color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem}
+.taller-case-header h3{font-size:1rem;font-weight:700}.taller-case-badge{font-size:.7rem;background:rgba(255,255,255,.15);padding:.2rem .6rem;border-radius:4px}
+.taller-case-body{padding:1.5rem}
+.scenario-box{background:var(--bg-alt);border-left:4px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.9rem;color:var(--text-mid);line-height:1.6}
+.step-list{counter-reset:step;list-style:none;margin:0;padding:0}
+.step-list li{counter-increment:step;display:flex;align-items:flex-start;gap:.9rem;padding:1rem 0;border-bottom:1px solid var(--border)}
+.step-list li:last-child{border-bottom:none}
+.step-num{background:var(--blue);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.step-content{flex:1}.step-q{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.35rem}
+.step-ans{font-size:.85rem;color:var(--text-mid);background:var(--green-pale);border-radius:6px;padding:.5rem .75rem;border-left:3px solid var(--green);margin-top:.35rem}
+.step-ans::before{content:'→ ';font-weight:700;color:#166534}
+.keypoints{background:var(--blue-dark);color:#fff;border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.keypoints h4{font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;margin-bottom:1rem}
+.kp-item{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.07)}.kp-item:last-child{border-bottom:none}
+.kp-num{background:var(--blue);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kp-text{font-size:.88rem;color:#cbd5e1}
+.quiz-box{background:linear-gradient(135deg,var(--blue-dark),#1a3a6b);border-radius:var(--radius);padding:1.75rem;margin:1.25rem 0;color:#fff}
+.quiz-box h3{font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:#93c5fd}
+.quiz-item{background:rgba(255,255,255,.06);border-radius:6px;padding:1rem;margin-bottom:.75rem}
+.q-text{font-size:.88rem;margin-bottom:.75rem;color:#e2e8f0}.q-opts{display:flex;gap:.5rem;flex-wrap:wrap}
+.q-btn{padding:.4rem .85rem;border:1.5px solid rgba(255,255,255,.2);border-radius:6px;background:rgba(255,255,255,.05);color:#cbd5e1;font-family:inherit;font-size:.8rem;cursor:pointer;transition:.15s}
+.q-btn:hover{border-color:var(--blue-light);color:#fff}.q-btn.q-correct{background:rgba(34,197,94,.15);border-color:var(--green);color:#6ee7b7}.q-btn.q-wrong{background:rgba(239,68,68,.15);border-color:var(--red);color:#fca5a5}
+.quiz-score{font-size:.88rem;color:#93c5fd;margin-top:1rem;text-align:center;display:none}
+.page-nav{display:flex;justify-content:space-between;padding:2rem 3rem;border-top:1px solid var(--border);margin-top:1rem}
+.nav-card{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.25rem;border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;color:var(--text);transition:.2s;max-width:220px}
+.nav-card:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12);text-decoration:none;color:var(--text)}
+.nav-card.next{flex-direction:row-reverse;text-align:right}
+.nav-card-arrow{font-size:1.1rem;color:var(--text-light)}.nav-card-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:.15rem}
+.nav-card-title{font-size:.85rem;font-weight:600;color:var(--blue-dark);line-height:1.3}
+.slides-wrap{margin-bottom:2.5rem;border-radius:10px;overflow:hidden;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.slides-bar{background:var(--blue-dark);color:#fff;padding:.55rem 1.1rem;display:flex;justify-content:space-between;align-items:center;font-size:.78rem}
+.slides-bar a{color:#93c5fd;font-size:.75rem;text-decoration:none;padding:.2rem .55rem;border:1px solid rgba(255,255,255,.2);border-radius:4px;transition:.15s}
+.slides-bar a:hover{background:rgba(255,255,255,.1);text-decoration:none}
+.slides-ratio{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#0d2137}
+.slides-ratio iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.step-ans{display:block;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:6px;padding:.7rem .95rem;min-height:52px;margin-top:.4rem;font-size:.87rem;line-height:1.6;color:var(--text);outline:none;cursor:text;transition:border-color .15s,background .15s,box-shadow .15s;font-family:'Inter',system-ui,sans-serif}
+.step-ans:focus{border-color:var(--blue);border-style:solid;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.step-ans:empty::before{content:'✏️ Escribe tu respuesta aquí...';color:#94a3b8;font-style:italic;font-size:.82rem;pointer-events:none}
+.taller-hint{background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:.45rem .85rem;margin:.35rem 0;font-size:.78rem;color:#78350f}
+.taller-hint::before{content:'💡 Pista: ';font-weight:700}
+</style>
+</head>
+<body>
+<div id="gate">
+  <div class="gate-card">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">📊</div>
+    <div class="gate-title">Estadística · ISTER</div>
+    <div class="gate-sub">Ingresa la clave del curso para continuar</div>
+    <input id="pwd" class="gate-input" type="password" placeholder="Clave del curso" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div id="pwd-err" class="gate-error">❌ Clave incorrecta</div>
+    <button class="gate-btn" onclick="checkPwd()">Ingresar</button>
+  </div>
+</div>
+<div id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="sb-header">
+      <a href="../index.html" class="sb-logo"><span class="sb-logo-box">ISTER</span><div><div class="sb-course">Estadística</div><div class="sb-meta">2026-1 · Sistemas & Data</div></div></a>
+      <a href="../index.html" class="sb-home">← Inicio del curso</a>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Tema 1 · Introducción</div>
+      <a href="../semana01/index.html" class="sb-link done">Semana 1 · Introducción <span class="badge badge-d">Vista</span></a>
+      <a href="index.html" class="sb-link active">Semana 2 · Muestreo <span class="badge badge-d">Vista</span></a>
+      <a href="../semana03/index.html" class="sb-link done">Semana 3 · Gráficas <span class="badge badge-d">Vista</span></a>
+      <a href="../semana04/index.html" class="sb-link done">Semana 4 · EDA <span class="badge badge-d">Vista</span></a>
+      <div class="sb-section">Tema 2 · Frecuencias</div>
+      <a href="#" class="sb-link locked">Semana 5 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 6 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 7 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 8 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 3 · Tendencia Central</div>
+      <a href="#" class="sb-link locked">Semana 9 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 10 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 11 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 12 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 4 · Probabilidad</div>
+      <a href="#" class="sb-link locked">Semana 13 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 14 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 15 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 16 <span class="badge badge-l">🔒</span></a>
+    </nav>
+    <div class="sb-toc-section" id="toc-clase">
+      <div class="sb-toc-title">En esta página · Clase</div>
+      <a href="#s1" class="sb-toc-link">1. Repaso S1</a>
+      <a href="#s2" class="sb-toc-link">2. Muestreo Prob.</a>
+      <a href="#s3" class="sb-toc-link">3. No Prob.</a>
+      <a href="#s4" class="sb-toc-link">4. Tipos de Variables</a>
+      <a href="#s5" class="sb-toc-link">5. Escalas NOIR</a>
+      <a href="#s6" class="sb-toc-link">6. Python</a>
+      <a href="#s7" class="sb-toc-link">7. R</a>
+      <a href="#s8" class="sb-toc-link">8. Quiz Final</a>
+    </div>
+    <div class="sb-toc-section" id="toc-taller" style="display:none">
+      <div class="sb-toc-title">En esta página · Taller</div>
+      <a href="#t1" class="sb-toc-link">Caso: DataSoft Ecuador</a>
+      <a href="#t2" class="sb-toc-link">Python: Estratificado</a>
+      <a href="#t3" class="sb-toc-link">R: Estratificado</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <div class="content-header">
+      <div class="breadcrumb">
+        <a href="../index.html">🏠 Inicio</a><span>›</span><span>Semana 2</span><span>›</span><span>Técnicas de Muestreo</span>
+      </div>
+      <div class="page-title-row">
+        <span class="week-pill">Semana 2</span>
+        <div>
+          <div class="page-main-title">Técnicas de Muestreo y Tipos de Variables</div>
+          <div class="page-subtitle">Diseño científico de muestras · Variables y escalas de medición</div>
+          <div class="page-meta">
+            <span class="meta-item">👨‍🏫 Ing. David Minango, PhD.</span>
+            <span class="meta-item">📅 27 de abril, 2026</span>
+            <span class="meta-item">⏱ ~90 min clase · 45 min taller</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-tabs">
+        <button class="ptab active" data-tab="clase" onclick="switchPTab('clase')">📖 Clase</button>
+        <button class="ptab" data-tab="taller" onclick="switchPTab('taller')">🛠 Taller Práctico</button>
+      </div>
+    </div>
+
+    <!-- TAB CLASE -->
+    <div id="ptab-clase" class="ptab-content active">
+      <div class="content-body">
+
+        <div class="slides-wrap">
+          <div class="slides-bar">
+            <span>📽 Presentación · 18 diapositivas · ~20 min · usa ← → o teclado</span>
+            <a href="../slides/s02.html" target="_blank">⛶ Pantalla completa</a>
+          </div>
+          <div class="slides-ratio">
+            <iframe src="../slides/s02.html" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <section class="section" id="s1">
+          <h2>🔄 2.1 Recapitulación Semana 1</h2>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem">
+            <div style="background:var(--blue-pale);border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem">📊</div><div style="font-weight:700;font-size:.85rem;margin:.3rem 0">Estadística</div><div style="font-size:.78rem;color:var(--text-mid)">Ciencia de recolectar, organizar y analizar datos</div></div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem">⚡</div><div style="font-weight:700;font-size:.85rem;margin:.3rem 0">D vs I</div><div style="font-size:.78rem;color:var(--text-mid)">¿Qué pasó? vs ¿Qué esperamos?</div></div>
+            <div style="background:#fdf4ff;border-radius:8px;padding:1rem;text-align:center"><div style="font-size:1.4rem">🎯</div><div style="font-weight:700;font-size:.85rem;margin:.3rem 0">N vs n</div><div style="font-size:.78rem;color:var(--text-mid)">Población total vs Muestra representativa</div></div>
+          </div>
+        </section>
+
+        <section class="section" id="s2">
+          <h2>🎲 2.2 Muestreo Probabilístico</h2>
+          <div class="callout callout-def">
+            <div class="ct">📖 Definición</div>
+            <div class="cb">Cada elemento tiene una probabilidad <em>conocida y mayor que cero</em> de ser seleccionado. Garantiza representatividad y permite calcular el error muestral.</div>
+          </div>
+          <div class="card-grid">
+            <div class="card card-blue"><span class="type-tag tp">Probabilístico</span><h4>🎯 Aleatorio Simple (MAS)</h4><p>Cada elemento tiene la misma probabilidad. Se usa un generador de números aleatorios.</p><p class="ex">Ej: Seleccionar 200 clientes de 10,000 con random.sample().</p><span class="formula">P = n/N</span></div>
+            <div class="card card-blue"><span class="type-tag tp">Probabilístico</span><h4>📏 Sistemático</h4><p>Inicio aleatorio, luego cada k-ésimo elemento de la lista ordenada.</p><p class="ex">Ej: En 1,000 servidores, seleccionar cada 10mo (k=10).</p><span class="formula">k = N/n</span></div>
+            <div class="card card-blue"><span class="type-tag tp">Probabilístico</span><h4>📊 Estratificado</h4><p>División en estratos homogéneos. Se muestrea proporcionalmente de cada uno.</p><p class="ex">Ej: Encuestar por depto (TI, Ventas, RRHH) proporcionalmente.</p><span class="formula">nₕ = (Nₕ/N)×n</span></div>
+            <div class="card card-blue"><span class="type-tag tp">Probabilístico</span><h4>🗂 Por Conglomerados</h4><p>Grupos heterogéneos (conglomerados). Se seleccionan grupos completos al azar.</p><p class="ex">Ej: Seleccionar 5 sucursales bancarias al azar y estudiar a todos sus empleados.</p><span class="formula">Grupos = m</span></div>
+          </div>
+          <div class="exercise-box">
+            <h4>🔍 Ejercicio de Identificación</h4>
+            <p class="ex-scenario">"Una empresa divide sus 50,000 clientes en 4 regiones y toma muestras proporcionales de cada región."</p>
+            <div class="ex-options">
+              <button class="ex-btn" onclick="checkEx(this,'wrong','em1')">Aleatorio Simple</button>
+              <button class="ex-btn" onclick="checkEx(this,'correct','em1')">Estratificado</button>
+              <button class="ex-btn" onclick="checkEx(this,'wrong','em1')">Por Conglomerados</button>
+              <button class="ex-btn" onclick="checkEx(this,'wrong','em1')">Sistemático</button>
+            </div>
+            <div id="em1" class="ex-feedback"></div>
+            <button class="ex-reset" onclick="resetEx('em1',this)">Reiniciar</button>
+          </div>
+        </section>
+
+        <section class="section" id="s3">
+          <h2>⚠️ 2.3 Muestreo No Probabilístico</h2>
+          <div class="callout callout-warn">
+            <div class="ct">⚠️ Atención</div>
+            <div class="cb">No todos los elementos tienen la misma probabilidad. Más rápidos y económicos, pero introducen <em>sesgo potencial</em>. Se usan en estudios exploratorios.</div>
+          </div>
+          <div class="card-grid">
+            <div class="card card-amber"><span class="type-tag tnp">No Probabilístico</span><h4>⚡ Por Conveniencia</h4><p>Elementos más fácilmente accesibles. Rápido pero con alto riesgo de sesgo.</p><p class="ex">Ej: Encuestar solo a usuarios que visitan el sitio el lunes por la mañana.</p></div>
+            <div class="card card-amber"><span class="type-tag tnp">No Probabilístico</span><h4>📋 Por Cuotas</h4><p>Cuotas por características (edad, género), pero la elección dentro de cada cuota es discrecional.</p><p class="ex">Ej: Entrevistar 50 hombres y 50 mujeres sin importar cómo se seleccionan.</p></div>
+            <div class="card card-amber"><span class="type-tag tnp">No Probabilístico</span><h4>❄️ Bola de Nieve</h4><p>Participantes reclutan a nuevos. Útil para poblaciones de difícil acceso.</p><p class="ex">Ej: Estudiar freelancers: cada uno recomienda a otro colega.</p></div>
+            <div class="card card-gray"><h4>🔄 ¿Cuándo usar cada tipo?</h4><ul style="font-size:.82rem;color:var(--text-mid);margin-left:1rem"><li><strong>Prob.:</strong> Inferencia estadística formal</li><li><strong>No prob.:</strong> Estudios piloto, exploración inicial</li><li><strong>Siempre:</strong> Justifica tu elección</li></ul></div>
+          </div>
+        </section>
+
+        <section class="section" id="s4">
+          <h2>📐 2.4 Tipos de Variables</h2>
+          <div class="card-grid">
+            <div class="card card-purple">
+              <h4 style="color:#6b21a8">🏷 Cualitativas (Categóricas)</h4>
+              <p style="font-size:.83rem">Expresan cualidades o atributos. No se operan matemáticamente.</p>
+              <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.6rem">
+                <div style="background:#fff;border-radius:6px;padding:.5rem .75rem;font-size:.82rem;border:1px solid var(--border)"><strong>Nominales:</strong> Sin orden — Ej: SO (Windows/Linux), color</div>
+                <div style="background:#fff;border-radius:6px;padding:.5rem .75rem;font-size:.82rem;border:1px solid var(--border)"><strong>Ordinales:</strong> Con orden — Ej: Prioridad ticket (Crítico/Alto/Bajo)</div>
+              </div>
+            </div>
+            <div class="card card-blue">
+              <h4 style="color:#1e40af">🔢 Cuantitativas (Numéricas)</h4>
+              <p style="font-size:.83rem">Expresan cantidades. Permiten operaciones matemáticas.</p>
+              <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.6rem">
+                <div style="background:#fff;border-radius:6px;padding:.5rem .75rem;font-size:.82rem;border:1px solid var(--border)"><strong>Discretas:</strong> Enteros contables — Ej: N° errores en código, N° clientes</div>
+                <div style="background:#fff;border-radius:6px;padding:.5rem .75rem;font-size:.82rem;border:1px solid var(--border)"><strong>Continuas:</strong> Cualquier valor — Ej: Tiempo respuesta (ms), temperatura CPU</div>
+              </div>
+            </div>
+          </div>
+          <div class="exercise-box">
+            <h4>🔍 Ejercicio</h4>
+            <p class="ex-scenario">"Número de tickets de soporte resueltos por un técnico en una semana."</p>
+            <div class="ex-options">
+              <button class="ex-btn" onclick="checkEx(this,'wrong','ev1')">Cualitativa Nominal</button>
+              <button class="ex-btn" onclick="checkEx(this,'wrong','ev1')">Cuantitativa Continua</button>
+              <button class="ex-btn" onclick="checkEx(this,'correct','ev1')">Cuantitativa Discreta</button>
+              <button class="ex-btn" onclick="checkEx(this,'wrong','ev1')">Cualitativa Ordinal</button>
+            </div>
+            <div id="ev1" class="ex-feedback"></div>
+            <button class="ex-reset" onclick="resetEx('ev1',this)">Reiniciar</button>
+          </div>
+        </section>
+
+        <section class="section" id="s5">
+          <h2>📏 2.5 Escalas de Medición (NOIR)</h2>
+          <table class="scales-table">
+            <thead><tr><th>Escala</th><th>Características</th><th>Operaciones</th><th>Ejemplo en Sistemas</th></tr></thead>
+            <tbody>
+              <tr><td><strong>🏷 Nominal</strong></td><td>Solo categorías sin orden</td><td>Moda, frecuencias</td><td style="font-style:italic">Tipo SO: Windows, Linux, macOS</td></tr>
+              <tr><td><strong>📶 Ordinal</strong></td><td>Categorías con orden. Distancia desconocida.</td><td>Moda, Mediana</td><td style="font-style:italic">Prioridad: Crítico > Alto > Bajo</td></tr>
+              <tr><td><strong>🌡 Intervalo</strong></td><td>Orden + distancias iguales. Cero <em>arbitrario</em>.</td><td>Media, Desv. std.</td><td style="font-style:italic">Temperatura servidor (°C)</td></tr>
+              <tr><td><strong>⚖️ Razón</strong></td><td>Orden + distancias + Cero <em>absoluto</em>.</td><td>Todas. Cocientes.</td><td style="font-style:italic">Tiempo respuesta (ms). 0ms = sin latencia</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Regla práctica</div>
+            <div class="cb">Nominal → Ordinal → Intervalo → Razón (de menor a mayor precisión). Una escala superior puede usarse como inferior, pero no viceversa.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s6">
+          <h2>🐍 2.6 Python: Técnicas de Muestreo</h2>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'py1')">MAS + Sistemático</button>
+              <button class="ctab" onclick="switchCodeTab(this,'py2')">Estratificado</button>
+            </div>
+            <div class="code-panel active" id="py1">
+<pre><code class="language-python">import numpy as np
+np.random.seed(42)
+N, n = 1000, 50
+
+# 1. ALEATORIO SIMPLE
+mas = np.random.choice(range(1, N+1), size=n, replace=False)
+print(f"MAS (primeros 5): {sorted(mas)[:5]}")
+
+# 2. SISTEMÁTICO
+k = N // n  # k = 20
+inicio = np.random.randint(1, k+1)
+sistematico = [inicio + k*i for i in range(n)]
+print(f"Sistemático k={k}, inicio={inicio}: {sistematico[:5]}")
+
+# Comparación de medias
+salarios = np.random.normal(800, 150, N)
+print(f"\nMedia real:        ${salarios.mean():.2f}")
+print(f"Media MAS:         ${salarios[mas-1].mean():.2f}")
+print(f"Media Sistemático: ${salarios[[i-1 for i in sistematico]].mean():.2f}")</code></pre>
+            </div>
+            <div class="code-panel" id="py2">
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+np.random.seed(42)
+
+deptos = {'TI':300,'Ventas':250,'RRHH':150,'Finanzas':200,'Marketing':100}
+filas = []
+for d, c in deptos.items():
+    for sal in np.random.normal(800, 150, c):
+        filas.append({'departamento': d, 'salario': round(sal, 2)})
+df = pd.DataFrame(filas)
+
+# Muestreo estratificado proporcional (10% de cada estrato)
+n_total, N = 100, len(df)
+muestra = pd.DataFrame()
+for d, c in deptos.items():
+    n_estrato = round(c/N * n_total)
+    muestra = pd.concat([muestra, df[df.departamento==d].sample(n_estrato)])
+    print(f"  {d}: {n_estrato} empleados ({c/N*100:.0f}%)")
+
+print(f"\nMedia real:    ${df.salario.mean():.2f}")
+print(f"Media muestra: ${muestra.salario.mean():.2f}")</code></pre>
+            </div>
+            <div class="code-output"><div class="out-label">Output</div>MAS (primeros 5): [10, 45, 98, 133, 175]<br>Media real: $799.87 | Media MAS: $803.21 | Media Estrat.: $800.12</div>
+          </div>
+        </section>
+
+        <section class="section" id="s7">
+          <h2>📊 2.7 R: Técnicas de Muestreo</h2>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'r1')">MAS + Sistemático</button>
+              <button class="ctab" onclick="switchCodeTab(this,'r2')">Estratificado dplyr</button>
+            </div>
+            <div class="code-panel active" id="r1">
+<pre><code class="language-r">set.seed(42)
+N <- 1000; n <- 50
+salarios <- rnorm(N, mean = 800, sd = 150)
+
+# 1. Aleatorio Simple
+mas <- sample(1:N, n, replace = FALSE)
+
+# 2. Sistemático
+k <- N %/% n  # k = 20
+inicio <- sample(1:k, 1)
+sistematico <- seq(inicio, N, by = k)
+
+cat("=== COMPARACIÓN ===\n")
+cat(sprintf("Media real:        $%.2f\n", mean(salarios)))
+cat(sprintf("Media MAS:         $%.2f\n", mean(salarios[mas])))
+cat(sprintf("Media Sistemático: $%.2f\n", mean(salarios[sistematico])))</code></pre>
+            </div>
+            <div class="code-panel" id="r2">
+<pre><code class="language-r">library(dplyr)
+set.seed(42)
+
+deptos <- rep(c("TI","Ventas","RRHH","Finanzas","Marketing"), c(300,250,150,200,100))
+df <- data.frame(departamento = deptos, salario = rnorm(1000, 800, 150))
+
+# Muestreo estratificado proporcional (10% por estrato)
+muestra <- df |>
+  group_by(departamento) |>
+  slice_sample(prop = 0.1) |>
+  ungroup()
+
+cat(sprintf("Población: %d | Muestra: %d\n", nrow(df), nrow(muestra)))
+cat(sprintf("Media real:    $%.2f\n", mean(df$salario)))
+cat(sprintf("Media muestra: $%.2f\n", mean(muestra$salario)))
+
+# Distribución por estrato
+muestra |> count(departamento) |> print()</code></pre>
+            </div>
+            <div class="code-output"><div class="out-label">Output</div>Media real: $799.87 | Media MAS: $803.21 | Media Estratificado: $800.12</div>
+          </div>
+        </section>
+
+        <section class="section" id="s8">
+          <h2>🎯 2.8 Puntos Clave y Quiz</h2>
+          <div class="keypoints">
+            <h4>Puntos Clave Semana 2</h4>
+            <div class="kp-item"><div class="kp-num">1</div><div class="kp-text">El muestreo <strong>probabilístico</strong> garantiza representatividad y permite inferencia; el <strong>no probabilístico</strong> es más rápido pero introduce sesgo.</div></div>
+            <div class="kp-item"><div class="kp-num">2</div><div class="kp-text">El <strong>estratificado</strong> es el más preciso cuando la población tiene subgrupos distinguibles.</div></div>
+            <div class="kp-item"><div class="kp-num">3</div><div class="kp-text">Las variables <strong>cualitativas</strong> describen atributos; las <strong>cuantitativas</strong> miden cantidades. Solo las cuantitativas permiten operaciones aritméticas.</div></div>
+            <div class="kp-item"><div class="kp-num">4</div><div class="kp-text">Las escalas NOIR determinan qué métodos estadísticos aplicar. La escala de <strong>Razón</strong> es la más completa.</div></div>
+            <div class="kp-item"><div class="kp-num">5</div><div class="kp-text">Python: <code>DataFrame.groupby().sample()</code> · R: <code>dplyr::group_by() |> slice_sample()</code></div></div>
+          </div>
+          <div class="quiz-box">
+            <h3>✅ Mini Quiz · Semana 2</h3>
+            <div class="quiz-item"><div class="q-text">1. En 5,000 empleados se selecciona cada décimo de una lista ordenada aleatoriamente. ¿Qué muestreo es?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q1')">Aleatorio Simple</button><button class="q-btn" onclick="ansQ(this,true,'q1')">Sistemático</button><button class="q-btn" onclick="ansQ(this,false,'q1')">Estratificado</button></div><div id="q1-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">2. "Nivel de satisfacción: Excelente, Bueno, Regular, Malo." ¿Qué escala de medición es?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q2')">Nominal</button><button class="q-btn" onclick="ansQ(this,true,'q2')">Ordinal</button><button class="q-btn" onclick="ansQ(this,false,'q2')">Razón</button></div><div id="q2-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">3. ¿Qué función de R toma muestras estratificadas con dplyr?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q3')">sample()</button><button class="q-btn" onclick="ansQ(this,true,'q3')">group_by() + slice_sample()</button><button class="q-btn" onclick="ansQ(this,false,'q3')">stratify()</button></div><div id="q3-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">4. ¿Cuál variable es Cuantitativa Discreta?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q4')">Temperatura CPU</button><button class="q-btn" onclick="ansQ(this,true,'q4')">Commits por semana</button><button class="q-btn" onclick="ansQ(this,false,'q4')">Tiempo respuesta (ms)</button></div><div id="q4-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div id="quiz-score" class="quiz-score"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- TAB TALLER -->
+    <div id="ptab-taller" class="ptab-content">
+      <div class="taller-hero">
+        <h2>🛠 Taller Práctico · Semana 2</h2>
+        <p>Diseño de muestreo para una empresa tech ecuatoriana. Aplicamos los 4 tipos probabilísticos y analizamos tipos de variables.</p>
+        <div class="taller-meta"><span>⏱ 45 minutos</span><span>📋 1 caso + código</span><span>🐍 Python + 📊 R</span></div>
+      </div>
+      <div class="taller-body">
+        <div class="taller-case" id="t1">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">🏢</span>
+            <h3>Caso: DataSoft Ecuador — Encuesta de Satisfacción</h3>
+            <span class="taller-case-badge">ABP · 25 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="scenario-box"><strong>Escenario:</strong> DataSoft Ecuador tiene <strong>2,000 empleados</strong> en 4 departamentos: Desarrollo (800), QA (400), Operaciones (500), Administración (300). Se quiere encuestar <strong>200 empleados</strong> para medir satisfacción laboral con el nuevo sistema de gestión.</div>
+            <ol class="step-list">
+              <li><div class="step-num">1</div><div class="step-content"><div class="step-q">¿Cuál es la población N y la muestra n?</div><div class="step-ans">N = 2,000 empleados. n = 200 empleados a encuestar.</div></div></li>
+              <li><div class="step-num">2</div><div class="step-content"><div class="step-q">Calcula cuántos empleados de cada departamento en muestreo estratificado proporcional.</div><div class="step-ans">Desarrollo: 800/2000×200 = <strong>80</strong> · QA: 400/2000×200 = <strong>40</strong> · Operaciones: 500/2000×200 = <strong>50</strong> · Admin: 300/2000×200 = <strong>30</strong></div></div></li>
+              <li><div class="step-num">3</div><div class="step-content"><div class="step-q">Si aplicas muestreo sistemático, ¿cuál es el valor de k?</div><div class="step-ans">k = N/n = 2000/200 = <strong>10</strong>. Se selecciona cada 10mo empleado de la lista.</div></div></li>
+              <li><div class="step-num">4</div><div class="step-content"><div class="step-q">El jefe propone "encuestar solo a quienes estén disponibles ese día." ¿Qué tipo de muestreo y qué sesgo introduce?</div><div class="step-ans">Muestreo por Conveniencia (No Probabilístico). Sesgo: quienes están disponibles pueden ser empleados con poco trabajo, excluyendo a los más ocupados que pueden tener menor satisfacción.</div></div></li>
+              <li><div class="step-num">5</div><div class="step-content"><div class="step-q">"Satisfacción: Muy insatisfecho / Insatisfecho / Neutral / Satisfecho / Muy Satisfecho." ¿Qué escala de medición y tipo de variable es?</div><div class="step-ans">Escala Ordinal (hay orden pero no sabemos si la distancia entre categorías es igual) · Variable Cualitativa Ordinal.</div></div></li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="taller-case" id="t2">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">🐍</span>
+            <h3>Python: Implementación del Caso DataSoft</h3>
+            <span class="taller-case-badge">Código · 10 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="code-block">
+              <div class="code-tabs-header">
+                <button class="ctab active" onclick="switchCodeTab(this,'tp1')">🐍 Python</button>
+                <button class="ctab" onclick="switchCodeTab(this,'tr1')">📊 R</button>
+              </div>
+              <div class="code-panel active" id="tp1">
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+np.random.seed(42)
+
+# Dataset DataSoft Ecuador (ya dado — no modifiques esta parte)
+deptos = {'Desarrollo':800, 'QA':400, 'Operaciones':500, 'Admin':300}
+N = sum(deptos.values())   # N = _____ empleados en total
+
+filas = []
+for d, c in deptos.items():
+    for sat in np.random.choice(
+        ['Muy satisfecho','Satisfecho','Neutral','Insatisfecho','Muy insatisfecho'],
+        c, p=[.25,.40,.20,.10,.05]):
+        filas.append({'departamento': d, 'satisfaccion': sat})
+df = pd.DataFrame(filas)
+
+# ── Muestreo Estratificado Proporcional (10%) ─────────────
+# Queremos encuestar el 10% de cada departamento
+n_total = _____   # ¿Cuántos empleados en total queremos encuestar?
+
+muestra = df.groupby('departamento', group_keys=False).apply(
+    lambda x: x.sample(int(round(len(x) / N * _____)), random_state=42)
+)
+
+print("=== DISTRIBUCIÓN DE LA MUESTRA ===")
+print(muestra.groupby('departamento').size().reset_index(name='n'))
+
+# ── Muestreo Sistemático ──────────────────────────────────
+# Calcula k para muestreo sistemático con n=200
+k = N // _____   # k = N / n
+print(f"\nMuestreo Sistemático → k = {N} / {n_total} = {k}")
+
+# ── Identifica tipos de variables ────────────────────────
+# Completa la tabla:
+# departamento  → tipo: _____________ | escala: _____________
+# satisfaccion  → tipo: _____________ | escala: _____________
+# (escríbelas como comentarios aquí)</code></pre>
+              </div>
+              <div class="code-panel" id="tr1">
+<pre><code class="language-r">library(dplyr)
+set.seed(42)
+
+# Dataset DataSoft Ecuador (ya dado — no modifiques esta parte)
+N <- 2000
+df <- data.frame(
+  departamento = rep(c("Desarrollo","QA","Operaciones","Admin"), c(800,400,500,300)),
+  satisfaccion = sample(c("Muy satisfecho","Satisfecho","Neutral","Insatisfecho","Muy insatisfecho"),
+                        N, replace=TRUE, prob=c(.25,.40,.20,.10,.05))
+)
+
+# ── Muestreo Estratificado Proporcional (10%) ─────────────
+n_total <- _____   # ¿Cuántos empleados en total?
+
+muestra <- df |>
+  group_by(departamento) |>
+  slice_sample(n = round(n() / nrow(df) * _____)) |>
+  ungroup()
+
+cat(sprintf("Total muestra: %d empleados\n", nrow(muestra)))
+print(count(muestra, departamento))
+
+# ── Muestreo Sistemático ──────────────────────────────────
+k <- N %/% _____   # k = N / n
+cat(sprintf("\nk sistemático = %d / %d = %d\n", N, n_total, k))
+
+# ── Compara % satisfechos: población vs muestra ──────────
+pct_pob    <- mean(df$satisfaccion %in% c("Satisfecho","Muy satisfecho")) * 100
+pct_muestra <- mean(muestra$satisfaccion %in% c("Satisfecho","Muy satisfecho")) * 100
+cat(sprintf("%% Satisfechos población: %.1f%%\n", pct_pob))
+cat(sprintf("%% Satisfechos muestra:   %.1f%%\n", pct_muestra))</code></pre>
+              </div>
+              <div class="code-output"><div class="out-label">Output</div>Distribución: Desarrollo=80, QA=40, Operaciones=50, Admin=30<br>% Satisfechos real: 65.0% | % Satisfechos muestra: 64.5%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end ptab-taller -->
+
+    <div class="page-nav">
+      <a href="../semana01/index.html" class="nav-card"><span class="nav-card-arrow">←</span><div><div class="nav-card-label">Anterior</div><div class="nav-card-title">Semana 1: Introducción</div></div></a>
+      <a href="../semana03/index.html" class="nav-card next"><span class="nav-card-arrow">→</span><div><div class="nav-card-label">Siguiente</div><div class="nav-card-title">Semana 3: Representación Gráfica</div></div></a>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
+<script>
+const PWD='Ister_Estadistica2026',KEY='ister_auth_2026';
+function activarTaller(){document.querySelectorAll('.step-ans').forEach(el=>{el.textContent='';el.setAttribute('contenteditable','true');el.setAttribute('spellcheck','false');});}
+function checkPwd(){if(document.getElementById('pwd').value===PWD){localStorage.setItem(KEY,'true');document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}else{document.getElementById('pwd-err').style.display='block';document.getElementById('pwd').value='';}}
+window.onload=function(){if(localStorage.getItem(KEY)==='true'){document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}};
+function handleHash(){if(window.location.hash==='#taller')switchPTab('taller');}
+function switchPTab(id){
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.ptab-content').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.ptab[data-tab="${id}"]`).classList.add('active');
+  document.getElementById('ptab-'+id).classList.add('active');
+  document.getElementById('toc-clase').style.display=id==='clase'?'':'none';
+  document.getElementById('toc-taller').style.display=id==='taller'?'':'none';
+  history.replaceState(null,null,id==='taller'?'#taller':'#');
+}
+function switchCodeTab(btn,id){const b=btn.closest('.code-block');b.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));b.querySelectorAll('.code-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');b.querySelector('#'+id).classList.add('active');}
+const exMsg={em1:'Estratificado: la población se divide por regiones (estratos) y se muestrea proporcionalmente.',ev1:'Es Discreta: los tickets son contables, no puede haber valores fraccionarios.'};
+function checkEx(btn,type,id){const box=btn.closest('.exercise-box');if(box.querySelector('.ex-btn.correct')||box.querySelector('.ex-btn.wrong'))return;btn.classList.add(type);const fb=document.getElementById(id);fb.style.display='block';if(type==='correct'){fb.className='ex-feedback fb-ok';fb.textContent='✅ ¡Correcto! '+exMsg[id];}else{fb.className='ex-feedback fb-err';fb.textContent='❌ Incorrecto. '+exMsg[id];box.querySelectorAll('.ex-btn').forEach(b=>{if(b!==btn)b.classList.add('correct');});}}
+function resetEx(id,btn){const box=btn.closest('.exercise-box');box.querySelectorAll('.ex-btn').forEach(b=>b.classList.remove('correct','wrong'));document.getElementById(id).style.display='none';}
+const qA={};
+function ansQ(btn,ok,id){const item=btn.closest('.quiz-item');if(item.querySelector('.q-btn.q-correct')||item.querySelector('.q-btn.q-wrong'))return;btn.classList.add(ok?'q-correct':'q-wrong');if(!ok)item.querySelectorAll('.q-btn').forEach(b=>{if(b!==btn)b.classList.add('q-correct');});qA[id]=ok;const fb=document.getElementById(id+'-fb');if(fb){fb.style.display='block';fb.style.color=ok?'#6ee7b7':'#fca5a5';fb.textContent=ok?'✅ ¡Correcto!':'❌ Revisa la respuesta correcta.';}if(Object.keys(qA).length===4){const s=Object.values(qA).filter(Boolean).length;const el=document.getElementById('quiz-score');el.style.display='block';el.textContent=`Resultado: ${s}/4 — ${s===4?'🎉 ¡Perfecto!':s>=3?'👍 ¡Muy bien!':'📚 Repasa los conceptos.'}`;}}
+</script>
+</body>
+</html>

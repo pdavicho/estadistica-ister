@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S2 · Técnicas de Muestreo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bd:#0d2137;--bm:#1a3a6b;--bl:#2563eb;--bll:#3b82f6;--blp:#dbeafe;--w:#ffffff;--wa:#f8fafc;--t:#0f172a;--tm:#334155;--tl:#64748b;--gr:#22c55e;--am:#f59e0b;--rd:#ef4444;--pu:#a855f7}
+html,body{width:100%;height:100%;overflow:hidden;background:#0d2137}
+body{font-family:'Inter',sans-serif}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--bll);transition:width .3s;z-index:999}
+.deck{width:100%;height:100vh;position:relative}
+.slide{position:absolute;inset:0;flex-direction:column}
+.slide:not(.on){display:none!important}
+.slide.on{display:flex;animation:fi .25s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.s-title{background:linear-gradient(135deg,var(--bd) 0%,var(--bm) 60%,#1e4080 100%);color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-title .tit{font-size:2.4rem;font-weight:800;line-height:1.15;margin-bottom:.5rem;letter-spacing:-.03em}
+.s-title .sub{font-size:1.05rem;opacity:.8;margin-bottom:1.5rem}
+.s-title .meta{font-size:.82rem;opacity:.6;border-top:1px solid rgba(255,255,255,.15);padding-top:1rem;margin-top:1rem}
+.s-title .meta span{margin:0 .75rem}
+.s-section{background:linear-gradient(135deg,var(--bl) 0%,var(--bm) 100%);color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-section .num{font-size:1rem;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.15em;margin-bottom:.75rem}
+.s-section .tit{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+.s-section .desc{font-size:.92rem;opacity:.75;margin-top:.75rem;max-width:600px}
+.s-body{background:var(--w);display:flex;flex-direction:column}
+.sh{background:var(--bm);color:var(--w);padding:.55rem 2rem;display:flex;justify-content:space-between;align-items:center;font-size:.82rem;font-weight:600}
+.sh .sn{opacity:.6;font-size:.72rem}
+.sc{flex:1;padding:1.5rem 2.5rem;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.sf{background:var(--bd);color:#64748b;font-size:.65rem;padding:.25rem 2rem;display:flex;justify-content:space-between}
+.s-dark{background:var(--bd);color:var(--w);display:flex;flex-direction:column}
+.s-dark .sh{background:rgba(255,255,255,.08);color:var(--w)}
+.s-dark .sc{color:var(--w)}
+.s-code{background:#0f172a;color:var(--w);display:flex;flex-direction:column}
+.s-code .sh{background:rgba(255,255,255,.06);color:#93c5fd}
+.def-box{background:var(--blp);border-left:4px solid var(--bl);border-radius:0 8px 8px 0;padding:.9rem 1.2rem;margin:.65rem 0}
+.def-box .dl{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bl);margin-bottom:.3rem}
+.def-box .dt{font-size:.9rem;color:var(--t);font-weight:500;line-height:1.5}
+.warn-box{background:#fef3c7;border-left:4px solid var(--am);border-radius:0 8px 8px 0;padding:.85rem 1.2rem;margin:.65rem 0}
+.warn-box .dl{color:#92400e;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.warn-box .dt{color:#78350f;font-size:.88rem}
+.tip-box{background:#f0fdf4;border-left:4px solid var(--gr);border-radius:0 8px 8px 0;padding:.85rem 1.2rem;margin:.65rem 0}
+.tip-box .dl{color:#166534;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.tip-box .dt{color:#14532d;font-size:.85rem}
+h1.t{font-size:1.5rem;font-weight:800;color:var(--t);margin-bottom:.85rem;letter-spacing:-.02em}
+ul.b{list-style:none;padding:0;margin:.4rem 0}
+ul.b li{padding:.4rem 0 .4rem 1.4rem;position:relative;font-size:.88rem;color:var(--tm);border-bottom:1px solid #f1f5f9}
+ul.b li:last-child{border-bottom:none}
+ul.b li::before{content:'›';position:absolute;left:0;color:var(--bl);font-weight:700;font-size:1rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:.65rem 0}
+.g4{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.65rem 0}
+.card{border-radius:8px;padding:1rem;border:1px solid #e2e8f0;background:#fff}
+.card-b{border-top:3px solid var(--bl);background:#f0f9ff}
+.card-g{border-top:3px solid var(--gr);background:#f0fdf4}
+.card-a{border-top:3px solid var(--am);background:#fefce8}
+.card-p{border-top:3px solid var(--pu);background:#fdf4ff}
+.card-r{border-top:3px solid var(--rd);background:#fff1f2}
+.card h4{font-size:.85rem;font-weight:700;margin-bottom:.35rem}
+.card p{font-size:.79rem;color:var(--tm);line-height:1.45;margin-bottom:.3rem}
+.card .f{font-family:'JetBrains Mono',monospace;font-size:.75rem;background:rgba(0,0,0,.06);padding:.15rem .45rem;border-radius:3px;display:inline-block;margin-top:.2rem}
+.tag{font-size:.7rem;padding:.15rem .5rem;border-radius:4px;font-weight:600;display:inline-block}
+.tp{background:#dbeafe;color:#1e40af}.tnp{background:#fef3c7;color:#92400e}
+.var-box{background:var(--wa);border-radius:8px;padding:.85rem 1rem;border:1px solid #e2e8f0;margin:.4rem 0}
+.var-box .vt{font-size:.85rem;font-weight:700;color:var(--t);margin-bottom:.3rem}
+.var-box .vd{font-size:.79rem;color:var(--tm);line-height:1.4}
+table.sc-table{width:100%;border-collapse:collapse;font-size:.82rem}
+table.sc-table th{background:var(--bm);color:#fff;padding:.55rem .85rem;text-align:left;font-weight:600}
+table.sc-table td{padding:.5rem .85rem;border-bottom:1px solid #e2e8f0;color:var(--tm)}
+table.sc-table tr:hover td{background:var(--wa)}
+pre{background:#1e293b;color:#e2e8f0;padding:1rem 1.25rem;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.76rem;line-height:1.6;overflow-x:auto;margin:.65rem 0}
+.out{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.74rem;padding:.65rem 1rem;border-radius:8px;margin:.4rem 0;line-height:1.5}
+.kp-list{list-style:none;padding:0;margin:.5rem 0}
+.kp-list li{display:flex;align-items:flex-start;gap:.65rem;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.kp-list li:last-child{border-bottom:none}
+.knum{background:var(--bll);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kt{font-size:.88rem;color:#cbd5e1;line-height:1.45}
+#controls{position:fixed;bottom:0;left:0;right:0;background:rgba(13,33,55,.95);padding:.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between;z-index:100;backdrop-filter:blur(8px)}
+#counter{font-size:.76rem;color:#64748b;font-family:'JetBrains Mono',monospace}
+.nbtns{display:flex;gap:.5rem;align-items:center}
+.nb{height:34px;padding:0 1rem;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;transition:.15s;display:flex;align-items:center;gap:.3rem}
+.nb.p{background:rgba(255,255,255,.08);color:#94a3b8}
+.nb.p:hover{background:rgba(255,255,255,.15);color:#fff}
+.nb.n{background:var(--bl);color:#fff}
+.nb.n:hover{background:var(--bll)}
+.nb:disabled{opacity:.3;cursor:not-allowed}
+#fs{background:none;border:1px solid rgba(255,255,255,.15);color:#64748b;height:34px;width:34px;border-radius:6px;cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center;transition:.15s}
+#fs:hover{border-color:var(--bll);color:var(--bll)}
+#dots{display:flex;gap:.3rem;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:.15s}
+.dot.on{background:var(--bll);width:16px;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="deck" id="deck">
+
+<!-- 1 TITLE -->
+<div class="slide s-title on">
+  <div style="font-size:2.5rem;margin-bottom:1.25rem">🎲</div>
+  <div style="font-size:.82rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:.65rem">Instituto Superior Tecnológico Rumiñahui</div>
+  <div class="tit">Semana 2</div>
+  <div class="sub">Técnicas de Muestreo y Tipos de Variables</div>
+  <div style="font-size:.9rem;opacity:.6;margin-bottom:1.75rem">Diseño científico de muestras · Variables y escalas de medición</div>
+  <div class="meta"><span>👨‍🏫 Ing. David Minango, PhD.</span><span>📅 27 de abril, 2026</span><span>⏱ ~20 minutos</span></div>
+</div>
+
+<!-- 2 REPASO -->
+<div class="slide s-body">
+  <div class="sh">🔄 Recapitulación Semana 1 <span class="sn">2 / 18</span></div>
+  <div class="sc">
+    <h1 class="t">¿Qué vimos la semana pasada?</h1>
+    <div class="g4">
+      <div class="card card-b"><h4>📊 Estadística</h4><p>Ciencia de recolectar, organizar y analizar datos para tomar decisiones informadas.</p></div>
+      <div class="card card-g"><h4>⚡ D vs I</h4><p><strong>Descriptiva:</strong> ¿Qué pasó? <strong>Inferencial:</strong> ¿Qué esperamos?</p></div>
+      <div class="card card-p"><h4>🌍 Población (N)</h4><p>Conjunto total de elementos objeto de estudio.</p></div>
+      <div class="card card-a"><h4>🎯 Muestra (n)</h4><p>Subconjunto representativo extraído de N para el análisis.</p></div>
+    </div>
+    <div class="tip-box"><div class="dl">💡 Hilo conductor</div><div class="dt">La semana pasada vimos <em>qué</em> es la estadística y <em>para qué</em> sirve. Hoy vemos <em>cómo</em> seleccionar correctamente esa muestra.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 2 · Repaso</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 3 SECCIÓN MUESTREO PROB -->
+<div class="slide s-section">
+  <div class="num">2.2</div>
+  <div class="tit">Muestreo Probabilístico</div>
+  <div class="desc">Cuando cada elemento de la población tiene una probabilidad conocida de ser seleccionado. Garantiza representatividad estadística.</div>
+</div>
+
+<!-- 4 MAS -->
+<div class="slide s-body">
+  <div class="sh">Aleatorio Simple (MAS) <span class="sn">4 / 18</span></div>
+  <div class="sc">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.85rem">
+      <span class="tag tp">Probabilístico</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;background:#f1f5f9;padding:.25rem .6rem;border-radius:4px">P = n/N</span>
+    </div>
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">Cada elemento de la población tiene la <strong>misma probabilidad</strong> de ser seleccionado. Se usa un generador de números aleatorios.</div></div>
+    <ul class="b">
+      <li><strong>Ventaja:</strong> Simple de implementar y sin sesgo de selección.</li>
+      <li><strong>Uso:</strong> Cuando la población es homogénea y tiene una lista completa.</li>
+      <li><strong>Ejemplo:</strong> Seleccionar 200 clientes de 10,000 con <code style="background:#f1f5f9;padding:.1rem .35rem;border-radius:3px">np.random.choice()</code> en Python.</li>
+    </ul>
+    <div class="tip-box"><div class="dl">💡 Nota</div><div class="dt">Con reemplazo: el mismo elemento puede ser seleccionado más de una vez. Sin reemplazo: cada elemento aparece solo una vez en la muestra.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 2 · Muestreo Prob.</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 5 SISTEMÁTICO -->
+<div class="slide s-body">
+  <div class="sh">Muestreo Sistemático <span class="sn">5 / 18</span></div>
+  <div class="sc">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.85rem">
+      <span class="tag tp">Probabilístico</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;background:#f1f5f9;padding:.25rem .6rem;border-radius:4px">k = N/n</span>
+    </div>
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">Se elige un <strong>punto de inicio aleatorio</strong> y luego se selecciona <strong>cada k-ésimo elemento</strong> de la lista ordenada.</div></div>
+    <div style="background:var(--blp);border-radius:8px;padding:1rem 1.25rem;margin:.75rem 0">
+      <div style="font-size:.8rem;font-weight:700;color:var(--bm);margin-bottom:.4rem">Ejemplo paso a paso:</div>
+      <div style="font-size:.84rem;color:var(--t)">N=1000 servidores, n=50. k = 1000/50 = <strong>20</strong>. Inicio aleatorio: 7. Seleccionados: 7, 27, 47, 67, 87... ✓</div>
+    </div>
+    <ul class="b">
+      <li><strong>Ventaja:</strong> Rápido y fácil de aplicar en listas ordenadas.</li>
+      <li><strong>Riesgo:</strong> Si la lista tiene un patrón cíclico cada k elementos, se puede introducir sesgo.</li>
+    </ul>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 2 · Muestreo Prob.</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 6 ESTRATIFICADO -->
+<div class="slide s-body">
+  <div class="sh">Muestreo Estratificado <span class="sn">6 / 18</span></div>
+  <div class="sc">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.85rem">
+      <span class="tag tp">Probabilístico</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;background:#f1f5f9;padding:.25rem .6rem;border-radius:4px">nₕ = (Nₕ/N) × n</span>
+    </div>
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">La población se divide en grupos homogéneos (<strong>estratos</strong>) y se muestrea de cada uno <strong>proporcionalmente</strong>.</div></div>
+    <div class="g2" style="margin-top:.75rem">
+      <div class="card card-b"><h4>📊 Cuándo usarlo</h4><p>Cuando la población tiene <strong>subgrupos claramente definidos</strong> con características distintas. Ej: departamentos, regiones, géneros.</p></div>
+      <div class="card card-g"><h4>✅ Ventaja</h4><p>Es el más <strong>preciso estadísticamente</strong> porque garantiza representación de todos los grupos relevantes.</p></div>
+    </div>
+    <div class="tip-box"><div class="dl">💡 Ejemplo</div><div class="dt">Empresa 2000 empleados: TI(800), Ventas(250), RRHH(150)... Para n=200: TI=80, Ventas=25, RRHH=15...</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 2 · Muestreo Prob.</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 7 CONGLOMERADOS -->
+<div class="slide s-body">
+  <div class="sh">Muestreo por Conglomerados <span class="sn">7 / 18</span></div>
+  <div class="sc">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.85rem">
+      <span class="tag tp">Probabilístico</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;background:#f1f5f9;padding:.25rem .6rem;border-radius:4px">Grupos = m</span>
+    </div>
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">La población se divide en grupos heterogéneos (<strong>conglomerados</strong>) que reflejan la diversidad de la población. Se seleccionan <strong>grupos completos</strong> al azar.</div></div>
+    <div class="g2" style="margin-top:.65rem">
+      <div class="card card-b"><h4>🔑 Diferencia clave con Estratificado</h4><p><strong>Estratificado:</strong> grupos homogéneos, se muestrea de cada uno.<br><strong>Conglomerados:</strong> grupos heterogéneos, se estudia el grupo completo.</p></div>
+      <div class="card card-a"><h4>📌 Ejemplo</h4><p>Estudiar empleados de un banco: seleccionar 5 sucursales (conglomerados) al azar y encuestar a <em>todos</em> los empleados de esas 5 sucursales.</p></div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 2 · Muestreo Prob.</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 8 EJERCICIO -->
+<div class="slide s-body">
+  <div class="sh">🎯 Ejercicio: Identifica el Tipo de Muestreo <span class="sn">8 / 18</span></div>
+  <div class="sc">
+    <p style="font-size:.84rem;color:var(--tm);margin-bottom:.75rem">Haz clic en cada caso para revelar la respuesta:</p>
+    <div class="var-box" style="cursor:pointer" onclick="rv(this)">
+      <div class="vt">1. "Una empresa divide a sus 50,000 clientes en 4 regiones y toma muestras proporcionales de cada región."</div>
+      <div class="vd" style="display:none;margin-top:.4rem;background:#dbeafe;padding:.35rem .65rem;border-radius:5px;color:#1e40af;font-weight:700">✅ Estratificado — grupos homogéneos (regiones) con muestras proporcionales.</div>
+    </div>
+    <div class="var-box" style="cursor:pointer" onclick="rv(this)">
+      <div class="vt">2. "En una lista de 1,000 empleados ordenados alfabéticamente, seleccionamos cada 10mo empleado empezando desde el número 4."</div>
+      <div class="vd" style="display:none;margin-top:.4rem;background:#dbeafe;padding:.35rem .65rem;border-radius:5px;color:#1e40af;font-weight:700">✅ Sistemático — k=10, inicio aleatorio=4. Seleccionados: 4, 14, 24, 34...</div>
+    </div>
+    <div class="var-box" style="cursor:pointer" onclick="rv(this)">
+      <div class="vt">3. "Para estudiar la satisfacción en una fintech, se seleccionan al azar 3 oficinas regionales y se entrevista a todos sus empleados."</div>
+      <div class="vd" style="display:none;margin-top:.4rem;background:#dbeafe;padding:.35rem .65rem;border-radius:5px;color:#1e40af;font-weight:700">✅ Por Conglomerados — grupos heterogéneos (oficinas), se estudia el grupo completo.</div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 2 · Ejercicio</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 9 SECCIÓN NO PROB -->
+<div class="slide s-section" style="background:linear-gradient(135deg,#78350f,#92400e)">
+  <div class="num">2.3</div>
+  <div class="tit">Muestreo No Probabilístico</div>
+  <div class="desc">Cuando la selección no garantiza probabilidades iguales. Más rápido pero con riesgo de sesgo.</div>
+</div>
+
+<!-- 10 NO PROB -->
+<div class="slide s-body">
+  <div class="sh">Técnicas No Probabilísticas <span class="sn">10 / 18</span></div>
+  <div class="sc">
+    <div class="warn-box"><div class="dl">⚠️ Atención</div><div class="dt">No todos los elementos tienen la misma probabilidad. Son más rápidos y económicos, pero <strong>no permiten inferencia estadística formal</strong>. Se usan en estudios exploratorios.</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-top:.85rem">
+      <div class="card card-a"><span class="tag tnp" style="margin-bottom:.4rem;display:block">No Prob.</span><h4>⚡ Conveniencia</h4><p style="font-size:.77rem">Elementos más accesibles. Rápido pero con alto sesgo. Ej: encuestar solo usuarios en línea ahora mismo.</p></div>
+      <div class="card card-a"><span class="tag tnp" style="margin-bottom:.4rem;display:block">No Prob.</span><h4>📋 Por Cuotas</h4><p style="font-size:.77rem">Cuotas por características (edad, género) pero selección discrecional dentro. Ej: entrevistar 50H y 50M.</p></div>
+      <div class="card card-a"><span class="tag tnp" style="margin-bottom:.4rem;display:block">No Prob.</span><h4>❄️ Bola de Nieve</h4><p style="font-size:.77rem">Participantes reclutan a nuevos. Para poblaciones difíciles. Ej: freelancers tech — cada uno recomienda a otro.</p></div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 2 · No Probabilístico</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 11 SECCIÓN VARIABLES -->
+<div class="slide s-section">
+  <div class="num">2.4</div>
+  <div class="tit">Tipos de Variables</div>
+  <div class="desc">Antes de analizar datos, debemos identificar qué tipo de variable estamos midiendo. Esto determina qué métodos estadísticos podemos aplicar.</div>
+</div>
+
+<!-- 12 VARIABLES -->
+<div class="slide s-body">
+  <div class="sh">2.4 Variables Cualitativas y Cuantitativas <span class="sn">12 / 18</span></div>
+  <div class="sc">
+    <div class="g2">
+      <div class="card card-p">
+        <h4 style="color:#6b21a8">🏷 Cualitativas (Categóricas)</h4>
+        <p>Expresan <strong>cualidades o atributos</strong>. No se operan matemáticamente.</p>
+        <div style="display:flex;flex-direction:column;gap:.35rem;margin-top:.6rem">
+          <div class="var-box"><div class="vt" style="font-size:.8rem"><strong>Nominales:</strong> Sin orden — SO: Windows/Linux, color, tipo de error</div></div>
+          <div class="var-box"><div class="vt" style="font-size:.8rem"><strong>Ordinales:</strong> Con orden — Prioridad: Crítico>Alto>Bajo, rating</div></div>
+        </div>
+      </div>
+      <div class="card card-b">
+        <h4 style="color:#1e40af">🔢 Cuantitativas (Numéricas)</h4>
+        <p>Expresan <strong>cantidades</strong>. Permiten operaciones matemáticas (suma, promedio, etc.).</p>
+        <div style="display:flex;flex-direction:column;gap:.35rem;margin-top:.6rem">
+          <div class="var-box"><div class="vt" style="font-size:.8rem"><strong>Discretas:</strong> Enteros contables — N° errores, N° commits, N° clientes</div></div>
+          <div class="var-box"><div class="vt" style="font-size:.8rem"><strong>Continuas:</strong> Cualquier valor — Latencia ms, temperatura CPU%, tiempo hrs</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 2 · Variables</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 13 ESCALAS -->
+<div class="slide s-body">
+  <div class="sh">2.5 Escalas de Medición (NOIR) <span class="sn">13 / 18</span></div>
+  <div class="sc">
+    <p style="font-size:.84rem;color:var(--tm);margin-bottom:.85rem">Las escalas determinan qué operaciones estadísticas podemos aplicar:</p>
+    <table class="sc-table">
+      <thead><tr><th>Escala</th><th>Características</th><th>Operaciones</th><th>Ej. en Sistemas</th></tr></thead>
+      <tbody>
+        <tr><td><strong>🏷 Nominal</strong></td><td>Solo categorías, sin orden</td><td>Moda, frecuencias</td><td>Tipo SO: Win/Linux</td></tr>
+        <tr><td><strong>📶 Ordinal</strong></td><td>Orden, sin distancia definida</td><td>Moda, Mediana</td><td>Prioridad: Crit>Alto>Bajo</td></tr>
+        <tr><td><strong>🌡 Intervalo</strong></td><td>Orden + distancias. Cero arbitrario</td><td>Media, Desv. std.</td><td>Temperatura °C del servidor</td></tr>
+        <tr><td><strong>⚖️ Razón</strong></td><td>Orden + distancias. Cero absoluto</td><td>Todas + cocientes</td><td>Latencia (ms), uptime (%)</td></tr>
+      </tbody>
+    </table>
+    <div class="tip-box" style="margin-top:.65rem"><div class="dl">💡 Regla</div><div class="dt">Nominal → Ordinal → Intervalo → Razón (más completa). Solo la escala de Razón tiene un cero verdadero (ausencia real).</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 2 · Escalas</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 14 PYTHON -->
+<div class="slide s-code">
+  <div class="sh">🐍 Python: Muestreo Estratificado <span class="sn" style="color:#475569">14 / 18</span></div>
+  <div class="sc">
+    <p style="font-size:.82rem;color:#94a3b8;margin-bottom:.4rem">Muestreo estratificado proporcional por departamento:</p>
+<pre>import pandas as pd, numpy as np
+np.random.seed(42)
+deptos = {'TI':800,'Ventas':250,'RRHH':150,'Finanzas':200,'Marketing':100}
+N = 2000; n = 200
+filas = []
+for d, c in deptos.items():
+    for sal in np.random.normal(800, 150, c):
+        filas.append({'depto':d,'salario':round(sal,2)})
+df = pd.DataFrame(filas)
+
+# Muestreo estratificado proporcional
+muestra = df.groupby('depto', group_keys=False).apply(
+    lambda x: x.sample(int(round(len(x)/N*n)), random_state=42))
+print(muestra.groupby('depto').size())
+print(f"Media real: ${df.salario.mean():.0f} | Muestra: ${muestra.salario.mean():.0f}")</pre>
+    <div class="out">TI=80, Ventas=25, RRHH=15, Finanzas=20, Marketing=10 → total=150<br>Media real: $800 | Muestra: $801</div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 2 · Python</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 15 R -->
+<div class="slide s-code">
+  <div class="sh" style="color:#86efac">📊 R: Muestreo Estratificado (dplyr) <span class="sn" style="color:#475569">15 / 18</span></div>
+  <div class="sc">
+<pre>library(dplyr)
+set.seed(42)
+df &lt;- data.frame(
+  depto = rep(c("TI","Ventas","RRHH","Finanzas","Marketing"),
+              c(800,250,150,200,100)),
+  salario = rnorm(1500, 800, 150)
+)
+
+# Muestreo estratificado proporcional (10%)
+muestra &lt;- df |>
+  group_by(depto) |>
+  slice_sample(prop = 0.1) |>
+  ungroup()
+
+cat(sprintf("Población: %d | Muestra: %d\n", nrow(df), nrow(muestra)))
+cat(sprintf("Media real: $%.0f | Muestra: $%.0f\n",
+            mean(df$salario), mean(muestra$salario)))
+count(muestra, depto)</pre>
+    <div class="out">Población: 1500 | Muestra: 150<br>Media real: $800 | Muestra: $801</div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 2 · R</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 16 ERRORES DE MUESTREO -->
+<div class="slide s-body">
+  <div class="sh">⚠️ Errores Comunes en Muestreo <span class="sn">16 / 18</span></div>
+  <div class="sc">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.85rem">
+      <div class="card card-r"><h4 style="color:var(--rd)">❌ Error de Sesgo</h4><p style="font-size:.8rem">Cuando la muestra no representa correctamente a la población. Causa: selección no aleatoria o cuestionario mal diseñado.</p></div>
+      <div class="card card-r"><h4 style="color:var(--rd)">❌ Error de Muestreo</h4><p style="font-size:.8rem">Diferencia entre el estadístico de la muestra y el parámetro real. <em>Siempre existe</em>, pero se puede minimizar aumentando n.</p></div>
+      <div class="card card-r"><h4 style="color:var(--rd)">❌ Muestra Pequeña</h4><p style="font-size:.8rem">Si n es muy pequeño, los resultados son poco confiables. Regla general: n ≥ 30 para distribuciones simétricas.</p></div>
+      <div class="card card-g"><h4 style="color:#166534">✅ Cómo evitarlos</h4><p style="font-size:.8rem">Aleatorización correcta + tamaño de muestra adecuado + estratificación cuando hay subgrupos relevantes.</p></div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 2 · Errores</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 17 PUNTOS CLAVE -->
+<div class="slide s-dark">
+  <div class="sh">Puntos Clave de la Semana 2 <span class="sn" style="color:#475569">17 / 18</span></div>
+  <div class="sc">
+    <h1 class="t" style="color:#93c5fd;font-size:1.25rem;margin-bottom:1.1rem">Lo que debes recordar:</h1>
+    <ul class="kp-list">
+      <li><div class="knum">1</div><div class="kt">El muestreo <strong style="color:#93c5fd">probabilístico</strong> garantiza representatividad y permite inferencia; el <strong style="color:#93c5fd">no probabilístico</strong> es más rápido pero introduce sesgo.</div></li>
+      <li><div class="knum">2</div><div class="kt">El <strong style="color:#93c5fd">estratificado</strong> es el más preciso cuando hay subgrupos identificables en la población.</div></li>
+      <li><div class="knum">3</div><div class="kt">Las variables <strong style="color:#93c5fd">cualitativas</strong> describen atributos; las <strong style="color:#93c5fd">cuantitativas</strong> miden cantidades.</div></li>
+      <li><div class="knum">4</div><div class="kt">Las escalas NOIR determinan los métodos estadísticos aplicables. La escala de <strong style="color:#93c5fd">Razón</strong> es la más completa.</div></li>
+      <li><div class="knum">5</div><div class="kt">Python: <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">groupby().apply(sample)</code> · R: <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">group_by() |> slice_sample()</code></div></li>
+    </ul>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.3)"><span>Estadística · ISTER</span><span>Semana 2 · Resumen</span><span>27 abr 2026</span></div>
+</div>
+
+<!-- 18 CIERRE -->
+<div class="slide s-title">
+  <div style="font-size:2.8rem;margin-bottom:1.25rem">🎓</div>
+  <div class="tit" style="font-size:1.9rem">¿Preguntas?</div>
+  <div class="sub">Próxima semana:</div>
+  <div style="font-size:1.15rem;font-weight:700;color:#93c5fd;margin-top:.4rem">Representación Gráfica de Datos</div>
+  <div style="font-size:.9rem;opacity:.65;margin-top:.5rem">Barras, Líneas, Histograma, Boxplot, Dispersión · Python + R</div>
+  <div style="margin-top:1.75rem;font-size:.8rem;opacity:.5;border-top:1px solid rgba(255,255,255,.12);padding-top:.85rem">Ing. David Minango, PhD. · Instituto Superior Tecnológico Rumiñahui</div>
+</div>
+
+</div>
+<div id="controls">
+  <span id="counter">1 / 18</span>
+  <div id="dots"></div>
+  <div class="nbtns">
+    <button class="nb p" id="pb" onclick="mv(-1)" disabled>← Anterior</button>
+    <button class="nb n" id="nb2" onclick="mv(1)">Siguiente →</button>
+    <button id="fs" onclick="tFS()">⛶</button>
+  </div>
+</div>
+<script>
+const sl=document.querySelectorAll('.slide'),tot=sl.length;let cur=0;
+const pr=document.getElementById('progress'),ct=document.getElementById('counter'),pb=document.getElementById('pb'),nb=document.getElementById('nb2'),de=document.getElementById('dots');
+for(let i=0;i<tot;i++){const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>go(i);de.appendChild(d);}
+function go(n){sl[cur].classList.remove('on');de.children[cur].classList.remove('on');cur=Math.max(0,Math.min(n,tot-1));sl[cur].classList.add('on');de.children[cur].classList.add('on');pr.style.width=((cur+1)/tot*100)+'%';ct.textContent=(cur+1)+' / '+tot;pb.disabled=cur===0;nb.disabled=cur===tot-1;nb.textContent=cur===tot-1?'✓ Fin':'Siguiente →';}
+function mv(d){go(cur+d);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')mv(1);if(e.key==='ArrowLeft')mv(-1);});
+function rv(el){const d=el.querySelector('.vd');d.style.display=d.style.display==='block'?'none':'block';}
+function tFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+</script>
+</body>
+</html>

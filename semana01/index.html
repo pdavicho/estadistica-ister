@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 1: Introducción a la Estadística · ISTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue-dark:#0d2137;--blue-mid:#1a3a6b;--blue:#2563eb;--blue-light:#3b82f6;--blue-pale:#dbeafe;
+  --text:#0f172a;--text-mid:#334155;--text-light:#64748b;--bg:#ffffff;--bg-alt:#f8fafc;--border:#e2e8f0;
+  --green:#22c55e;--green-pale:#dcfce7;--amber:#f59e0b;--amber-pale:#fef3c7;
+  --red:#ef4444;--red-pale:#fee2e2;--python:#3776ab;--r-col:#276DC3;
+  --sidebar-w:270px;--radius:8px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.7;font-size:15px}
+.hidden{display:none!important}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* GATE */
+#gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;z-index:9999}
+.gate-card{background:#fff;border-radius:16px;padding:2.5rem;width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.gate-title{font-size:1.4rem;font-weight:700;color:var(--blue-dark);margin-bottom:.25rem}
+.gate-sub{font-size:.85rem;color:var(--text-light);margin-bottom:1.5rem}
+.gate-input{width:100%;padding:.75rem 1rem;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:.9rem;outline:none;transition:.2s}
+.gate-input:focus{border-color:var(--blue)}
+.gate-btn{width:100%;margin-top:.75rem;padding:.75rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+.gate-error{color:var(--red);font-size:.82rem;margin-top:.5rem;display:none}
+
+/* LAYOUT */
+#app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--blue-dark);color:#cbd5e1;height:100vh;position:fixed;top:0;left:0;overflow-y:auto;display:flex;flex-direction:column;z-index:50}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.sb-header{padding:1.25rem 1rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;margin-bottom:.75rem}
+.sb-logo-box{background:var(--blue);border-radius:6px;padding:.35rem .55rem;font-size:.7rem;font-weight:700;color:#fff}
+.sb-course{font-size:.82rem;font-weight:600;color:#e2e8f0;line-height:1.3}
+.sb-meta{font-size:.72rem;color:#94a3b8;margin-top:.1rem}
+.sb-home{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:6px;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;margin-top:.5rem}
+.sb-home:hover{background:rgba(255,255,255,.08);color:#e2e8f0;text-decoration:none}
+.sb-nav{flex:1;padding:.75rem 0}
+.sb-section{padding:.5rem 1rem .25rem;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-top:.75rem}
+.sb-link{display:block;padding:.45rem 1rem;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;border-left:2px solid transparent;line-height:1.4}
+.sb-link:hover{background:rgba(255,255,255,.06);color:#e2e8f0;text-decoration:none}
+.sb-link.active{color:#93c5fd;border-left-color:var(--blue-light);background:rgba(59,130,246,.12)}
+.sb-link.done{color:#6ee7b7}
+.sb-link.locked{color:#475569;pointer-events:none}
+.sb-link .badge{font-size:.65rem;padding:.1rem .35rem;border-radius:3px;margin-left:.35rem}
+.badge-d{background:rgba(110,231,183,.15);color:#6ee7b7}
+.badge-l{background:rgba(255,255,255,.05);color:#475569}
+.sb-toc-section{padding:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-toc-title{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-bottom:.5rem}
+.sb-toc-link{display:block;font-size:.78rem;color:#94a3b8;padding:.3rem 0 .3rem .6rem;text-decoration:none;transition:.15s;border-left:2px solid transparent}
+.sb-toc-link:hover{color:#e2e8f0;text-decoration:none}
+.sb-toc-link.toc-active{color:#93c5fd;border-left-color:var(--blue-light)}
+
+/* CONTENT */
+.content-wrap{margin-left:var(--sidebar-w);flex:1;min-width:0;background:var(--bg)}
+.content-header{padding:1.5rem 3rem 0;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:40}
+.breadcrumb{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-light);margin-bottom:.75rem}
+.breadcrumb a{color:var(--text-light);text-decoration:none}
+.breadcrumb a:hover{color:var(--blue)}
+.page-title-row{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.75rem}
+.week-pill{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .7rem;border-radius:4px;margin-top:.2rem;white-space:nowrap}
+.page-main-title{font-size:1.8rem;font-weight:800;color:var(--blue-dark);line-height:1.2;letter-spacing:-.02em}
+.page-subtitle{font-size:.95rem;color:var(--text-mid);margin-top:.4rem}
+.page-meta{display:flex;gap:1rem;margin-top:.5rem;flex-wrap:wrap}
+.meta-item{font-size:.78rem;color:var(--text-light)}
+
+/* PAGE TABS */
+.page-tabs{display:flex;gap:0;border-top:1px solid var(--border);margin-top:.75rem}
+.ptab{padding:.65rem 1.25rem;font-family:inherit;font-size:.85rem;font-weight:600;border:none;background:none;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;display:flex;align-items:center;gap:.4rem;margin-bottom:-1px}
+.ptab:hover{color:var(--text)}
+.ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.ptab-content{display:none}
+.ptab-content.active{display:block}
+
+.content-body{padding:2.5rem 3rem;max-width:860px}
+.section{margin-bottom:3.5rem;scroll-margin-top:160px}
+.section h2{font-size:1.35rem;font-weight:700;color:var(--blue-dark);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--blue-pale);display:flex;align-items:center;gap:.5rem}
+.section h3{font-size:1.05rem;font-weight:600;color:var(--text);margin:1.5rem 0 .75rem}
+.section p{margin-bottom:1rem;color:var(--text-mid)}
+.section ul,.section ol{margin:.5rem 0 1rem 1.25rem;color:var(--text-mid)}
+.section li{margin-bottom:.4rem}
+
+.callout{border-radius:var(--radius);padding:1.1rem 1.25rem;margin:1.25rem 0;border-left:4px solid}
+.callout-def{background:var(--blue-pale);border-color:var(--blue)}
+.callout-def .ct{color:var(--blue-dark);font-weight:700;font-size:.85rem;margin-bottom:.4rem}
+.callout-def .cb{color:var(--text-mid);font-size:.9rem}
+.callout-tip{background:#f0fdf4;border-color:var(--green)}
+.callout-tip .ct{color:#166534;font-weight:700;font-size:.85rem;margin-bottom:.4rem}
+.callout-tip .cb{color:#166534;font-size:.9rem}
+.callout-warn{background:var(--amber-pale);border-color:var(--amber)}
+.callout-warn .ct{color:#92400e;font-weight:700;font-size:.85rem;margin-bottom:.4rem}
+.callout-warn .cb{color:#78350f;font-size:.9rem}
+.callout-example{background:#faf5ff;border-color:#a855f7}
+.callout-example .ct{color:#6b21a8;font-weight:700;font-size:.85rem;margin-bottom:.4rem}
+.callout-example .cb{color:#581c87;font-size:.9rem}
+
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.25rem 0}
+.compare-card{border-radius:var(--radius);padding:1.25rem;border:1px solid var(--border)}
+.compare-card.desc{background:#f0f9ff;border-top:3px solid var(--blue)}
+.compare-card.inf{background:#fdf4ff;border-top:3px solid #a855f7}
+.compare-card h4{font-size:.95rem;font-weight:700;margin-bottom:.5rem}
+.compare-card p{font-size:.85rem;color:var(--text-mid);margin-bottom:.75rem}
+.tag{font-size:.72rem;padding:.2rem .55rem;border-radius:4px;font-weight:600;display:inline-block}
+.tag-desc{background:#dbeafe;color:#1e40af}
+.tag-inf{background:#f3e8ff;color:#6b21a8}
+
+.code-block{margin:1.25rem 0;border-radius:var(--radius);overflow:hidden;border:1px solid #1e293b;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.code-tabs-header{background:#1e293b;display:flex;align-items:center;padding:0 .75rem;gap:.25rem;border-bottom:1px solid #334155}
+.ctab{padding:.65rem .9rem;font-size:.8rem;font-weight:600;border:none;background:none;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;font-family:inherit}
+.ctab:hover{color:#e2e8f0}
+.ctab.active{color:#93c5fd;border-bottom-color:var(--blue-light)}
+.code-panel{display:none}
+.code-panel.active{display:block}
+.code-panel pre{margin:0;border-radius:0}
+.code-panel pre code{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.6}
+.code-output{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:1rem 1.25rem;border-top:1px solid #1e293b;line-height:1.5}
+.out-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569;margin-bottom:.4rem}
+
+.exercise-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.exercise-box h4{font-size:.95rem;font-weight:700;color:var(--blue-dark);margin-bottom:.25rem}
+.exercise-box p{font-size:.88rem;color:var(--text-mid);margin-bottom:1rem}
+.ex-scenario{background:#fff;border-left:3px solid var(--blue);padding:.75rem 1rem;border-radius:0 6px 6px 0;font-size:.88rem;color:var(--text);margin-bottom:1rem;font-style:italic}
+.ex-options{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem}
+.ex-btn{padding:.45rem 1rem;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--text-mid);font-family:inherit;font-size:.83rem;font-weight:500;cursor:pointer;transition:.15s}
+.ex-btn:hover{border-color:var(--blue);color:var(--blue)}
+.ex-btn.correct{background:var(--green-pale);border-color:var(--green);color:#166534}
+.ex-btn.wrong{background:var(--red-pale);border-color:var(--red);color:#991b1b}
+.ex-feedback{font-size:.83rem;padding:.5rem .75rem;border-radius:6px;margin-top:.4rem;display:none}
+.fb-ok{background:var(--green-pale);color:#166534}
+.fb-err{background:var(--red-pale);color:#991b1b}
+.ex-reset{font-size:.78rem;color:var(--text-light);background:none;border:none;cursor:pointer;margin-top:.5rem;text-decoration:underline}
+
+/* TALLER STYLES */
+.taller-hero{background:linear-gradient(135deg,var(--blue-dark),#1e4a8a);color:#fff;padding:2rem 3rem;border-bottom:3px solid var(--blue)}
+.taller-hero h2{font-size:1.5rem;font-weight:800;margin-bottom:.4rem}
+.taller-hero p{font-size:.9rem;opacity:.85;max-width:680px}
+.taller-meta{display:flex;gap:1.25rem;margin-top:.9rem;flex-wrap:wrap}
+.taller-meta span{font-size:.78rem;background:rgba(255,255,255,.12);padding:.3rem .75rem;border-radius:20px}
+.taller-body{padding:2rem 3rem;max-width:860px}
+.taller-case{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:2rem;overflow:hidden}
+.taller-case-header{background:var(--blue-dark);color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem}
+.taller-case-header h3{font-size:1rem;font-weight:700}
+.taller-case-badge{font-size:.7rem;background:rgba(255,255,255,.15);padding:.2rem .6rem;border-radius:4px}
+.taller-case-body{padding:1.5rem}
+.scenario-box{background:var(--bg-alt);border-left:4px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.9rem;color:var(--text-mid);line-height:1.6}
+.scenario-box strong{color:var(--text)}
+.step-list{counter-reset:step;list-style:none;margin:0;padding:0}
+.step-list li{counter-increment:step;display:flex;align-items:flex-start;gap:.9rem;padding:1rem 0;border-bottom:1px solid var(--border)}
+.step-list li:last-child{border-bottom:none}
+.step-num{background:var(--blue);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.step-content{flex:1}
+.step-q{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.35rem}
+.step-ans{font-size:.85rem;color:var(--text-mid);background:var(--green-pale);border-radius:6px;padding:.5rem .75rem;border-left:3px solid var(--green);margin-top:.35rem}
+.step-ans::before{content:'→ ';font-weight:700;color:#166534}
+
+.keypoints{background:var(--blue-dark);color:#fff;border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.keypoints h4{font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;margin-bottom:1rem}
+.kp-item{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.kp-item:last-child{border-bottom:none}
+.kp-num{background:var(--blue);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kp-text{font-size:.88rem;color:#cbd5e1}
+
+.quiz-box{background:linear-gradient(135deg,var(--blue-dark),#1a3a6b);border-radius:var(--radius);padding:1.75rem;margin:1.25rem 0;color:#fff}
+.quiz-box h3{font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:#93c5fd}
+.quiz-item{background:rgba(255,255,255,.06);border-radius:6px;padding:1rem;margin-bottom:.75rem}
+.q-text{font-size:.88rem;margin-bottom:.75rem;color:#e2e8f0}
+.q-opts{display:flex;gap:.5rem;flex-wrap:wrap}
+.q-btn{padding:.4rem .85rem;border:1.5px solid rgba(255,255,255,.2);border-radius:6px;background:rgba(255,255,255,.05);color:#cbd5e1;font-family:inherit;font-size:.8rem;cursor:pointer;transition:.15s}
+.q-btn:hover{border-color:var(--blue-light);color:#fff}
+.q-btn.q-correct{background:rgba(34,197,94,.15);border-color:var(--green);color:#6ee7b7}
+.q-btn.q-wrong{background:rgba(239,68,68,.15);border-color:var(--red);color:#fca5a5}
+.quiz-score{font-size:.88rem;color:#93c5fd;margin-top:1rem;text-align:center;display:none}
+
+.page-nav{display:flex;justify-content:space-between;padding:2rem 3rem;border-top:1px solid var(--border);margin-top:1rem}
+.nav-card{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.25rem;border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;color:var(--text);transition:.2s;max-width:220px}
+.nav-card:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12);text-decoration:none;color:var(--text)}
+.nav-card.next{flex-direction:row-reverse;text-align:right}
+.nav-card-arrow{font-size:1.1rem;color:var(--text-light)}
+.nav-card-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:.15rem}
+.nav-card-title{font-size:.85rem;font-weight:600;color:var(--blue-dark);line-height:1.3}
+.slides-wrap{margin-bottom:2.5rem;border-radius:10px;overflow:hidden;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.slides-bar{background:var(--blue-dark);color:#fff;padding:.55rem 1.1rem;display:flex;justify-content:space-between;align-items:center;font-size:.78rem}
+.slides-bar span{display:flex;align-items:center;gap:.4rem}
+.slides-bar a{color:#93c5fd;font-size:.75rem;text-decoration:none;padding:.2rem .55rem;border:1px solid rgba(255,255,255,.2);border-radius:4px;transition:.15s}
+.slides-bar a:hover{background:rgba(255,255,255,.1);text-decoration:none}
+.slides-ratio{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#0d2137}
+.slides-ratio iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+/* ── TALLER: oculta respuestas, muestra espacio de trabajo ── */
+.step-ans{display:block;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:6px;padding:.7rem .95rem;min-height:52px;margin-top:.4rem;font-size:.87rem;line-height:1.6;color:var(--text);outline:none;cursor:text;transition:border-color .15s,background .15s,box-shadow .15s;font-family:'Inter',system-ui,sans-serif}
+.step-ans:focus{border-color:var(--blue);border-style:solid;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.step-ans:empty::before{content:'✏️ Escribe tu respuesta aquí...';color:#94a3b8;font-style:italic;font-size:.82rem;pointer-events:none}
+.taller-hint{background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:.45rem .85rem;margin:.35rem 0;font-size:.78rem;color:#78350f}
+.taller-hint::before{content:'💡 Pista: ';font-weight:700}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-card">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">📊</div>
+    <div class="gate-title">Estadística · ISTER</div>
+    <div class="gate-sub">Ingresa la clave del curso para continuar</div>
+    <input id="pwd" class="gate-input" type="password" placeholder="Clave del curso" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div id="pwd-err" class="gate-error">❌ Clave incorrecta</div>
+    <button class="gate-btn" onclick="checkPwd()">Ingresar</button>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="sb-header">
+      <a href="../index.html" class="sb-logo">
+        <span class="sb-logo-box">ISTER</span>
+        <div><div class="sb-course">Estadística</div><div class="sb-meta">2026-1 · Sistemas & Data</div></div>
+      </a>
+      <a href="../index.html" class="sb-home">← Inicio del curso</a>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Tema 1 · Introducción</div>
+      <a href="index.html" class="sb-link active">Semana 1 · Introducción <span class="badge badge-d">Vista</span></a>
+      <a href="../semana02/index.html" class="sb-link done">Semana 2 · Muestreo <span class="badge badge-d">Vista</span></a>
+      <a href="../semana03/index.html" class="sb-link done">Semana 3 · Gráficas <span class="badge badge-d">Vista</span></a>
+      <a href="../semana04/index.html" class="sb-link done">Semana 4 · EDA <span class="badge badge-d">Vista</span></a>
+      <div class="sb-section">Tema 2 · Frecuencias</div>
+      <a href="#" class="sb-link locked">Semana 5 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 6 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 7 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 8 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 3 · Tendencia Central</div>
+      <a href="#" class="sb-link locked">Semana 9 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 10 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 11 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 12 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 4 · Probabilidad</div>
+      <a href="#" class="sb-link locked">Semana 13 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 14 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 15 <span class="badge badge-l">🔒</span></a>
+      <a href="#" class="sb-link locked">Semana 16 <span class="badge badge-l">🔒</span></a>
+    </nav>
+    <div class="sb-toc-section" id="toc-clase">
+      <div class="sb-toc-title">En esta página · Clase</div>
+      <a href="#s1" class="sb-toc-link">1. ¿Qué es la Estadística?</a>
+      <a href="#s2" class="sb-toc-link">2. Importancia</a>
+      <a href="#s3" class="sb-toc-link">3. División (D vs I)</a>
+      <a href="#s4" class="sb-toc-link">4. Población y Muestra</a>
+      <a href="#s5" class="sb-toc-link">5. Python: Simulación</a>
+      <a href="#s6" class="sb-toc-link">6. R: Simulación</a>
+      <a href="#s7" class="sb-toc-link">7. Ética y Valores</a>
+      <a href="#s8" class="sb-toc-link">8. Quiz Final</a>
+    </div>
+    <div class="sb-toc-section" id="toc-taller" style="display:none">
+      <div class="sb-toc-title">En esta página · Taller</div>
+      <a href="#t1" class="sb-toc-link">Caso 1: Data Center</a>
+      <a href="#t2" class="sb-toc-link">Caso 2: Tráfico Web</a>
+      <a href="#t3" class="sb-toc-link">Código Complementario</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <div class="content-header">
+      <div class="breadcrumb">
+        <a href="../index.html">🏠 Inicio</a><span>›</span><span>Semana 1</span><span>›</span><span>Introducción a la Estadística</span>
+      </div>
+      <div class="page-title-row">
+        <span class="week-pill">Semana 1</span>
+        <div>
+          <div class="page-main-title">Introducción a la Estadística</div>
+          <div class="page-subtitle">Fundamentos para Sistemas y Gestión de Data</div>
+          <div class="page-meta">
+            <span class="meta-item">👨‍🏫 Ing. David Minango, PhD.</span>
+            <span class="meta-item">📅 20 de abril, 2026</span>
+            <span class="meta-item">⏱ ~90 min clase · 45 min taller</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-tabs">
+        <button class="ptab active" data-tab="clase" onclick="switchPTab('clase')">📖 Clase</button>
+        <button class="ptab" data-tab="taller" onclick="switchPTab('taller')">🛠 Taller Práctico</button>
+      </div>
+    </div>
+
+    <!-- ── TAB: CLASE ── -->
+    <div id="ptab-clase" class="ptab-content active">
+      <div class="content-body">
+
+        <div class="slides-wrap">
+          <div class="slides-bar">
+            <span>📽 Presentación · 18 diapositivas · ~20 min · usa ← → o teclado</span>
+            <a href="../slides/s01.html" target="_blank">⛶ Pantalla completa</a>
+          </div>
+          <div class="slides-ratio">
+            <iframe src="../slides/s01.html" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <section class="section" id="s1">
+          <h2>📌 1.1 ¿Qué es la Estadística?</h2>
+          <div class="callout callout-def">
+            <div class="ct">📖 Definición Técnica</div>
+            <div class="cb">Es la <strong>ciencia de recolectar, organizar y analizar datos</strong> para la toma de decisiones informadas.</div>
+          </div>
+          <p>En el contexto de <strong>Sistemas y Gestión de Data</strong>, la estadística es la herramienta que transforma el "ruido" de los datos masivos en "señal" de conocimiento útil.</p>
+          <ul>
+            <li>Permite <strong>identificar patrones</strong> en grandes volúmenes de datos.</li>
+            <li>Facilita la <strong>toma de decisiones</strong> basada en evidencia científica, no en intuición.</li>
+            <li>Es el fundamento de Machine Learning, Business Intelligence y Data Science.</li>
+          </ul>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Analogía clave</div>
+            <div class="cb">Sin estadística, un data center lleno de registros es solo ruido. Con estadística, esos mismos datos se convierten en decisiones estratégicas.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s2">
+          <h2>📌 1.2 Importancia en la Gestión de Data</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:1rem 0">
+            <div style="background:#f0f9ff;border-radius:8px;padding:1.1rem;border-top:3px solid var(--blue)">
+              <div style="font-size:1.4rem;margin-bottom:.4rem">🎯</div>
+              <div style="font-weight:700;font-size:.88rem;margin-bottom:.3rem">Toma de Decisiones</div>
+              <div style="font-size:.82rem;color:var(--text-mid)">Brinda información fundamentada para decisiones estratégicas.</div>
+            </div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:1.1rem;border-top:3px solid var(--green)">
+              <div style="font-size:1.4rem;margin-bottom:.4rem">🏆</div>
+              <div style="font-weight:700;font-size:.88rem;margin-bottom:.3rem">Calidad Empresarial</div>
+              <div style="font-size:.82rem;color:var(--text-mid)">Mejora procesos mediante el análisis de evidencia científica.</div>
+            </div>
+            <div style="background:#fdf4ff;border-radius:8px;padding:1.1rem;border-top:3px solid #a855f7">
+              <div style="font-size:1.4rem;margin-bottom:.4rem">🔭</div>
+              <div style="font-weight:700;font-size:.88rem;margin-bottom:.3rem">Perspectiva Holística</div>
+              <div style="font-size:.82rem;color:var(--text-mid)">Visión integral para implementar soluciones responsables.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="s3">
+          <h2>📌 1.3 División de la Estadística</h2>
+          <div class="compare-grid">
+            <div class="compare-card desc">
+              <h4>📊 Estadística Descriptiva</h4>
+              <p><em>"Describe lo que ya ocurrió — ¿Qué pasó?"</em></p>
+              <p>Organiza y resume datos mediante gráficos y tablas.</p>
+              <span class="tag tag-desc">Descriptiva (D)</span>
+              <p style="margin-top:.6rem;font-size:.82rem;color:var(--text-light)"><strong>Ej:</strong> Reporte de ventas diarias o dashboard de tráfico de red.</p>
+            </div>
+            <div class="compare-card inf">
+              <h4>🔮 Estadística Inferencial</h4>
+              <p><em>"Predice lo que podría ocurrir — ¿Qué esperamos?"</em></p>
+              <p>Realiza deducciones sobre una población basándose en una muestra.</p>
+              <span class="tag tag-inf">Inferencial (I)</span>
+              <p style="margin-top:.6rem;font-size:.82rem;color:var(--text-light)"><strong>Ej:</strong> Predecir el éxito de un software encuestando solo a un grupo.</p>
+            </div>
+          </div>
+          <h3>🎯 Ejercicio: ¿D o I?</h3>
+          <div class="exercise-box">
+            <h4>💻 Ejercicio 1</h4>
+            <p class="ex-scenario">"El promedio de temperatura en Quito durante marzo fue de 14°C."</p>
+            <div class="ex-options">
+              <button class="ex-btn" onclick="checkEx(this,'correct','ex1')">D — Descriptivo</button>
+              <button class="ex-btn" onclick="checkEx(this,'wrong','ex1')">I — Inferencial</button>
+            </div>
+            <div id="ex1" class="ex-feedback"></div>
+            <button class="ex-reset" onclick="resetEx('ex1',this)">Reiniciar</button>
+          </div>
+          <div class="exercise-box">
+            <h4>💻 Ejercicio 2</h4>
+            <p class="ex-scenario">"Encuestamos a 500 consumidores para predecir si el nuevo producto tendrá éxito en el mercado."</p>
+            <div class="ex-options">
+              <button class="ex-btn" onclick="checkEx(this,'wrong','ex2')">D — Descriptivo</button>
+              <button class="ex-btn" onclick="checkEx(this,'correct','ex2')">I — Inferencial</button>
+            </div>
+            <div id="ex2" class="ex-feedback"></div>
+            <button class="ex-reset" onclick="resetEx('ex2',this)">Reiniciar</button>
+          </div>
+          <div class="exercise-box">
+            <h4>💻 Ejercicio 3</h4>
+            <p class="ex-scenario">"El 35% de los servidores del data center fallaron el mes pasado."</p>
+            <div class="ex-options">
+              <button class="ex-btn" onclick="checkEx(this,'correct','ex3')">D — Descriptivo</button>
+              <button class="ex-btn" onclick="checkEx(this,'wrong','ex3')">I — Inferencial</button>
+            </div>
+            <div id="ex3" class="ex-feedback"></div>
+            <button class="ex-reset" onclick="resetEx('ex3',this)">Reiniciar</button>
+          </div>
+          <div class="exercise-box">
+            <h4>💻 Ejercicio 4</h4>
+            <p class="ex-scenario">"Con base en 1000 transacciones revisadas, estimamos que el 2% de todas las transacciones del banco son fraudulentas."</p>
+            <div class="ex-options">
+              <button class="ex-btn" onclick="checkEx(this,'wrong','ex4')">D — Descriptivo</button>
+              <button class="ex-btn" onclick="checkEx(this,'correct','ex4')">I — Inferencial</button>
+            </div>
+            <div id="ex4" class="ex-feedback"></div>
+            <button class="ex-reset" onclick="resetEx('ex4',this)">Reiniciar</button>
+          </div>
+        </section>
+
+        <section class="section" id="s4">
+          <h2>📌 1.4 Población y Muestra</h2>
+          <div class="compare-grid">
+            <div class="compare-card desc">
+              <h4>🌍 Población (N)</h4>
+              <p>Puede ser <strong>finita o infinita</strong>. Conjunto total de elementos que son objeto de estudio.</p>
+              <p style="font-size:.82rem;color:var(--text-light)"><strong>Ej:</strong> Base de datos completa de clientes de un banco (1 millón de registros).</p>
+            </div>
+            <div class="compare-card inf">
+              <h4>🎯 Muestra (n)</h4>
+              <p><strong>Subconjunto representativo</strong> extraído de la población para su análisis.</p>
+              <p style="font-size:.82rem;color:var(--text-light)"><strong>Ej:</strong> 5000 clientes seleccionados aleatoriamente para una encuesta.</p>
+            </div>
+          </div>
+          <div class="callout callout-warn">
+            <div class="ct">⚠️ Principio fundamental</div>
+            <div class="cb">La selección debe ser <strong>ética y científica</strong> para evitar sesgos en los resultados. ¿Cómo garantizamos que el 1% de los datos represente a todos?</div>
+          </div>
+        </section>
+
+        <section class="section" id="s5">
+          <h2>🐍 1.5 Python: Simulación de Muestreo</h2>
+          <p>Implementamos la diferencia entre media poblacional y muestral, demostrando por qué las muestras bien seleccionadas son representativas.</p>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'py1')">Python Básico</button>
+              <button class="ctab" onclick="switchCodeTab(this,'py2')">Python Avanzado</button>
+            </div>
+            <div class="code-panel active" id="py1">
+<pre><code class="language-python">import numpy as np
+np.random.seed(42)
+
+# Población de 10,000 salarios (media: $1000, SD: $500)
+poblacion = np.random.normal(1000, 500, 10000)
+
+# Muestra aleatoria de 100 empleados (solo 1% de la población)
+muestra = np.random.choice(poblacion, 100, replace=False)
+
+print(f"Media Real (Población):  ${poblacion.mean():.2f}")
+print(f"Media Estimada (Muestra): ${muestra.mean():.2f}")
+print(f"Diferencia:              ${abs(poblacion.mean()-muestra.mean()):.2f}")
+print(f"Representatividad:       {len(muestra)/len(poblacion)*100:.1f}%")</code></pre>
+            </div>
+            <div class="code-panel" id="py2">
+<pre><code class="language-python">import numpy as np
+
+np.random.seed(42)
+poblacion = np.random.normal(1000, 500, 10000)
+
+# Simulamos 500 muestras distintas de tamaño 100
+medias = [np.random.choice(poblacion, 100, replace=False).mean() for _ in range(500)]
+medias = np.array(medias)
+
+print("=== TEOREMA DEL LÍMITE CENTRAL ===")
+print(f"Media poblacional:              ${poblacion.mean():.2f}")
+print(f"Promedio de 500 medias muest.:  ${medias.mean():.2f}")
+print(f"Error estándar observado:       ${medias.std():.2f}")
+print(f"\n→ Las medias muestrales convergen a la media real.")</code></pre>
+            </div>
+            <div class="code-output">
+              <div class="out-label">Output</div>
+              Media Real (Población): $999.87 | Media Estimada: $1004.52 | Diferencia: $4.65 | Representatividad: 1.0%
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <div class="ct">💡 ¿Qué observamos?</div>
+            <div class="cb">Con solo el <strong>1% de la población</strong> (100 de 10,000), la muestra estima la media real con menos de $5 de diferencia. Esto es el poder de una muestra representativa.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s6">
+          <h2>📊 1.6 R: Simulación de Muestreo</h2>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'r1')">R Básico</button>
+              <button class="ctab" onclick="switchCodeTab(this,'r2')">R con ggplot2</button>
+            </div>
+            <div class="code-panel active" id="r1">
+<pre><code class="language-r">set.seed(42)
+
+# Población de 10,000 salarios
+poblacion <- rnorm(10000, mean = 1000, sd = 500)
+
+# Muestra aleatoria de 100 empleados
+muestra <- sample(poblacion, size = 100, replace = FALSE)
+
+cat("=== ESTADÍSTICAS DE MUESTREO ===\n")
+cat(sprintf("Media Real (Población):   $%.2f\n", mean(poblacion)))
+cat(sprintf("Media Estimada (Muestra): $%.2f\n", mean(muestra)))
+cat(sprintf("Diferencia:               $%.2f\n", abs(mean(poblacion)-mean(muestra))))
+cat(sprintf("Representatividad:        %.1f%%\n", length(muestra)/length(poblacion)*100))</code></pre>
+            </div>
+            <div class="code-panel" id="r2">
+<pre><code class="language-r">library(ggplot2)
+set.seed(42)
+
+poblacion <- rnorm(10000, mean = 1000, sd = 500)
+
+# 500 muestras → Teorema del Límite Central
+medias <- replicate(500, mean(sample(poblacion, 100)))
+
+df <- data.frame(media = medias)
+
+ggplot(df, aes(x = media)) +
+  geom_histogram(bins = 30, fill = "steelblue", alpha = 0.8, color = "white") +
+  geom_vline(xintercept = mean(poblacion), color = "red", linetype = "dashed", linewidth = 1) +
+  labs(title = "Distribución de 500 Medias Muestrales (TLC)",
+       subtitle = sprintf("Media real: $%.0f | Promedio medias: $%.0f",
+                          mean(poblacion), mean(medias)),
+       x = "Media muestral ($)", y = "Frecuencia") +
+  theme_minimal(base_size = 13)</code></pre>
+            </div>
+            <div class="code-output">
+              <div class="out-label">Output</div>
+              Media Real: $999.87 | Media Estimada: $1004.52 | Diferencia: $4.65 | Representatividad: 1.0%
+            </div>
+          </div>
+          <div class="callout callout-example">
+            <div class="ct">📝 Actividad autónoma</div>
+            <div class="cb">Modifica el código para N=50,000 salarios en empresa tech ecuatoriana (media=$800, SD=$200). ¿Cuántos elementos necesitas para que el error sea menor a $10?</div>
+          </div>
+        </section>
+
+        <section class="section" id="s7">
+          <h2>⚖️ 1.7 Ética y Valores del Analista de Datos</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0">
+            <div style="background:var(--amber-pale);border-radius:8px;padding:1.1rem;border-left:3px solid var(--amber)">
+              <div style="font-weight:700;font-size:.88rem;color:#92400e;margin-bottom:.4rem">🎯 Honestidad y Ética</div>
+              <div style="font-size:.83rem;color:#78350f">Vitales para evitar sesgos y desinformación. Un dato manipulado puede destruir la confianza en una organización.</div>
+            </div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:1.1rem;border-left:3px solid var(--green)">
+              <div style="font-weight:700;font-size:.88rem;color:#166534;margin-bottom:.4rem">🧠 Pensamiento Crítico</div>
+              <div style="font-size:.83rem;color:#166534">Analizar causas y soluciones considerando implicaciones éticas. No aceptar datos sin cuestionarlos.</div>
+            </div>
+            <div style="background:var(--blue-pale);border-radius:8px;padding:1.1rem;border-left:3px solid var(--blue)">
+              <div style="font-weight:700;font-size:.88rem;color:#1e40af;margin-bottom:.4rem">📊 Transparencia</div>
+              <div style="font-size:.83rem;color:#1e40af">Reportar los métodos utilizados, el tamaño de la muestra y las limitaciones del análisis.</div>
+            </div>
+            <div style="background:#fdf4ff;border-radius:8px;padding:1.1rem;border-left:3px solid #a855f7">
+              <div style="font-weight:700;font-size:.88rem;color:#6b21a8;margin-bottom:.4rem">🔒 Privacidad</div>
+              <div style="font-size:.83rem;color:#581c87">Respetar la privacidad de los individuos en los datos que analizamos.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="s8">
+          <h2>🎯 1.8 Puntos Clave y Quiz</h2>
+          <div class="keypoints">
+            <h4>Puntos Clave de la Semana 1</h4>
+            <div class="kp-item"><div class="kp-num">1</div><div class="kp-text">La estadística <strong>transforma datos en decisiones</strong> — herramienta central de Gestión de Data.</div></div>
+            <div class="kp-item"><div class="kp-num">2</div><div class="kp-text">La <strong>descriptiva</strong> resume lo que pasó; la <strong>inferencial</strong> predice lo que podría ocurrir.</div></div>
+            <div class="kp-item"><div class="kp-num">3</div><div class="kp-text">Muestra (n) = subconjunto de Población (N). Bien seleccionada, permite inferir sobre el todo.</div></div>
+            <div class="kp-item"><div class="kp-num">4</div><div class="kp-text">La selección debe ser <strong>ética y científica</strong> para evitar sesgos.</div></div>
+            <div class="kp-item"><div class="kp-num">5</div><div class="kp-text">Python (<code>np.random.choice</code>) y R (<code>sample()</code>) son las herramientas estándar de muestreo.</div></div>
+          </div>
+          <div class="quiz-box">
+            <h3>✅ Mini Quiz · Semana 1</h3>
+            <div class="quiz-item">
+              <div class="q-text">1. Una empresa analiza el 100% de las transacciones del mes pasado para encontrar fraudes. ¿Qué tipo de estadística es?</div>
+              <div class="q-opts">
+                <button class="q-btn" onclick="ansQ(this,true,'q1')">Descriptiva</button>
+                <button class="q-btn" onclick="ansQ(this,false,'q1')">Inferencial</button>
+                <button class="q-btn" onclick="ansQ(this,false,'q1')">Ninguna</button>
+              </div>
+              <div id="q1-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div>
+            </div>
+            <div class="quiz-item">
+              <div class="q-text">2. En Python, ¿qué función tomamos para una muestra sin reemplazo de un array NumPy?</div>
+              <div class="q-opts">
+                <button class="q-btn" onclick="ansQ(this,false,'q2')">np.sample()</button>
+                <button class="q-btn" onclick="ansQ(this,true,'q2')">np.random.choice()</button>
+                <button class="q-btn" onclick="ansQ(this,false,'q2')">np.select()</button>
+              </div>
+              <div id="q2-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div>
+            </div>
+            <div class="quiz-item">
+              <div class="q-text">3. ¿Cuál letra representa la Población en estadística?</div>
+              <div class="q-opts">
+                <button class="q-btn" onclick="ansQ(this,false,'q3')">n</button>
+                <button class="q-btn" onclick="ansQ(this,true,'q3')">N</button>
+                <button class="q-btn" onclick="ansQ(this,false,'q3')">μ</button>
+              </div>
+              <div id="q3-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div>
+            </div>
+            <div class="quiz-item">
+              <div class="q-text">4. En R, ¿qué función equivale a np.random.choice() de Python para muestreo?</div>
+              <div class="q-opts">
+                <button class="q-btn" onclick="ansQ(this,false,'q4')">choose()</button>
+                <button class="q-btn" onclick="ansQ(this,false,'q4')">random()</button>
+                <button class="q-btn" onclick="ansQ(this,true,'q4')">sample()</button>
+              </div>
+              <div id="q4-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div>
+            </div>
+            <div id="quiz-score" class="quiz-score"></div>
+          </div>
+        </section>
+
+      </div><!-- end content-body -->
+    </div><!-- end ptab-clase -->
+
+    <!-- ── TAB: TALLER ── -->
+    <div id="ptab-taller" class="ptab-content">
+      <div class="taller-hero">
+        <h2>🛠 Taller Práctico · Semana 1</h2>
+        <p>Aplicación de los conceptos de estadística descriptiva, inferencial, población y muestra en escenarios reales del sector tecnológico.</p>
+        <div class="taller-meta">
+          <span>⏱ 45 minutos</span>
+          <span>📋 2 casos ABP</span>
+          <span>🐍 Python + 📊 R</span>
+          <span>👥 Individual o parejas</span>
+        </div>
+      </div>
+      <div class="taller-body">
+
+        <div class="taller-case" id="t1">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">💿</span>
+            <h3>Caso 1: Control de Calidad en Data Center</h3>
+            <span class="taller-case-badge">ABP · 20 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="scenario-box">
+              <strong>Escenario:</strong> Una empresa recibe un lote de <strong>5,000 discos duros</strong>. Se quiere verificar si cumplen con la vida útil prometida (≥ 3 años), pero probar los 5,000 es inviable económicamente. Se decide probar una muestra de <strong>50 unidades</strong> seleccionadas aleatoriamente.
+            </div>
+            <ol class="step-list">
+              <li>
+                <div class="step-num">1</div>
+                <div class="step-content">
+                  <div class="step-q">¿Cuál es la Población (N) en este problema?</div>
+                  <div class="step-ans">N = 5,000 discos duros del lote completo.</div>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">2</div>
+                <div class="step-content">
+                  <div class="step-q">¿Cuál es la Muestra (n)?</div>
+                  <div class="step-ans">n = 50 discos seleccionados aleatoriamente para la prueba.</div>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">3</div>
+                <div class="step-content">
+                  <div class="step-q">¿Es descriptivo o inferencial si proyectamos el resultado al lote completo?</div>
+                  <div class="step-ans">Inferencial — usamos 50 unidades para predecir el comportamiento de los 5,000.</div>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">4</div>
+                <div class="step-content">
+                  <div class="step-q">¿Qué riesgos existen si los 50 discos NO se seleccionan aleatoriamente (ej: solo los del primer palet)?</div>
+                  <div class="step-ans">Sesgo de selección: los resultados no representan al total del lote. La calidad del primer palet puede diferir del resto.</div>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">5</div>
+                <div class="step-content">
+                  <div class="step-q">Si 3 de los 50 discos fallan, ¿cuántos fallos estimarías en los 5,000? Muestra tu cálculo.</div>
+                  <div class="step-ans">Tasa de fallo = 3/50 = 6%. Estimación = 6% × 5,000 = <strong>300 discos</strong> podrían fallar en el lote.</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="taller-case" id="t2">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">🌐</span>
+            <h3>Caso 2: Análisis de Tráfico Web</h3>
+            <span class="taller-case-badge">ABP · 15 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="scenario-box">
+              <strong>Escenario:</strong> Un sitio de e-commerce recibió <strong>1 millón de visitas</strong> ayer. El software de analítica muestra que el promedio de permanencia fue de 2.5 minutos y el 12% realizó una compra.
+            </div>
+            <ol class="step-list">
+              <li>
+                <div class="step-num">1</div>
+                <div class="step-content">
+                  <div class="step-q">¿El dato "promedio de permanencia = 2.5 minutos" es descriptivo o inferencial?</div>
+                  <div class="step-ans">Descriptivo — describe exactamente lo que ocurrió ayer con el 100% de las visitas registradas.</div>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">2</div>
+                <div class="step-content">
+                  <div class="step-q">Propón un uso inferencial de estos mismos datos.</div>
+                  <div class="step-ans">Estimar que la próxima semana también tendrá ~2.5 min de permanencia y ~12% de conversión, usando el día de ayer como muestra representativa del comportamiento futuro.</div>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">3</div>
+                <div class="step-content">
+                  <div class="step-q">¿La población aquí es finita o infinita?</div>
+                  <div class="step-ans">Finita: 1 millón de visitas de ese día. Infinita: si consideramos todas las visitas futuras posibles.</div>
+                </div>
+              </li>
+              <li>
+                <div class="step-num">4</div>
+                <div class="step-content">
+                  <div class="step-q">El jefe quiere proyectar que "este mes habrá 30 millones de visitas". ¿Es válida esta inferencia? ¿Qué factores podrían sesgarla?</div>
+                  <div class="step-ans">Parcialmente válida. Sesgos posibles: el día analizado puede ser inusual (promoción, campaña), hay variaciones por día de semana y factores externos (feriados, competencia).</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="taller-case" id="t3">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">💻</span>
+            <h3>Código: Simulación de los Casos</h3>
+            <span class="taller-case-badge">Python + R · 10 min</span>
+          </div>
+          <div class="taller-case-body">
+            <p style="font-size:.88rem;color:var(--text-mid);margin-bottom:1rem">Implementa los cálculos del Caso 1 en código. Copia, ejecuta y modifica los parámetros.</p>
+            <div class="code-block">
+              <div class="code-tabs-header">
+                <button class="ctab active" onclick="switchCodeTab(this,'tp1')">🐍 Python</button>
+                <button class="ctab" onclick="switchCodeTab(this,'tr1')">📊 R</button>
+              </div>
+              <div class="code-panel active" id="tp1">
+<pre><code class="language-python">import numpy as np
+np.random.seed(42)
+
+# ── Completa los valores donde dice _____ ─────────────────
+N = _____        # ¿Cuántos discos tiene el lote completo?
+n = _____        # ¿Cuántos discos se van a probar?
+p_fallo = _____  # Tasa de fallo estimada (escríbela como decimal)
+
+# ── Genera el lote: 1 = falla, 0 = no falla ──────────────
+# Pista: np.random.binomial(ensayos_por_elemento, prob, tamaño)
+lote = np.random.binomial(_____, p_fallo, N)
+
+# ── Toma la muestra sin reemplazo ────────────────────────
+# Pista: np.random.choice(array, tamaño, replace=...)
+muestra = np.random.choice(lote, _____, replace=_____)
+
+# ── Calcula los resultados ────────────────────────────────
+fallos_muestra = muestra._____()        # ¿qué método suma los elementos?
+tasa_estimada  = fallos_muestra / _____  # divide entre el tamaño de muestra
+fallos_lote    = round(_____ * N)        # extrapola al lote completo
+
+print(f"Fallos en muestra:        {fallos_muestra} de {n}")
+print(f"Tasa de fallo estimada:   {tasa_estimada*100:.1f}%")
+print(f"Fallos estimados en lote: ~{fallos_lote} de {N}")</code></pre>
+              </div>
+              <div class="code-panel" id="tr1">
+<pre><code class="language-r">set.seed(42)
+
+# ── Completa los valores donde dice _____ ─────────────────
+N       <- _____  # ¿Cuántos discos tiene el lote completo?
+n       <- _____  # ¿Cuántos discos se van a probar?
+p_fallo <- _____  # Tasa de fallo estimada (decimal)
+
+# ── Genera el lote ────────────────────────────────────────
+# Pista: rbinom(tamaño, ensayos_por_elemento, probabilidad)
+lote <- rbinom(N, _____, p_fallo)
+
+# ── Toma la muestra sin reemplazo ────────────────────────
+# Pista: sample(vector, tamaño, replace = ...)
+muestra <- sample(lote, _____, replace = _____)
+
+# ── Calcula los resultados ────────────────────────────────
+fallos_muestra <- sum(_____)               # suma los 1s (fallos)
+tasa_estimada  <- _____ / n               # divide entre el tamaño de muestra
+fallos_lote    <- round(tasa_estimada * N) # extrapola
+
+cat(sprintf("Fallos en muestra:        %d de %d\n", fallos_muestra, n))
+cat(sprintf("Tasa de fallo estimada:   %.1f%%\n", tasa_estimada * 100))
+cat(sprintf("Fallos estimados en lote: ~%d de %d\n", fallos_lote, N))</code></pre>
+              </div>
+              <div class="code-output">
+                <div class="out-label">Output</div>
+                Muestra tomada: 50 discos | Fallos en muestra: 3 | Tasa estimada: 6.0%<br>
+                Fallos estimados en lote: ~300 de 5000
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end taller-body -->
+    </div><!-- end ptab-taller -->
+
+    <div class="page-nav">
+      <a href="../index.html" class="nav-card">
+        <span class="nav-card-arrow">←</span>
+        <div><div class="nav-card-label">Anterior</div><div class="nav-card-title">Inicio del Curso</div></div>
+      </a>
+      <a href="../semana02/index.html" class="nav-card next">
+        <span class="nav-card-arrow">→</span>
+        <div><div class="nav-card-label">Siguiente</div><div class="nav-card-title">Semana 2: Muestreo</div></div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
+<script>
+const PWD='Ister_Estadistica2026',KEY='ister_auth_2026';
+function activarTaller(){
+  document.querySelectorAll('.step-ans').forEach(el=>{
+    el.textContent='';
+    el.setAttribute('contenteditable','true');
+    el.setAttribute('spellcheck','false');
+  });
+}
+function checkPwd(){
+  if(document.getElementById('pwd').value===PWD){
+    localStorage.setItem(KEY,'true');
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').classList.remove('hidden');
+    hljs.highlightAll();
+    activarTaller();
+    handleHash();
+  } else {
+    document.getElementById('pwd-err').style.display='block';
+    document.getElementById('pwd').value='';
+  }
+}
+window.onload=function(){
+  if(localStorage.getItem(KEY)==='true'){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').classList.remove('hidden');
+    hljs.highlightAll();
+    activarTaller();
+    handleHash();
+  }
+};
+function handleHash(){
+  if(window.location.hash==='#taller') switchPTab('taller');
+}
+function switchPTab(id){
+  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.ptab-content').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.ptab[data-tab="${id}"]`).classList.add('active');
+  document.getElementById('ptab-'+id).classList.add('active');
+  document.getElementById('toc-clase').style.display = id==='clase'?'':'none';
+  document.getElementById('toc-taller').style.display = id==='taller'?'':'none';
+  history.replaceState(null,null,id==='taller'?'#taller':'#');
+}
+function switchCodeTab(btn,id){
+  const blk=btn.closest('.code-block');
+  blk.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));
+  blk.querySelectorAll('.code-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  blk.querySelector('#'+id).classList.add('active');
+}
+const exMsg={
+  ex1:'Es Descriptivo — describe lo que ya ocurrió (temperatura de marzo).',
+  ex2:'Es Inferencial — usa 500 personas para predecir el comportamiento de todo el mercado.',
+  ex3:'Es Descriptivo — describe exactamente el 35% que ya falló.',
+  ex4:'Es Inferencial — estima el porcentaje de toda la población basándose en 1000 transacciones.'
+};
+function checkEx(btn,type,id){
+  const box=btn.closest('.exercise-box');
+  if(box.querySelector('.ex-btn.correct')||box.querySelector('.ex-btn.wrong')) return;
+  btn.classList.add(type);
+  const fb=document.getElementById(id);
+  fb.style.display='block';
+  if(type==='correct'){fb.className='ex-feedback fb-ok';fb.textContent='✅ ¡Correcto! '+exMsg[id];}
+  else{fb.className='ex-feedback fb-err';fb.textContent='❌ Incorrecto. '+exMsg[id];box.querySelectorAll('.ex-btn').forEach(b=>{if(b!==btn)b.classList.add('correct');});}
+}
+function resetEx(id,btn){
+  const box=btn.closest('.exercise-box');
+  box.querySelectorAll('.ex-btn').forEach(b=>b.classList.remove('correct','wrong'));
+  document.getElementById(id).style.display='none';
+}
+const qAnswered={};
+function ansQ(btn,ok,id){
+  const item=btn.closest('.quiz-item');
+  if(item.querySelector('.q-btn.q-correct')||item.querySelector('.q-btn.q-wrong')) return;
+  btn.classList.add(ok?'q-correct':'q-wrong');
+  if(!ok) item.querySelectorAll('.q-btn').forEach(b=>{if(b!==btn)b.classList.add('q-correct');});
+  qAnswered[id]=ok;
+  const fb=document.getElementById(id+'-fb');
+  if(fb){fb.style.display='block';fb.style.color=ok?'#6ee7b7':'#fca5a5';fb.textContent=ok?'✅ ¡Correcto!':'❌ La respuesta correcta está marcada en verde.';}
+  if(Object.keys(qAnswered).length===4){
+    const s=Object.values(qAnswered).filter(Boolean).length;
+    const el=document.getElementById('quiz-score');
+    el.style.display='block';
+    el.textContent=`Resultado: ${s}/4 — ${s===4?'🎉 ¡Perfecto!':s>=3?'👍 ¡Muy bien!':'📚 Repasa los conceptos.'}`;
+  }
+}
+const sections=document.querySelectorAll('.section');
+const tocLinks=document.querySelectorAll('.sb-toc-link');
+new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      tocLinks.forEach(l=>l.classList.remove('toc-active'));
+      const l=document.querySelector(`.sb-toc-link[href="#${e.target.id}"]`);
+      if(l)l.classList.add('toc-active');
+    }
+  });
+},{rootMargin:'-40% 0px -55% 0px'}).observe && sections.forEach(s=>new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){tocLinks.forEach(l=>l.classList.remove('toc-active'));const l=document.querySelector(`.sb-toc-link[href="#${e.target.id}"]`);if(l)l.classList.add('toc-active');}});},{rootMargin:'-40% 0px -55% 0px'}).observe(s));
+</script>
+</body>
+</html>

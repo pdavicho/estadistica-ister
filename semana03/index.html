@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 3: Representación Gráfica · ISTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue-dark:#0d2137;--blue-mid:#1a3a6b;--blue:#2563eb;--blue-light:#3b82f6;--blue-pale:#dbeafe;
+  --text:#0f172a;--text-mid:#334155;--text-light:#64748b;--bg:#ffffff;--bg-alt:#f8fafc;--border:#e2e8f0;
+  --green:#22c55e;--green-pale:#dcfce7;--amber:#f59e0b;--amber-pale:#fef3c7;
+  --red:#ef4444;--red-pale:#fee2e2;--sidebar-w:270px;--radius:8px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.7;font-size:15px}
+.hidden{display:none!important}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+#gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;z-index:9999}
+.gate-card{background:#fff;border-radius:16px;padding:2.5rem;width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.gate-title{font-size:1.4rem;font-weight:700;color:var(--blue-dark);margin-bottom:.25rem}.gate-sub{font-size:.85rem;color:var(--text-light);margin-bottom:1.5rem}
+.gate-input{width:100%;padding:.75rem 1rem;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:.9rem;outline:none;transition:.2s}.gate-input:focus{border-color:var(--blue)}
+.gate-btn{width:100%;margin-top:.75rem;padding:.75rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+.gate-error{color:var(--red);font-size:.82rem;margin-top:.5rem;display:none}
+#app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--blue-dark);color:#cbd5e1;height:100vh;position:fixed;top:0;left:0;overflow-y:auto;display:flex;flex-direction:column;z-index:50}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.sb-header{padding:1.25rem 1rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;margin-bottom:.75rem}
+.sb-logo-box{background:var(--blue);border-radius:6px;padding:.35rem .55rem;font-size:.7rem;font-weight:700;color:#fff}
+.sb-course{font-size:.82rem;font-weight:600;color:#e2e8f0}.sb-meta{font-size:.72rem;color:#94a3b8;margin-top:.1rem}
+.sb-home{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:6px;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;margin-top:.5rem}
+.sb-home:hover{background:rgba(255,255,255,.08);color:#e2e8f0;text-decoration:none}
+.sb-nav{flex:1;padding:.75rem 0}
+.sb-section{padding:.5rem 1rem .25rem;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-top:.75rem}
+.sb-link{display:block;padding:.45rem 1rem;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;border-left:2px solid transparent;line-height:1.4}
+.sb-link:hover{background:rgba(255,255,255,.06);color:#e2e8f0;text-decoration:none}
+.sb-link.active{color:#93c5fd;border-left-color:var(--blue-light);background:rgba(59,130,246,.12)}
+.sb-link.done{color:#6ee7b7}.sb-link.locked{color:#475569;pointer-events:none}
+.sb-link .badge{font-size:.65rem;padding:.1rem .35rem;border-radius:3px;margin-left:.35rem}
+.badge-d{background:rgba(110,231,183,.15);color:#6ee7b7}.badge-l{background:rgba(255,255,255,.05);color:#475569}
+.sb-toc-section{padding:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-toc-title{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-bottom:.5rem}
+.sb-toc-link{display:block;font-size:.78rem;color:#94a3b8;padding:.3rem 0 .3rem .6rem;text-decoration:none;transition:.15s;border-left:2px solid transparent}
+.sb-toc-link:hover{color:#e2e8f0;text-decoration:none}.sb-toc-link.toc-active{color:#93c5fd;border-left-color:var(--blue-light)}
+.content-wrap{margin-left:var(--sidebar-w);flex:1;min-width:0;background:var(--bg)}
+.content-header{padding:1.5rem 3rem 0;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:40}
+.breadcrumb{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-light);margin-bottom:.75rem}
+.breadcrumb a{color:var(--text-light);text-decoration:none}.breadcrumb a:hover{color:var(--blue)}
+.page-title-row{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.75rem}
+.week-pill{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .7rem;border-radius:4px;margin-top:.2rem;white-space:nowrap}
+.page-main-title{font-size:1.8rem;font-weight:800;color:var(--blue-dark);line-height:1.2;letter-spacing:-.02em}
+.page-subtitle{font-size:.95rem;color:var(--text-mid);margin-top:.4rem}
+.page-meta{display:flex;gap:1rem;margin-top:.5rem;flex-wrap:wrap}.meta-item{font-size:.78rem;color:var(--text-light)}
+.page-tabs{display:flex;border-top:1px solid var(--border);margin-top:.75rem}
+.ptab{padding:.65rem 1.25rem;font-family:inherit;font-size:.85rem;font-weight:600;border:none;background:none;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;display:flex;align-items:center;gap:.4rem;margin-bottom:-1px}
+.ptab:hover{color:var(--text)}.ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.ptab-content{display:none}.ptab-content.active{display:block}
+.content-body{padding:2.5rem 3rem;max-width:860px}
+.section{margin-bottom:3.5rem;scroll-margin-top:160px}
+.section h2{font-size:1.35rem;font-weight:700;color:var(--blue-dark);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--blue-pale)}
+.section h3{font-size:1.05rem;font-weight:600;color:var(--text);margin:1.5rem 0 .75rem}
+.section p{margin-bottom:1rem;color:var(--text-mid)}.section ul{margin:.5rem 0 1rem 1.25rem;color:var(--text-mid)}.section li{margin-bottom:.4rem}
+.callout{border-radius:var(--radius);padding:1.1rem 1.25rem;margin:1.25rem 0;border-left:4px solid}
+.callout-def{background:var(--blue-pale);border-color:var(--blue)}.callout-def .ct{color:var(--blue-dark);font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-def .cb{color:var(--text-mid);font-size:.9rem}
+.callout-tip{background:#f0fdf4;border-color:var(--green)}.callout-tip .ct{color:#166534;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-tip .cb{color:#166534;font-size:.9rem}
+.callout-warn{background:var(--amber-pale);border-color:var(--amber)}.callout-warn .ct{color:#92400e;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-warn .cb{color:#78350f;font-size:.9rem}
+.callout-example{background:#faf5ff;border-color:#a855f7}.callout-example .ct{color:#6b21a8;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-example .cb{color:#581c87;font-size:.9rem}
+/* CHART GUIDE TABLE */
+.chart-table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.84rem}
+.chart-table th{background:var(--blue-dark);color:#fff;padding:.7rem 1rem;text-align:left;font-weight:600;font-size:.8rem}
+.chart-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:var(--text-mid);vertical-align:top}
+.chart-table tr:hover td{background:var(--bg-alt)}
+.chart-table .chart-name{font-weight:700;color:var(--text)}
+.chart-badge{font-size:.68rem;padding:.15rem .45rem;border-radius:4px;font-weight:600;display:inline-block}
+.cb-cua{background:#f3e8ff;color:#6b21a8}.cb-cuan{background:var(--blue-pale);color:#1e40af}.cb-both{background:#f0fdf4;color:#166534}
+.code-block{margin:1.25rem 0;border-radius:var(--radius);overflow:hidden;border:1px solid #1e293b;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.code-tabs-header{background:#1e293b;display:flex;align-items:center;padding:0 .75rem;gap:.25rem;border-bottom:1px solid #334155}
+.ctab{padding:.65rem .9rem;font-size:.8rem;font-weight:600;border:none;background:none;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;font-family:inherit}
+.ctab:hover{color:#e2e8f0}.ctab.active{color:#93c5fd;border-bottom-color:var(--blue-light)}
+.code-panel{display:none}.code-panel.active{display:block}
+.code-panel pre{margin:0;border-radius:0}.code-panel pre code{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.6}
+.code-output{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:1rem 1.25rem;border-top:1px solid #1e293b;line-height:1.5}
+.out-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569;margin-bottom:.4rem}
+.exercise-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.exercise-box h4{font-size:.95rem;font-weight:700;color:var(--blue-dark);margin-bottom:.5rem}
+.ex-scenario{background:#fff;border-left:3px solid var(--blue);padding:.75rem 1rem;border-radius:0 6px 6px 0;font-size:.88rem;color:var(--text);margin-bottom:1rem;font-style:italic}
+.ex-options{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem}
+.ex-btn{padding:.45rem 1rem;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--text-mid);font-family:inherit;font-size:.83rem;font-weight:500;cursor:pointer;transition:.15s}
+.ex-btn:hover{border-color:var(--blue);color:var(--blue)}.ex-btn.correct{background:var(--green-pale);border-color:var(--green);color:#166534}.ex-btn.wrong{background:var(--red-pale);border-color:var(--red);color:#991b1b}
+.ex-feedback{font-size:.83rem;padding:.5rem .75rem;border-radius:6px;margin-top:.4rem;display:none}
+.fb-ok{background:var(--green-pale);color:#166534}.fb-err{background:var(--red-pale);color:#991b1b}
+.ex-reset{font-size:.78rem;color:var(--text-light);background:none;border:none;cursor:pointer;margin-top:.5rem;text-decoration:underline}
+/* TALLER */
+.taller-hero{background:linear-gradient(135deg,var(--blue-dark),#1e4a8a);color:#fff;padding:2rem 3rem;border-bottom:3px solid var(--blue)}
+.taller-hero h2{font-size:1.5rem;font-weight:800;margin-bottom:.4rem}.taller-hero p{font-size:.9rem;opacity:.85;max-width:680px}
+.taller-meta{display:flex;gap:1.25rem;margin-top:.9rem;flex-wrap:wrap}.taller-meta span{font-size:.78rem;background:rgba(255,255,255,.12);padding:.3rem .75rem;border-radius:20px}
+.taller-body{padding:2rem 3rem;max-width:860px}
+.taller-case{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:2rem;overflow:hidden}
+.taller-case-header{background:var(--blue-dark);color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem}
+.taller-case-header h3{font-size:1rem;font-weight:700}.taller-case-badge{font-size:.7rem;background:rgba(255,255,255,.15);padding:.2rem .6rem;border-radius:4px}
+.taller-case-body{padding:1.5rem}
+.scenario-box{background:var(--bg-alt);border-left:4px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.9rem;color:var(--text-mid)}
+.step-list{counter-reset:step;list-style:none;margin:0;padding:0}
+.step-list li{counter-increment:step;display:flex;align-items:flex-start;gap:.9rem;padding:1rem 0;border-bottom:1px solid var(--border)}
+.step-list li:last-child{border-bottom:none}
+.step-num{background:var(--blue);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.step-content{flex:1}.step-q{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.35rem}
+.step-ans{font-size:.85rem;color:var(--text-mid);background:var(--green-pale);border-radius:6px;padding:.5rem .75rem;border-left:3px solid var(--green);margin-top:.35rem}
+.step-ans::before{content:'→ ';font-weight:700;color:#166534}
+.keypoints{background:var(--blue-dark);color:#fff;border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.keypoints h4{font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;margin-bottom:1rem}
+.kp-item{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.07)}.kp-item:last-child{border-bottom:none}
+.kp-num{background:var(--blue);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kp-text{font-size:.88rem;color:#cbd5e1}
+.quiz-box{background:linear-gradient(135deg,var(--blue-dark),#1a3a6b);border-radius:var(--radius);padding:1.75rem;margin:1.25rem 0;color:#fff}
+.quiz-box h3{font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:#93c5fd}
+.quiz-item{background:rgba(255,255,255,.06);border-radius:6px;padding:1rem;margin-bottom:.75rem}
+.q-text{font-size:.88rem;margin-bottom:.75rem;color:#e2e8f0}.q-opts{display:flex;gap:.5rem;flex-wrap:wrap}
+.q-btn{padding:.4rem .85rem;border:1.5px solid rgba(255,255,255,.2);border-radius:6px;background:rgba(255,255,255,.05);color:#cbd5e1;font-family:inherit;font-size:.8rem;cursor:pointer;transition:.15s}
+.q-btn:hover{border-color:var(--blue-light);color:#fff}.q-btn.q-correct{background:rgba(34,197,94,.15);border-color:var(--green);color:#6ee7b7}.q-btn.q-wrong{background:rgba(239,68,68,.15);border-color:var(--red);color:#fca5a5}
+.quiz-score{font-size:.88rem;color:#93c5fd;margin-top:1rem;text-align:center;display:none}
+.page-nav{display:flex;justify-content:space-between;padding:2rem 3rem;border-top:1px solid var(--border);margin-top:1rem}
+.nav-card{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.25rem;border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;color:var(--text);transition:.2s;max-width:220px}
+.nav-card:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12);text-decoration:none;color:var(--text)}
+.nav-card.next{flex-direction:row-reverse;text-align:right}
+.nav-card-arrow{font-size:1.1rem;color:var(--text-light)}.nav-card-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:.15rem}
+.nav-card-title{font-size:.85rem;font-weight:600;color:var(--blue-dark);line-height:1.3}
+.slides-wrap{margin-bottom:2.5rem;border-radius:10px;overflow:hidden;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.slides-bar{background:var(--blue-dark);color:#fff;padding:.55rem 1.1rem;display:flex;justify-content:space-between;align-items:center;font-size:.78rem}
+.slides-bar a{color:#93c5fd;font-size:.75rem;text-decoration:none;padding:.2rem .55rem;border:1px solid rgba(255,255,255,.2);border-radius:4px;transition:.15s}
+.slides-bar a:hover{background:rgba(255,255,255,.1);text-decoration:none}
+.slides-ratio{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#0d2137}
+.slides-ratio iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.step-ans{display:block;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:6px;padding:.7rem .95rem;min-height:52px;margin-top:.4rem;font-size:.87rem;line-height:1.6;color:var(--text);outline:none;cursor:text;transition:border-color .15s,background .15s,box-shadow .15s;font-family:'Inter',system-ui,sans-serif}
+.step-ans:focus{border-color:var(--blue);border-style:solid;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.step-ans:empty::before{content:'✏️ Escribe tu respuesta aquí...';color:#94a3b8;font-style:italic;font-size:.82rem;pointer-events:none}
+.taller-hint{background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:.45rem .85rem;margin:.35rem 0;font-size:.78rem;color:#78350f}
+.taller-hint::before{content:'💡 Pista: ';font-weight:700}
+</style>
+</head>
+<body>
+<div id="gate">
+  <div class="gate-card">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">📊</div>
+    <div class="gate-title">Estadística · ISTER</div>
+    <div class="gate-sub">Ingresa la clave del curso para continuar</div>
+    <input id="pwd" class="gate-input" type="password" placeholder="Clave del curso" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div id="pwd-err" class="gate-error">❌ Clave incorrecta</div>
+    <button class="gate-btn" onclick="checkPwd()">Ingresar</button>
+  </div>
+</div>
+<div id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="sb-header">
+      <a href="../index.html" class="sb-logo"><span class="sb-logo-box">ISTER</span><div><div class="sb-course">Estadística</div><div class="sb-meta">2026-1 · Sistemas & Data</div></div></a>
+      <a href="../index.html" class="sb-home">← Inicio del curso</a>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Tema 1 · Introducción</div>
+      <a href="../semana01/index.html" class="sb-link done">Semana 1 · Introducción <span class="badge badge-d">Vista</span></a>
+      <a href="../semana02/index.html" class="sb-link done">Semana 2 · Muestreo <span class="badge badge-d">Vista</span></a>
+      <a href="index.html" class="sb-link active">Semana 3 · Gráficas <span class="badge badge-d">Vista</span></a>
+      <a href="../semana04/index.html" class="sb-link done">Semana 4 · EDA <span class="badge badge-d">Vista</span></a>
+      <div class="sb-section">Tema 2 · Frecuencias</div>
+      <a href="#" class="sb-link locked">Semana 5 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 6 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 7 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 8 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 3 · Tendencia Central</div>
+      <a href="#" class="sb-link locked">Semana 9 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 10 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 11 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 12 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 4 · Probabilidad</div>
+      <a href="#" class="sb-link locked">Semana 13 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 14 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 15 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 16 <span class="badge badge-l">🔒</span></a>
+    </nav>
+    <div class="sb-toc-section" id="toc-clase">
+      <div class="sb-toc-title">En esta página · Clase</div>
+      <a href="#s1" class="sb-toc-link">1. ¿Por qué visualizar?</a>
+      <a href="#s2" class="sb-toc-link">2. Tipos de gráficos</a>
+      <a href="#s3" class="sb-toc-link">3. Criterios de selección</a>
+      <a href="#s4" class="sb-toc-link">4. Python: matplotlib/seaborn</a>
+      <a href="#s5" class="sb-toc-link">5. R: ggplot2</a>
+      <a href="#s6" class="sb-toc-link">6. Quiz Final</a>
+    </div>
+    <div class="sb-toc-section" id="toc-taller" style="display:none">
+      <div class="sb-toc-title">En esta página · Taller</div>
+      <a href="#t1" class="sb-toc-link">Dashboard de Red</a>
+      <a href="#t2" class="sb-toc-link">Python: Visualizaciones</a>
+      <a href="#t3" class="sb-toc-link">R: Visualizaciones</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <div class="content-header">
+      <div class="breadcrumb"><a href="../index.html">🏠 Inicio</a><span>›</span><span>Semana 3</span><span>›</span><span>Representación Gráfica</span></div>
+      <div class="page-title-row">
+        <span class="week-pill">Semana 3</span>
+        <div>
+          <div class="page-main-title">Representación Gráfica de Datos</div>
+          <div class="page-subtitle">Visualización estadística con Python (matplotlib/seaborn) y R (ggplot2)</div>
+          <div class="page-meta">
+            <span class="meta-item">👨‍🏫 Ing. David Minango, PhD.</span>
+            <span class="meta-item">📅 4 de mayo, 2026</span>
+            <span class="meta-item">⏱ ~90 min clase · 45 min taller</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-tabs">
+        <button class="ptab active" data-tab="clase" onclick="switchPTab('clase')">📖 Clase</button>
+        <button class="ptab" data-tab="taller" onclick="switchPTab('taller')">🛠 Taller Práctico</button>
+      </div>
+    </div>
+
+    <!-- TAB CLASE -->
+    <div id="ptab-clase" class="ptab-content active">
+      <div class="content-body">
+
+        <div class="slides-wrap">
+          <div class="slides-bar">
+            <span>📽 Presentación · 18 diapositivas · ~20 min · usa ← → o teclado</span>
+            <a href="../slides/s03.html" target="_blank">⛶ Pantalla completa</a>
+          </div>
+          <div class="slides-ratio">
+            <iframe src="../slides/s03.html" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <section class="section" id="s1">
+          <h2>📌 3.1 ¿Por qué visualizar datos?</h2>
+          <div class="callout callout-def">
+            <div class="ct">📖 Principio fundamental</div>
+            <div class="cb">Una tabla con 10,000 filas es imposible de interpretar de un vistazo. El gráfico correcto revela patrones, tendencias y anomalías <strong>en segundos</strong>.</div>
+          </div>
+          <p>La representación gráfica es la última etapa de la estadística descriptiva. Permite comunicar hallazgos a audiencias técnicas y no técnicas de forma efectiva.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:1rem 0">
+            <div style="background:#f0f9ff;border-radius:8px;padding:1rem;border-top:3px solid var(--blue)"><div style="font-size:1.4rem;margin-bottom:.4rem">🔍</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Descubrir patrones</div><div style="font-size:.82rem;color:var(--text-mid)">Tendencias, ciclos, outliers que los números ocultan.</div></div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:1rem;border-top:3px solid var(--green)"><div style="font-size:1.4rem;margin-bottom:.4rem">📣</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Comunicar resultados</div><div style="font-size:.82rem;color:var(--text-mid)">Presentar conclusiones a directivos, clientes, equipos.</div></div>
+            <div style="background:#fdf4ff;border-radius:8px;padding:1rem;border-top:3px solid #a855f7"><div style="font-size:1.4rem;margin-bottom:.4rem">🚨</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Detectar anomalías</div><div style="font-size:.82rem;color:var(--text-mid)">Errores, fraudes o fallos visibles inmediatamente.</div></div>
+          </div>
+        </section>
+
+        <section class="section" id="s2">
+          <h2>📌 3.2 Tipos de Gráficos Estadísticos</h2>
+          <table class="chart-table">
+            <thead><tr><th>Gráfico</th><th>Tipo de variable</th><th>¿Para qué sirve?</th><th>Ejemplo en sistemas</th></tr></thead>
+            <tbody>
+              <tr><td><span class="chart-name">📊 Barras</span></td><td><span class="chart-badge cb-cua">Cualitativa</span></td><td>Comparar categorías entre sí</td><td>N° tickets por tipo (Bug/Feature/Soporte)</td></tr>
+              <tr><td><span class="chart-name">📈 Líneas</span></td><td><span class="chart-badge cb-cuan">Cuantitativa</span></td><td>Mostrar evolución en el tiempo</td><td>Latencia del servidor por hora</td></tr>
+              <tr><td><span class="chart-name">🔵 Histograma</span></td><td><span class="chart-badge cb-cuan">Cuantitativa</span></td><td>Distribución de una variable continua</td><td>Distribución de tiempos de respuesta (ms)</td></tr>
+              <tr><td><span class="chart-name">🥧 Pastel/Torta</span></td><td><span class="chart-badge cb-cua">Cualitativa</span></td><td>Composición porcentual (máx. 5 categorías)</td><td>% uptime por servicio</td></tr>
+              <tr><td><span class="chart-name">📦 Boxplot</span></td><td><span class="chart-badge cb-cuan">Cuantitativa</span></td><td>Distribución + outliers + cuartiles</td><td>Tiempo de carga por país</td></tr>
+              <tr><td><span class="chart-name">⚫ Dispersión</span></td><td><span class="chart-badge cb-both">Ambas</span></td><td>Relación entre dos variables</td><td>CPU% vs tiempo de respuesta</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warn">
+            <div class="ct">⚠️ Error común</div>
+            <div class="cb">Los gráficos de pastel con más de 5 categorías son ilegibles. Prefiere un gráfico de barras horizontales. El histograma es para datos <em>continuos</em>, no para categorías.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s3">
+          <h2>📌 3.3 ¿Qué gráfico usar?</h2>
+          <p>La elección del gráfico correcto depende del <strong>tipo de variable</strong> y la <strong>pregunta que quieres responder</strong>:</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0">
+            <div style="background:#f0f9ff;border-radius:8px;padding:1.1rem;border-left:3px solid var(--blue)">
+              <div style="font-weight:700;font-size:.9rem;margin-bottom:.5rem;color:var(--blue-dark)">¿Comparar categorías?</div>
+              <div style="font-size:.83rem;color:var(--text-mid)">→ <strong>Gráfico de barras</strong><br>Ej: Número de errores por módulo del sistema.</div>
+            </div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:1.1rem;border-left:3px solid var(--green)">
+              <div style="font-weight:700;font-size:.9rem;margin-bottom:.5rem;color:#166534">¿Ver evolución temporal?</div>
+              <div style="font-size:.83rem;color:var(--text-mid)">→ <strong>Gráfico de líneas</strong><br>Ej: Tráfico de red por hora a lo largo de una semana.</div>
+            </div>
+            <div style="background:#fdf4ff;border-radius:8px;padding:1.1rem;border-left:3px solid #a855f7">
+              <div style="font-weight:700;font-size:.9rem;margin-bottom:.5rem;color:#6b21a8">¿Distribución de valores?</div>
+              <div style="font-size:.83rem;color:var(--text-mid)">→ <strong>Histograma o Boxplot</strong><br>Ej: Distribución de tiempos de respuesta del API.</div>
+            </div>
+            <div style="background:var(--amber-pale);border-radius:8px;padding:1.1rem;border-left:3px solid var(--amber)">
+              <div style="font-weight:700;font-size:.9rem;margin-bottom:.5rem;color:#92400e">¿Relación entre variables?</div>
+              <div style="font-size:.83rem;color:var(--text-mid)">→ <strong>Diagrama de dispersión</strong><br>Ej: ¿A mayor uso de CPU, mayor latencia?</div>
+            </div>
+          </div>
+          <div class="exercise-box">
+            <h4>🔍 Ejercicio: Elige el gráfico correcto</h4>
+            <p class="ex-scenario">"Quiero mostrar cómo varió el número de usuarios activos de mi aplicación a lo largo del mes de abril (31 puntos de datos diarios)."</p>
+            <div class="ex-options">
+              <button class="ex-btn" onclick="checkEx(this,'wrong','eg1')">Histograma</button>
+              <button class="ex-btn" onclick="checkEx(this,'correct','eg1')">Gráfico de líneas</button>
+              <button class="ex-btn" onclick="checkEx(this,'wrong','eg1')">Pastel</button>
+              <button class="ex-btn" onclick="checkEx(this,'wrong','eg1')">Boxplot</button>
+            </div>
+            <div id="eg1" class="ex-feedback"></div>
+            <button class="ex-reset" onclick="resetEx('eg1',this)">Reiniciar</button>
+          </div>
+          <div class="exercise-box">
+            <h4>🔍 Ejercicio 2</h4>
+            <p class="ex-scenario">"Tengo tiempos de respuesta de 5,000 peticiones HTTP. Quiero ver si hay valores extremos (outliers) y entender la distribución general."</p>
+            <div class="ex-options">
+              <button class="ex-btn" onclick="checkEx(this,'wrong','eg2')">Barras</button>
+              <button class="ex-btn" onclick="checkEx(this,'wrong','eg2')">Líneas</button>
+              <button class="ex-btn" onclick="checkEx(this,'correct','eg2')">Boxplot o Histograma</button>
+              <button class="ex-btn" onclick="checkEx(this,'wrong','eg2')">Pastel</button>
+            </div>
+            <div id="eg2" class="ex-feedback"></div>
+            <button class="ex-reset" onclick="resetEx('eg2',this)">Reiniciar</button>
+          </div>
+        </section>
+
+        <section class="section" id="s4">
+          <h2>🐍 3.4 Python: matplotlib y seaborn</h2>
+          <p>Python ofrece dos librerías complementarias: <strong>matplotlib</strong> para control total y <strong>seaborn</strong> para gráficos estadísticos elegantes con menos código.</p>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'py1')">Gráficos básicos</button>
+              <button class="ctab" onclick="switchCodeTab(this,'py2')">Seaborn estadístico</button>
+              <button class="ctab" onclick="switchCodeTab(this,'py3')">Dashboard completo</button>
+            </div>
+            <div class="code-panel active" id="py1">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+np.random.seed(42)
+
+fig, axes = plt.subplots(2, 3, figsize=(15, 9))
+fig.suptitle('Monitoreo de Infraestructura Tech', fontsize=14, fontweight='bold')
+
+# 1. BARRAS: Tickets por tipo
+tipos = ['Bug', 'Feature', 'Soporte', 'Seguridad']
+tickets = [145, 98, 234, 45]
+axes[0,0].bar(tipos, tickets, color=['#ef4444','#3b82f6','#22c55e','#f59e0b'])
+axes[0,0].set_title('Tickets por Tipo')
+axes[0,0].set_ylabel('Cantidad')
+
+# 2. LÍNEAS: Latencia por hora
+horas = np.arange(0, 24)
+latencia = 50 + 30*np.sin(horas*np.pi/12) + np.random.normal(0, 5, 24)
+axes[0,1].plot(horas, latencia, 'o-', color='#2563eb', linewidth=2, markersize=4)
+axes[0,1].axhline(y=100, color='red', linestyle='--', alpha=0.7, label='SLA máx')
+axes[0,1].set_title('Latencia por Hora (ms)')
+axes[0,1].legend()
+
+# 3. HISTOGRAMA: Tiempos de respuesta
+tiempos = np.random.gamma(2, 50, 2000)
+axes[0,2].hist(tiempos, bins=40, color='#3b82f6', alpha=0.8, edgecolor='white')
+axes[0,2].set_title('Distribución Tiempos de Respuesta')
+axes[0,2].set_xlabel('ms')
+
+# 4. BOXPLOT: CPU por servidor
+servidores = [f'SRV-{i}' for i in range(1,6)]
+cpu_data = [np.random.normal(m, 8, 100) for m in [45,62,38,78,55]]
+axes[1,0].boxplot(cpu_data, labels=servidores)
+axes[1,0].set_title('Uso CPU por Servidor (%)')
+
+# 5. PASTEL: Causas de downtime
+causas = ['Hardware', 'Software', 'Red', 'Humano']
+pct = [35, 40, 15, 10]
+axes[1,1].pie(pct, labels=causas, autopct='%1.0f%%', startangle=90,
+              colors=['#3b82f6','#22c55e','#f59e0b','#ef4444'])
+axes[1,1].set_title('Causas de Downtime')
+
+# 6. DISPERSIÓN: CPU vs Latencia
+cpu = np.random.normal(60, 15, 200)
+lat = cpu * 2.5 + np.random.normal(0, 30, 200)
+axes[1,2].scatter(cpu, lat, alpha=0.5, color='#8b5cf6')
+axes[1,2].set_title('CPU (%) vs Latencia (ms)')
+axes[1,2].set_xlabel('CPU %'); axes[1,2].set_ylabel('Latencia ms')
+
+plt.tight_layout()
+plt.savefig('dashboard_infra.png', dpi=150, bbox_inches='tight')
+plt.show()
+print("✅ Dashboard guardado como 'dashboard_infra.png'")</code></pre>
+            </div>
+            <div class="code-panel" id="py2">
+<pre><code class="language-python">import seaborn as sns
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+np.random.seed(42)
+
+# Dataset de monitoreo de servidores
+n = 500
+df = pd.DataFrame({
+    'servidor': np.random.choice(['Web-1','Web-2','DB-1','Cache-1'], n),
+    'cpu_pct': np.random.beta(2, 3, n) * 100,
+    'ram_pct': np.random.beta(3, 2, n) * 100,
+    'latencia_ms': np.abs(np.random.lognormal(4, 0.5, n)),
+    'estado': np.random.choice(['OK','Warning','Critical'], n, p=[.75,.18,.07])
+})
+
+sns.set_theme(style='whitegrid', palette='deep')
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+# Boxplot de latencia por servidor
+sns.boxplot(data=df, x='servidor', y='latencia_ms', ax=axes[0], palette='Blues')
+axes[0].set_title('Latencia por Servidor (Boxplot)')
+
+# Histograma con curva de densidad
+sns.histplot(data=df, x='cpu_pct', hue='estado', bins=25, ax=axes[1], kde=True)
+axes[1].set_title('Distribución CPU% por Estado')
+
+# Dispersión CPU vs RAM
+sns.scatterplot(data=df, x='cpu_pct', y='ram_pct', hue='estado',
+                palette={'OK':'green','Warning':'orange','Critical':'red'},
+                alpha=0.6, ax=axes[2])
+axes[2].set_title('CPU% vs RAM% por Estado')
+
+plt.tight_layout()
+plt.show()</code></pre>
+            </div>
+            <div class="code-panel" id="py3">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import numpy as np
+import pandas as pd
+np.random.seed(42)
+
+# Dataset semanal de métricas
+dias = pd.date_range('2026-04-01', periods=30, freq='D')
+df_semanal = pd.DataFrame({
+    'fecha': dias,
+    'usuarios': np.random.poisson(1000, 30) + np.linspace(0, 200, 30).astype(int),
+    'errores_500': np.random.poisson(15, 30),
+    'latencia_p95': np.random.normal(250, 40, 30)
+})
+
+fig = plt.figure(figsize=(14, 8))
+gs = gridspec.GridSpec(2, 2, hspace=0.35, wspace=0.3)
+fig.suptitle('Dashboard Mensual — Plataforma Tech · Abril 2026',
+             fontsize=13, fontweight='bold', y=1.01)
+
+ax1 = fig.add_subplot(gs[0, :])
+ax2 = fig.add_subplot(gs[1, 0])
+ax3 = fig.add_subplot(gs[1, 1])
+
+# Usuarios activos (evolución)
+ax1.fill_between(df_semanal.fecha, df_semanal.usuarios, alpha=0.3, color='#2563eb')
+ax1.plot(df_semanal.fecha, df_semanal.usuarios, color='#2563eb', linewidth=2)
+ax1.set_title('Usuarios Activos Diarios — Tendencia Creciente ↑')
+ax1.set_ylabel('Usuarios')
+
+# Errores 500 (barras con umbral)
+colors = ['#ef4444' if e > 20 else '#22c55e' for e in df_semanal.errores_500]
+ax2.bar(range(len(df_semanal)), df_semanal.errores_500, color=colors)
+ax2.axhline(20, color='red', linestyle='--', label='Umbral crítico')
+ax2.set_title('Errores HTTP 500 por Día')
+ax2.legend()
+
+# Latencia P95
+ax3.plot(df_semanal.fecha, df_semanal.latencia_p95, 'o-', color='#f59e0b', linewidth=2)
+ax3.axhline(300, color='red', linestyle='--', alpha=0.7, label='SLA P95 = 300ms')
+ax3.fill_between(df_semanal.fecha, df_semanal.latencia_p95, 300,
+                 where=df_semanal.latencia_p95 > 300, alpha=0.3, color='red')
+ax3.set_title('Latencia P95 (ms)')
+ax3.legend()
+
+plt.tight_layout()
+plt.show()</code></pre>
+            </div>
+            <div class="code-output"><div class="out-label">Output</div>Se generan 3 dashboards con 6 gráficos · matplotlib + seaborn · Guardado como PNG</div>
+          </div>
+        </section>
+
+        <section class="section" id="s5">
+          <h2>📊 3.5 R: ggplot2</h2>
+          <p><strong>ggplot2</strong> usa la "Gramática de Gráficos": datos + estética (aes) + geometría (geom) + opciones. Es el estándar en R para visualización estadística.</p>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'r1')">Gráficos básicos</button>
+              <button class="ctab" onclick="switchCodeTab(this,'r2')">Facetas y avanzado</button>
+            </div>
+            <div class="code-panel active" id="r1">
+<pre><code class="language-r">library(ggplot2)
+library(dplyr)
+set.seed(42)
+
+# Dataset de monitoreo
+n <- 500
+df <- data.frame(
+  servidor = sample(c("Web-1","Web-2","DB-1","Cache-1"), n, replace=TRUE),
+  cpu_pct  = rbeta(n, 2, 3) * 100,
+  latencia = abs(rlnorm(n, 4, 0.5)),
+  estado   = sample(c("OK","Warning","Critical"), n, replace=TRUE, prob=c(.75,.18,.07))
+)
+
+# 1. HISTOGRAMA con densidad
+p1 <- ggplot(df, aes(x = latencia, fill = estado)) +
+  geom_histogram(bins = 30, alpha = 0.7, position = "identity") +
+  scale_fill_manual(values = c(OK="seagreen", Warning="orange", Critical="red")) +
+  labs(title = "Distribución de Latencia por Estado del Servidor",
+       x = "Latencia (ms)", y = "Frecuencia") +
+  theme_minimal(base_size = 12)
+
+# 2. BOXPLOT por servidor
+p2 <- ggplot(df, aes(x = servidor, y = cpu_pct, fill = servidor)) +
+  geom_boxplot(alpha = 0.8, outlier.color = "red") +
+  labs(title = "Distribución de CPU% por Servidor",
+       x = "Servidor", y = "CPU (%)") +
+  theme_minimal() + theme(legend.position = "none")
+
+# 3. DISPERSIÓN CPU vs Latencia
+p3 <- ggplot(df, aes(x = cpu_pct, y = latencia, color = estado)) +
+  geom_point(alpha = 0.5, size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  scale_color_manual(values = c(OK="seagreen", Warning="orange", Critical="red")) +
+  labs(title = "Correlación: CPU% vs Latencia (ms)", x = "CPU (%)", y = "Latencia (ms)") +
+  theme_minimal()
+
+print(p1); print(p2); print(p3)</code></pre>
+            </div>
+            <div class="code-panel" id="r2">
+<pre><code class="language-r">library(ggplot2)
+library(dplyr)
+library(tidyr)
+set.seed(42)
+
+# Serie temporal de métricas
+dias <- seq(as.Date("2026-04-01"), by="day", length.out=30)
+df_ts <- data.frame(
+  fecha = dias,
+  usuarios = as.integer(rpois(30, 1000) + seq(0, 200, length.out=30)),
+  errores  = rpois(30, 15),
+  latencia = rnorm(30, 250, 40)
+)
+
+# GRÁFICO DE LÍNEAS con área sombreada
+p_usuarios <- ggplot(df_ts, aes(x = fecha, y = usuarios)) +
+  geom_area(fill = "#3b82f6", alpha = 0.3) +
+  geom_line(color = "#2563eb", linewidth = 1.2) +
+  geom_point(color = "#1d4ed8", size = 1.5) +
+  labs(title = "📈 Usuarios Activos Diarios — Abril 2026",
+       subtitle = "Tendencia de crecimiento sostenido",
+       x = "", y = "Usuarios") +
+  theme_minimal(base_size = 12)
+
+# FACETAS: Múltiples métricas en una sola visualización
+df_long <- df_ts |>
+  pivot_longer(cols = c(errores, latencia), names_to = "metrica", values_to = "valor")
+
+p_facetas <- ggplot(df_long, aes(x = fecha, y = valor, color = metrica)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  facet_wrap(~metrica, scales = "free_y", ncol = 1,
+             labeller = labeller(metrica = c(errores="Errores HTTP 500", latencia="Latencia P95 (ms)"))) +
+  labs(title = "📊 Métricas de Plataforma — Abril 2026", x = "", y = "Valor") +
+  theme_minimal() + theme(legend.position = "none")
+
+print(p_usuarios)
+print(p_facetas)</code></pre>
+            </div>
+            <div class="code-output"><div class="out-label">Output</div>Se generan gráficos de latencia, CPU boxplot, dispersión y series temporales con ggplot2</div>
+          </div>
+          <div class="callout callout-example">
+            <div class="ct">📝 Actividad autónoma</div>
+            <div class="cb">Descarga el dataset <code>iris</code> en Python (<code>from sklearn.datasets import load_iris</code>) o en R (<code>data(iris)</code>) y crea: (1) un histograma de longitud de sépalos, (2) un boxplot por especie. ¿Qué diferencias observas?</div>
+          </div>
+        </section>
+
+        <section class="section" id="s6">
+          <h2>🎯 3.6 Puntos Clave y Quiz</h2>
+          <div class="keypoints">
+            <h4>Puntos Clave Semana 3</h4>
+            <div class="kp-item"><div class="kp-num">1</div><div class="kp-text">El gráfico correcto depende del <strong>tipo de variable</strong> (cualitativa/cuantitativa) y la <strong>pregunta a responder</strong>.</div></div>
+            <div class="kp-item"><div class="kp-num">2</div><div class="kp-text"><strong>Barras</strong>: categorías · <strong>Líneas</strong>: tiempo · <strong>Histograma</strong>: distribución continua · <strong>Boxplot</strong>: distribución + outliers.</div></div>
+            <div class="kp-item"><div class="kp-num">3</div><div class="kp-text">Python: <code>matplotlib</code> (control total) + <code>seaborn</code> (estadístico elegante). R: <code>ggplot2</code> (gramática de gráficos).</div></div>
+            <div class="kp-item"><div class="kp-num">4</div><div class="kp-text">El gráfico de pastel es útil solo con ≤5 categorías y cuando la composición porcentual es relevante.</div></div>
+            <div class="kp-item"><div class="kp-num">5</div><div class="kp-text">El <strong>boxplot</strong> muestra mediana, Q1, Q3, y outliers — crucial para detección de anomalías en datos de sistemas.</div></div>
+          </div>
+          <div class="quiz-box">
+            <h3>✅ Mini Quiz · Semana 3</h3>
+            <div class="quiz-item"><div class="q-text">1. ¿Qué gráfico es más adecuado para mostrar la distribución del tiempo de respuesta (ms) de 10,000 peticiones HTTP?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q1')">Barras</button><button class="q-btn" onclick="ansQ(this,false,'q1')">Pastel</button><button class="q-btn" onclick="ansQ(this,true,'q1')">Histograma</button><button class="q-btn" onclick="ansQ(this,false,'q1')">Líneas</button></div><div id="q1-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">2. En ggplot2, ¿qué función crea un boxplot?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q2')">geom_bar()</button><button class="q-btn" onclick="ansQ(this,true,'q2')">geom_boxplot()</button><button class="q-btn" onclick="ansQ(this,false,'q2')">geom_hist()</button></div><div id="q2-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">3. ¿Qué librería de Python es mejor para gráficos estadísticos con menos código que matplotlib?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q3')">numpy</button><button class="q-btn" onclick="ansQ(this,false,'q3')">pandas</button><button class="q-btn" onclick="ansQ(this,true,'q3')">seaborn</button></div><div id="q3-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">4. Tienes ventas por región (5 regiones). ¿Cuál gráfico NO es adecuado?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q4')">Barras</button><button class="q-btn" onclick="ansQ(this,true,'q4')">Histograma</button><button class="q-btn" onclick="ansQ(this,false,'q4')">Pastel</button></div><div id="q4-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div id="quiz-score" class="quiz-score"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- TAB TALLER -->
+    <div id="ptab-taller" class="ptab-content">
+      <div class="taller-hero">
+        <h2>🛠 Taller Práctico · Semana 3</h2>
+        <p>Construye un dashboard de monitoreo de red paso a paso. Aplicamos todos los tipos de gráficos con datos reales de infraestructura.</p>
+        <div class="taller-meta"><span>⏱ 45 minutos</span><span>📋 1 caso guiado</span><span>🐍 Python + 📊 R</span></div>
+      </div>
+      <div class="taller-body">
+        <div class="taller-case" id="t1">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">🌐</span>
+            <h3>Caso: Dashboard de Monitoreo de Red — TechEcuador S.A.</h3>
+            <span class="taller-case-badge">ABP · 20 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="scenario-box"><strong>Escenario:</strong> TechEcuador S.A. tiene 8 servidores web. El equipo de operaciones necesita un dashboard visual para el reporte semanal del gerente de TI. Tienes acceso a logs de la última semana: latencia, uso de CPU, tipos de errores y disponibilidad por servidor.</div>
+            <ol class="step-list">
+              <li><div class="step-num">1</div><div class="step-content"><div class="step-q">Identifica el tipo de variable para cada métrica: latencia_ms, servidor_id, estado (OK/Warning/Critical), cpu_pct, errores_por_hora.</div><div class="step-ans">latencia_ms: Cuantitativa Continua (Razón) · servidor_id: Cualitativa Nominal · estado: Cualitativa Ordinal · cpu_pct: Cuantitativa Continua (Razón) · errores_por_hora: Cuantitativa Discreta (Razón)</div></div></li>
+              <li><div class="step-num">2</div><div class="step-content"><div class="step-q">Para cada variable, ¿qué gráfico elegirías para el dashboard del gerente?</div><div class="step-ans">latencia_ms → Histograma + Boxplot (distribución y outliers) · servidor_id/estado → Barras (comparación) · cpu_pct a lo largo del tiempo → Líneas · errores por tipo → Barras horizontales</div></div></li>
+              <li><div class="step-num">3</div><div class="step-content"><div class="step-q">El gerente dice: "Quiero ver en un solo gráfico si todos los servidores tienen latencia similar." ¿Qué gráfico usas?</div><div class="step-ans">Boxplot múltiple: un box por servidor en el eje X, latencia_ms en el eje Y. Permite comparar distribuciones y ver outliers por servidor simultáneamente.</div></div></li>
+              <li><div class="step-num">4</div><div class="step-content"><div class="step-q">¿Qué conclusión puedes sacar si en el gráfico de dispersión (CPU% vs latencia_ms) los puntos forman una línea diagonal hacia arriba?</div><div class="step-ans">Existe una correlación positiva: a mayor uso de CPU, mayor latencia. Esto sugiere que el problema de rendimiento puede ser cuello de botella en procesamiento.</div></div></li>
+              <li><div class="step-num">5</div><div class="step-content"><div class="step-q">El 70% de los errores son de tipo "Timeout". ¿Usarías un gráfico de pastel o de barras? Justifica.</div><div class="step-ans">Barras: aunque haya pocas categorías, las barras permiten leer valores exactos más fácilmente. El pastel es adecuado solo cuando las proporciones son el mensaje principal y hay ≤5 categorías.</div></div></li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="taller-case" id="t2">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">🐍</span>
+            <h3>Python: Dashboard de TechEcuador</h3>
+            <span class="taller-case-badge">Código completo · 15 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="code-block">
+              <div class="code-tabs-header">
+                <button class="ctab active" onclick="switchCodeTab(this,'tp1')">🐍 Python</button>
+                <button class="ctab" onclick="switchCodeTab(this,'tr1')">📊 R</button>
+              </div>
+              <div class="code-panel active" id="tp1">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+np.random.seed(42)
+
+# Dataset: métricas de 8 servidores (ya dado — no modifiques)
+n = 800
+df = pd.DataFrame({
+    'servidor':  np.repeat([f'SRV-{i:02d}' for i in range(1,9)], 100),
+    'cpu_pct':   np.clip(np.random.beta(2, 3, n) * 100, 0, 100),
+    'latencia':  np.abs(np.random.lognormal(4.5, 0.4, n)),
+    'errores':   np.random.poisson(3, n)
+})
+
+fig, axes = plt.subplots(2, 2, figsize=(13, 9))
+fig.suptitle('Dashboard TechEcuador S.A.', fontweight='bold')
+
+# ── Gráfico 1: Boxplot de latencia por servidor ───────────
+# Pista: df.boxplot(column=_____, by=_____, ax=axes[0,0])
+df.boxplot(column=_____, by=_____, ax=axes[0,0],
+           medianprops={'color': 'red', 'linewidth': 2})
+axes[0,0].set_title('_____ por Servidor')  # escribe un título
+axes[0,0].set_xlabel('')
+
+# ── Gráfico 2: Barras de errores totales por servidor ─────
+# Pista: agrupa por 'servidor', suma 'errores', luego usa .plot(kind=_____)
+errores_srv = df.groupby('_____')['_____']._____()
+errores_srv.plot(kind='_____', ax=axes[0,1], color='#ef4444', alpha=0.8)
+axes[0,1].set_title('Errores Totales por _____')
+
+# ── Gráfico 3: Histograma de CPU% ─────────────────────────
+# Pista: axes[1,0].hist(columna, bins=número, color=..., alpha=...)
+axes[1,0]._____( df['_____'], bins=_____, color='steelblue', alpha=0.8)
+axes[1,0].set_title('Distribución de _____')
+axes[1,0].set_xlabel('_____')
+
+# ── Gráfico 4: Dispersión CPU% vs Latencia ────────────────
+# Pista: axes[1,1].scatter(x, y, alpha=..., s=tamaño_punto)
+axes[1,1]._____( df['_____'], df['_____'], alpha=0.4, s=15, color='#8b5cf6')
+axes[1,1].set_xlabel('_____')
+axes[1,1].set_ylabel('_____')
+axes[1,1].set_title('_____ vs _____')
+
+plt.tight_layout()
+plt.show()</code></pre>
+              </div>
+              <div class="code-panel" id="tr1">
+<pre><code class="language-r">library(ggplot2)
+library(dplyr)
+set.seed(42)
+
+# Dataset: métricas de 8 servidores (ya dado — no modifiques)
+n <- 800
+df <- data.frame(
+  servidor = rep(paste0("SRV-", sprintf("%02d", 1:8)), each = 100),
+  cpu_pct  = pmin(100, pmax(0, rbeta(n, 2, 3) * 100)),
+  latencia = abs(rlnorm(n, 4.5, 0.4)),
+  errores  = rpois(n, 3)
+)
+
+# ── Gráfico 1: Boxplot de latencia por servidor ───────────
+# Pista: ggplot(df, aes(x=_____, y=_____, fill=_____)) + geom_boxplot()
+p1 <- ggplot(df, aes(x=_____, y=_____, fill=servidor)) +
+  geom_boxplot(outlier.color="red", alpha=0.8) +
+  labs(title="_____ por Servidor", x="", y="Latencia (ms)") +
+  theme_minimal() +
+  theme(legend.position="none", axis.text.x=element_text(angle=45, hjust=1))
+
+# ── Gráfico 2: Barras de errores por servidor ─────────────
+# Pista: agrupa por servidor, suma errores, luego geom_col()
+p2 <- df |>
+  group_by(_____) |>
+  summarise(total = sum(_____)) |>
+  ggplot(aes(x=servidor, y=_____)) +
+  geom_col(fill="#ef4444", alpha=0.8) +
+  labs(title="Errores por Servidor", x="", y="_____") +
+  theme_minimal() + theme(axis.text.x=element_text(angle=45, hjust=1))
+
+# ── Gráfico 3: Dispersión CPU% vs Latencia ────────────────
+# Pista: geom_point() con x, y correctos
+p3 <- ggplot(df, aes(x=_____, y=_____)) +
+  geom_point(alpha=0.4, size=1.5, color="#8b5cf6") +
+  labs(title="_____ vs _____", x="CPU (%)", y="Latencia (ms)") +
+  theme_minimal()
+
+print(p1)
+print(p2)
+print(p3)</code></pre>
+              </div>
+              <div class="code-output"><div class="out-label">Output</div>Dashboard generado: 4 gráficos (boxplot, barras apiladas, líneas de CPU, dispersión) · Guardado como PNG</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-nav">
+      <a href="../semana02/index.html" class="nav-card"><span class="nav-card-arrow">←</span><div><div class="nav-card-label">Anterior</div><div class="nav-card-title">Semana 2: Muestreo</div></div></a>
+      <a href="../semana04/index.html" class="nav-card next"><span class="nav-card-arrow">→</span><div><div class="nav-card-label">Siguiente</div><div class="nav-card-title">Semana 4: EDA</div></div></a>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
+<script>
+const PWD='Ister_Estadistica2026',KEY='ister_auth_2026';
+function activarTaller(){document.querySelectorAll('.step-ans').forEach(el=>{el.textContent='';el.setAttribute('contenteditable','true');el.setAttribute('spellcheck','false');});}
+function checkPwd(){if(document.getElementById('pwd').value===PWD){localStorage.setItem(KEY,'true');document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}else{document.getElementById('pwd-err').style.display='block';document.getElementById('pwd').value='';}}
+window.onload=function(){if(localStorage.getItem(KEY)==='true'){document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}};
+function handleHash(){if(window.location.hash==='#taller')switchPTab('taller');}
+function switchPTab(id){document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.ptab-content').forEach(c=>c.classList.remove('active'));document.querySelector(`.ptab[data-tab="${id}"]`).classList.add('active');document.getElementById('ptab-'+id).classList.add('active');document.getElementById('toc-clase').style.display=id==='clase'?'':'none';document.getElementById('toc-taller').style.display=id==='taller'?'':'none';history.replaceState(null,null,id==='taller'?'#taller':'#');}
+function switchCodeTab(btn,id){const b=btn.closest('.code-block');b.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));b.querySelectorAll('.code-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');b.querySelector('#'+id).classList.add('active');}
+const exMsg={eg1:'Gráfico de líneas: muestra la evolución de una variable cuantitativa a lo largo del tiempo.',eg2:'Boxplot o Histograma: ambos son ideales para visualizar distribuciones de variables continuas y detectar outliers.'};
+function checkEx(btn,type,id){const box=btn.closest('.exercise-box');if(box.querySelector('.ex-btn.correct')||box.querySelector('.ex-btn.wrong'))return;btn.classList.add(type);const fb=document.getElementById(id);fb.style.display='block';if(type==='correct'){fb.className='ex-feedback fb-ok';fb.textContent='✅ ¡Correcto! '+exMsg[id];}else{fb.className='ex-feedback fb-err';fb.textContent='❌ Incorrecto. '+exMsg[id];box.querySelectorAll('.ex-btn').forEach(b=>{if(b!==btn)b.classList.add('correct');});}}
+function resetEx(id,btn){const box=btn.closest('.exercise-box');box.querySelectorAll('.ex-btn').forEach(b=>b.classList.remove('correct','wrong'));document.getElementById(id).style.display='none';}
+const qA={};
+function ansQ(btn,ok,id){const item=btn.closest('.quiz-item');if(item.querySelector('.q-btn.q-correct')||item.querySelector('.q-btn.q-wrong'))return;btn.classList.add(ok?'q-correct':'q-wrong');if(!ok)item.querySelectorAll('.q-btn').forEach(b=>{if(b!==btn)b.classList.add('q-correct');});qA[id]=ok;const fb=document.getElementById(id+'-fb');if(fb){fb.style.display='block';fb.style.color=ok?'#6ee7b7':'#fca5a5';fb.textContent=ok?'✅ ¡Correcto!':'❌ Revisa la respuesta.';}if(Object.keys(qA).length===4){const s=Object.values(qA).filter(Boolean).length;const el=document.getElementById('quiz-score');el.style.display='block';el.textContent=`Resultado: ${s}/4 — ${s===4?'🎉 ¡Perfecto!':s>=3?'👍 ¡Muy bien!':'📚 Repasa los conceptos.'}`;}};
+</script>
+</body>
+</html>

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 4: Análisis Exploratorio · ISTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue-dark:#0d2137;--blue-mid:#1a3a6b;--blue:#2563eb;--blue-light:#3b82f6;--blue-pale:#dbeafe;
+  --text:#0f172a;--text-mid:#334155;--text-light:#64748b;--bg:#ffffff;--bg-alt:#f8fafc;--border:#e2e8f0;
+  --green:#22c55e;--green-pale:#dcfce7;--amber:#f59e0b;--amber-pale:#fef3c7;
+  --red:#ef4444;--red-pale:#fee2e2;--sidebar-w:270px;--radius:8px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.7;font-size:15px}
+.hidden{display:none!important}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+#gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;z-index:9999}
+.gate-card{background:#fff;border-radius:16px;padding:2.5rem;width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.gate-title{font-size:1.4rem;font-weight:700;color:var(--blue-dark);margin-bottom:.25rem}.gate-sub{font-size:.85rem;color:var(--text-light);margin-bottom:1.5rem}
+.gate-input{width:100%;padding:.75rem 1rem;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:.9rem;outline:none;transition:.2s}.gate-input:focus{border-color:var(--blue)}
+.gate-btn{width:100%;margin-top:.75rem;padding:.75rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+.gate-error{color:var(--red);font-size:.82rem;margin-top:.5rem;display:none}
+#app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--blue-dark);color:#cbd5e1;height:100vh;position:fixed;top:0;left:0;overflow-y:auto;display:flex;flex-direction:column;z-index:50}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.sb-header{padding:1.25rem 1rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;margin-bottom:.75rem}
+.sb-logo-box{background:var(--blue);border-radius:6px;padding:.35rem .55rem;font-size:.7rem;font-weight:700;color:#fff}
+.sb-course{font-size:.82rem;font-weight:600;color:#e2e8f0}.sb-meta{font-size:.72rem;color:#94a3b8;margin-top:.1rem}
+.sb-home{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:6px;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;margin-top:.5rem}
+.sb-home:hover{background:rgba(255,255,255,.08);color:#e2e8f0;text-decoration:none}
+.sb-nav{flex:1;padding:.75rem 0}
+.sb-section{padding:.5rem 1rem .25rem;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-top:.75rem}
+.sb-link{display:block;padding:.45rem 1rem;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;border-left:2px solid transparent;line-height:1.4}
+.sb-link:hover{background:rgba(255,255,255,.06);color:#e2e8f0;text-decoration:none}
+.sb-link.active{color:#93c5fd;border-left-color:var(--blue-light);background:rgba(59,130,246,.12)}
+.sb-link.done{color:#6ee7b7}.sb-link.locked{color:#475569;pointer-events:none}
+.sb-link .badge{font-size:.65rem;padding:.1rem .35rem;border-radius:3px;margin-left:.35rem}
+.badge-d{background:rgba(110,231,183,.15);color:#6ee7b7}.badge-l{background:rgba(255,255,255,.05);color:#475569}
+.sb-toc-section{padding:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-toc-title{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-bottom:.5rem}
+.sb-toc-link{display:block;font-size:.78rem;color:#94a3b8;padding:.3rem 0 .3rem .6rem;text-decoration:none;transition:.15s;border-left:2px solid transparent}
+.sb-toc-link:hover{color:#e2e8f0;text-decoration:none}.sb-toc-link.toc-active{color:#93c5fd;border-left-color:var(--blue-light)}
+.content-wrap{margin-left:var(--sidebar-w);flex:1;min-width:0;background:var(--bg)}
+.content-header{padding:1.5rem 3rem 0;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:40}
+.breadcrumb{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-light);margin-bottom:.75rem}
+.breadcrumb a{color:var(--text-light);text-decoration:none}.breadcrumb a:hover{color:var(--blue)}
+.page-title-row{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.75rem}
+.week-pill{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .7rem;border-radius:4px;margin-top:.2rem;white-space:nowrap}
+.page-main-title{font-size:1.8rem;font-weight:800;color:var(--blue-dark);line-height:1.2;letter-spacing:-.02em}
+.page-subtitle{font-size:.95rem;color:var(--text-mid);margin-top:.4rem}
+.page-meta{display:flex;gap:1rem;margin-top:.5rem;flex-wrap:wrap}.meta-item{font-size:.78rem;color:var(--text-light)}
+.page-tabs{display:flex;border-top:1px solid var(--border);margin-top:.75rem}
+.ptab{padding:.65rem 1.25rem;font-family:inherit;font-size:.85rem;font-weight:600;border:none;background:none;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;display:flex;align-items:center;gap:.4rem;margin-bottom:-1px}
+.ptab:hover{color:var(--text)}.ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.ptab-content{display:none}.ptab-content.active{display:block}
+.content-body{padding:2.5rem 3rem;max-width:860px}
+.section{margin-bottom:3.5rem;scroll-margin-top:160px}
+.section h2{font-size:1.35rem;font-weight:700;color:var(--blue-dark);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--blue-pale)}
+.section h3{font-size:1.05rem;font-weight:600;color:var(--text);margin:1.5rem 0 .75rem}
+.section p{margin-bottom:1rem;color:var(--text-mid)}.section ul{margin:.5rem 0 1rem 1.25rem;color:var(--text-mid)}.section li{margin-bottom:.4rem}
+.callout{border-radius:var(--radius);padding:1.1rem 1.25rem;margin:1.25rem 0;border-left:4px solid}
+.callout-def{background:var(--blue-pale);border-color:var(--blue)}.callout-def .ct{color:var(--blue-dark);font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-def .cb{color:var(--text-mid);font-size:.9rem}
+.callout-tip{background:#f0fdf4;border-color:var(--green)}.callout-tip .ct{color:#166534;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-tip .cb{color:#166534;font-size:.9rem}
+.callout-warn{background:var(--amber-pale);border-color:var(--amber)}.callout-warn .ct{color:#92400e;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-warn .cb{color:#78350f;font-size:.9rem}
+.callout-example{background:#faf5ff;border-color:#a855f7}.callout-example .ct{color:#6b21a8;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-example .cb{color:#581c87;font-size:.9rem}
+/* EDA STEPS */
+.eda-steps{display:flex;gap:0;margin:1.25rem 0;flex-wrap:wrap}
+.eda-step{flex:1;min-width:140px;padding:1rem;text-align:center;position:relative}
+.eda-step::after{content:'→';position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:1.1rem}
+.eda-step:last-child::after{display:none}
+.eda-step-num{width:36px;height:36px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto .5rem;font-size:.9rem}
+.eda-step-title{font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:.25rem}
+.eda-step-desc{font-size:.75rem;color:var(--text-light)}
+/* STATS TABLE */
+.stats-table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.85rem}
+.stats-table th{background:var(--blue-dark);color:#fff;padding:.7rem 1rem;text-align:left;font-weight:600;font-size:.8rem}
+.stats-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:var(--text-mid);vertical-align:top}
+.stats-table tr:hover td{background:var(--bg-alt)}
+.stats-table .stat-name{font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.82rem}
+.stats-table .stat-formula{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--bg-alt);padding:.15rem .4rem;border-radius:3px}
+/* CODE */
+.code-block{margin:1.25rem 0;border-radius:var(--radius);overflow:hidden;border:1px solid #1e293b;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.code-tabs-header{background:#1e293b;display:flex;align-items:center;padding:0 .75rem;gap:.25rem;border-bottom:1px solid #334155}
+.ctab{padding:.65rem .9rem;font-size:.8rem;font-weight:600;border:none;background:none;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;font-family:inherit}
+.ctab:hover{color:#e2e8f0}.ctab.active{color:#93c5fd;border-bottom-color:var(--blue-light)}
+.code-panel{display:none}.code-panel.active{display:block}
+.code-panel pre{margin:0;border-radius:0}.code-panel pre code{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.6}
+.code-output{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:1rem 1.25rem;border-top:1px solid #1e293b;line-height:1.5}
+.out-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569;margin-bottom:.4rem}
+.exercise-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.exercise-box h4{font-size:.95rem;font-weight:700;color:var(--blue-dark);margin-bottom:.5rem}
+.ex-scenario{background:#fff;border-left:3px solid var(--blue);padding:.75rem 1rem;border-radius:0 6px 6px 0;font-size:.88rem;color:var(--text);margin-bottom:1rem;font-style:italic}
+.ex-options{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem}
+.ex-btn{padding:.45rem 1rem;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--text-mid);font-family:inherit;font-size:.83rem;font-weight:500;cursor:pointer;transition:.15s}
+.ex-btn:hover{border-color:var(--blue);color:var(--blue)}.ex-btn.correct{background:var(--green-pale);border-color:var(--green);color:#166534}.ex-btn.wrong{background:var(--red-pale);border-color:var(--red);color:#991b1b}
+.ex-feedback{font-size:.83rem;padding:.5rem .75rem;border-radius:6px;margin-top:.4rem;display:none}
+.fb-ok{background:var(--green-pale);color:#166534}.fb-err{background:var(--red-pale);color:#991b1b}
+.ex-reset{font-size:.78rem;color:var(--text-light);background:none;border:none;cursor:pointer;margin-top:.5rem;text-decoration:underline}
+/* ERRORES COMUNES */
+.error-list{list-style:none;padding:0;margin:1rem 0}
+.error-item{display:flex;gap:.75rem;padding:.75rem;border-radius:var(--radius);margin-bottom:.5rem;background:#fff;border:1px solid var(--border)}
+.error-icon{font-size:1.2rem;flex-shrink:0}
+.error-content .error-title{font-size:.88rem;font-weight:700;color:var(--red)}
+.error-content .error-fix{font-size:.83rem;color:var(--text-mid);margin-top:.2rem}
+/* TALLER */
+.taller-hero{background:linear-gradient(135deg,var(--blue-dark),#1e4a8a);color:#fff;padding:2rem 3rem;border-bottom:3px solid var(--blue)}
+.taller-hero h2{font-size:1.5rem;font-weight:800;margin-bottom:.4rem}.taller-hero p{font-size:.9rem;opacity:.85;max-width:680px}
+.taller-meta{display:flex;gap:1.25rem;margin-top:.9rem;flex-wrap:wrap}.taller-meta span{font-size:.78rem;background:rgba(255,255,255,.12);padding:.3rem .75rem;border-radius:20px}
+.taller-body{padding:2rem 3rem;max-width:860px}
+.taller-case{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:2rem;overflow:hidden}
+.taller-case-header{background:var(--blue-dark);color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem}
+.taller-case-header h3{font-size:1rem;font-weight:700}.taller-case-badge{font-size:.7rem;background:rgba(255,255,255,.15);padding:.2rem .6rem;border-radius:4px}
+.taller-case-body{padding:1.5rem}
+.scenario-box{background:var(--bg-alt);border-left:4px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.9rem;color:var(--text-mid)}
+.step-list{counter-reset:step;list-style:none;margin:0;padding:0}
+.step-list li{counter-increment:step;display:flex;align-items:flex-start;gap:.9rem;padding:1rem 0;border-bottom:1px solid var(--border)}
+.step-list li:last-child{border-bottom:none}
+.step-num{background:var(--blue);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.step-content{flex:1}.step-q{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.35rem}
+.step-ans{font-size:.85rem;color:var(--text-mid);background:var(--green-pale);border-radius:6px;padding:.5rem .75rem;border-left:3px solid var(--green);margin-top:.35rem}
+.step-ans::before{content:'→ ';font-weight:700;color:#166534}
+/* CIERRE TEMA 1 */
+.tema1-closure{background:linear-gradient(135deg,#0d2137,#1a3a6b);border-radius:var(--radius);padding:2rem;margin:1.5rem 0;color:#fff;text-align:center}
+.tema1-closure h3{font-size:1.2rem;font-weight:800;margin-bottom:1rem;color:#93c5fd}
+.t1-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin:1rem 0}
+.t1-item{background:rgba(255,255,255,.08);border-radius:8px;padding:.9rem;text-align:center}
+.t1-icon{font-size:1.5rem;margin-bottom:.3rem}
+.t1-title{font-size:.78rem;font-weight:700;color:#93c5fd;margin-bottom:.2rem}
+.t1-desc{font-size:.72rem;color:#cbd5e1}
+.keypoints{background:var(--blue-dark);color:#fff;border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.keypoints h4{font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;margin-bottom:1rem}
+.kp-item{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.07)}.kp-item:last-child{border-bottom:none}
+.kp-num{background:var(--blue);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kp-text{font-size:.88rem;color:#cbd5e1}
+.quiz-box{background:linear-gradient(135deg,var(--blue-dark),#1a3a6b);border-radius:var(--radius);padding:1.75rem;margin:1.25rem 0;color:#fff}
+.quiz-box h3{font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:#93c5fd}
+.quiz-item{background:rgba(255,255,255,.06);border-radius:6px;padding:1rem;margin-bottom:.75rem}
+.q-text{font-size:.88rem;margin-bottom:.75rem;color:#e2e8f0}.q-opts{display:flex;gap:.5rem;flex-wrap:wrap}
+.q-btn{padding:.4rem .85rem;border:1.5px solid rgba(255,255,255,.2);border-radius:6px;background:rgba(255,255,255,.05);color:#cbd5e1;font-family:inherit;font-size:.8rem;cursor:pointer;transition:.15s}
+.q-btn:hover{border-color:var(--blue-light);color:#fff}.q-btn.q-correct{background:rgba(34,197,94,.15);border-color:var(--green);color:#6ee7b7}.q-btn.q-wrong{background:rgba(239,68,68,.15);border-color:var(--red);color:#fca5a5}
+.quiz-score{font-size:.88rem;color:#93c5fd;margin-top:1rem;text-align:center;display:none}
+.page-nav{display:flex;justify-content:space-between;padding:2rem 3rem;border-top:1px solid var(--border);margin-top:1rem}
+.nav-card{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.25rem;border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;color:var(--text);transition:.2s;max-width:220px}
+.nav-card:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12);text-decoration:none;color:var(--text)}
+.nav-card.next{flex-direction:row-reverse;text-align:right}
+.nav-card-arrow{font-size:1.1rem;color:var(--text-light)}.nav-card-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:.15rem}
+.nav-card-title{font-size:.85rem;font-weight:600;color:var(--blue-dark);line-height:1.3}
+.slides-wrap{margin-bottom:2.5rem;border-radius:10px;overflow:hidden;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.slides-bar{background:var(--blue-dark);color:#fff;padding:.55rem 1.1rem;display:flex;justify-content:space-between;align-items:center;font-size:.78rem}
+.slides-bar a{color:#93c5fd;font-size:.75rem;text-decoration:none;padding:.2rem .55rem;border:1px solid rgba(255,255,255,.2);border-radius:4px;transition:.15s}
+.slides-bar a:hover{background:rgba(255,255,255,.1);text-decoration:none}
+.slides-ratio{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#0d2137}
+.slides-ratio iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.step-ans{display:block;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:6px;padding:.7rem .95rem;min-height:52px;margin-top:.4rem;font-size:.87rem;line-height:1.6;color:var(--text);outline:none;cursor:text;transition:border-color .15s,background .15s,box-shadow .15s;font-family:'Inter',system-ui,sans-serif}
+.step-ans:focus{border-color:var(--blue);border-style:solid;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.step-ans:empty::before{content:'✏️ Escribe tu respuesta aquí...';color:#94a3b8;font-style:italic;font-size:.82rem;pointer-events:none}
+.taller-hint{background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:.45rem .85rem;margin:.35rem 0;font-size:.78rem;color:#78350f}
+.taller-hint::before{content:'💡 Pista: ';font-weight:700}
+</style>
+</head>
+<body>
+<div id="gate">
+  <div class="gate-card">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">📊</div>
+    <div class="gate-title">Estadística · ISTER</div>
+    <div class="gate-sub">Ingresa la clave del curso para continuar</div>
+    <input id="pwd" class="gate-input" type="password" placeholder="Clave del curso" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div id="pwd-err" class="gate-error">❌ Clave incorrecta</div>
+    <button class="gate-btn" onclick="checkPwd()">Ingresar</button>
+  </div>
+</div>
+<div id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="sb-header">
+      <a href="../index.html" class="sb-logo"><span class="sb-logo-box">ISTER</span><div><div class="sb-course">Estadística</div><div class="sb-meta">2026-1 · Sistemas & Data</div></div></a>
+      <a href="../index.html" class="sb-home">← Inicio del curso</a>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Tema 1 · Introducción</div>
+      <a href="../semana01/index.html" class="sb-link done">Semana 1 · Introducción <span class="badge badge-d">Vista</span></a>
+      <a href="../semana02/index.html" class="sb-link done">Semana 2 · Muestreo <span class="badge badge-d">Vista</span></a>
+      <a href="../semana03/index.html" class="sb-link done">Semana 3 · Gráficas <span class="badge badge-d">Vista</span></a>
+      <a href="index.html" class="sb-link active">Semana 4 · EDA <span class="badge badge-d">Vista</span></a>
+      <div class="sb-section">Tema 2 · Frecuencias</div>
+      <a href="#" class="sb-link locked">Semana 5 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 6 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 7 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 8 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 3 · Tendencia Central</div>
+      <a href="#" class="sb-link locked">Semana 9 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 10 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 11 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 12 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 4 · Probabilidad</div>
+      <a href="#" class="sb-link locked">Semana 13 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 14 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 15 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 16 <span class="badge badge-l">🔒</span></a>
+    </nav>
+    <div class="sb-toc-section" id="toc-clase">
+      <div class="sb-toc-title">En esta página · Clase</div>
+      <a href="#s1" class="sb-toc-link">1. ¿Qué es EDA?</a>
+      <a href="#s2" class="sb-toc-link">2. Proceso EDA (5 pasos)</a>
+      <a href="#s3" class="sb-toc-link">3. Estadísticos descriptivos</a>
+      <a href="#s4" class="sb-toc-link">4. Python: pandas.describe()</a>
+      <a href="#s5" class="sb-toc-link">5. R: summary() y skimr</a>
+      <a href="#s6" class="sb-toc-link">6. Errores comunes</a>
+      <a href="#s7" class="sb-toc-link">7. Cierre Tema 1 + Quiz</a>
+    </div>
+    <div class="sb-toc-section" id="toc-taller" style="display:none">
+      <div class="sb-toc-title">En esta página · Taller</div>
+      <a href="#t1" class="sb-toc-link">Proyecto: E-commerce</a>
+      <a href="#t2" class="sb-toc-link">EDA en Python</a>
+      <a href="#t3" class="sb-toc-link">EDA en R</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <div class="content-header">
+      <div class="breadcrumb"><a href="../index.html">🏠 Inicio</a><span>›</span><span>Semana 4</span><span>›</span><span>Análisis Exploratorio</span></div>
+      <div class="page-title-row">
+        <span class="week-pill">Semana 4</span>
+        <div>
+          <div class="page-main-title">Análisis Exploratorio de Datos (EDA)</div>
+          <div class="page-subtitle">Cierre del Tema 1 · Integración de estadística, muestreo y visualización</div>
+          <div class="page-meta">
+            <span class="meta-item">👨‍🏫 Ing. David Minango, PhD.</span>
+            <span class="meta-item">📅 11 de mayo, 2026</span>
+            <span class="meta-item">⏱ ~90 min clase · 45 min taller</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-tabs">
+        <button class="ptab active" data-tab="clase" onclick="switchPTab('clase')">📖 Clase</button>
+        <button class="ptab" data-tab="taller" onclick="switchPTab('taller')">🛠 Taller Práctico</button>
+      </div>
+    </div>
+
+    <!-- TAB CLASE -->
+    <div id="ptab-clase" class="ptab-content active">
+      <div class="content-body">
+
+        <div class="slides-wrap">
+          <div class="slides-bar">
+            <span>📽 Presentación · 18 diapositivas · ~20 min · usa ← → o teclado</span>
+            <a href="../slides/s04.html" target="_blank">⛶ Pantalla completa</a>
+          </div>
+          <div class="slides-ratio">
+            <iframe src="../slides/s04.html" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <section class="section" id="s1">
+          <h2>📌 4.1 ¿Qué es el Análisis Exploratorio de Datos?</h2>
+          <div class="callout callout-def">
+            <div class="ct">📖 Definición</div>
+            <div class="cb">El <strong>EDA (Exploratory Data Analysis)</strong> es el proceso sistemático de explorar un dataset antes de aplicar modelos estadísticos. Permite entender la estructura, distribución y calidad de los datos.</div>
+          </div>
+          <p>El EDA integra todo lo aprendido en el Tema 1: estadística descriptiva, tipos de variables, escalas de medición y representación gráfica.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:1rem 0">
+            <div style="background:#f0f9ff;border-radius:8px;padding:1rem;border-top:3px solid var(--blue)"><div style="font-size:1.4rem;margin-bottom:.4rem">🔍</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Entender los datos</div><div style="font-size:.82rem;color:var(--text-mid)">¿Cuántos registros? ¿Qué variables? ¿Hay nulos?</div></div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:1rem;border-top:3px solid var(--green)"><div style="font-size:1.4rem;margin-bottom:.4rem">📊</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Distribuciones</div><div style="font-size:.82rem;color:var(--text-mid)">¿Cómo se distribuyen los valores? ¿Hay sesgos?</div></div>
+            <div style="background:#fdf4ff;border-radius:8px;padding:1rem;border-top:3px solid #a855f7"><div style="font-size:1.4rem;margin-bottom:.4rem">🚨</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Detectar problemas</div><div style="font-size:.82rem;color:var(--text-mid)">Outliers, datos faltantes, inconsistencias.</div></div>
+          </div>
+        </section>
+
+        <section class="section" id="s2">
+          <h2>📌 4.2 Proceso EDA en 5 Pasos</h2>
+          <div class="eda-steps">
+            <div class="eda-step"><div class="eda-step-num">1</div><div class="eda-step-title">Inspección</div><div class="eda-step-desc">Dimensiones, tipos de datos, primeras filas</div></div>
+            <div class="eda-step"><div class="eda-step-num">2</div><div class="eda-step-title">Calidad</div><div class="eda-step-desc">Nulos, duplicados, tipos incorrectos</div></div>
+            <div class="eda-step"><div class="eda-step-num">3</div><div class="eda-step-title">Estadísticos</div><div class="eda-step-desc">Media, mediana, moda, min, max, std</div></div>
+            <div class="eda-step"><div class="eda-step-num">4</div><div class="eda-step-title">Visualización</div><div class="eda-step-desc">Distribuciones, outliers, correlaciones</div></div>
+            <div class="eda-step"><div class="eda-step-num">5</div><div class="eda-step-title">Conclusiones</div><div class="eda-step-desc">Hipótesis iniciales, patrones relevantes</div></div>
+          </div>
+        </section>
+
+        <section class="section" id="s3">
+          <h2>📌 4.3 Estadísticos Descriptivos Básicos</h2>
+          <table class="stats-table">
+            <thead><tr><th>Estadístico</th><th>Fórmula / Concepto</th><th>¿Qué mide?</th><th>Python</th><th>R</th></tr></thead>
+            <tbody>
+              <tr><td><span class="stat-name">Mínimo</span></td><td><span class="stat-formula">min(X)</span></td><td>Valor más pequeño</td><td><code>df.min()</code></td><td><code>min(x)</code></td></tr>
+              <tr><td><span class="stat-name">Máximo</span></td><td><span class="stat-formula">max(X)</span></td><td>Valor más grande</td><td><code>df.max()</code></td><td><code>max(x)</code></td></tr>
+              <tr><td><span class="stat-name">Media (x̄)</span></td><td><span class="stat-formula">Σxᵢ/n</span></td><td>Promedio aritmético</td><td><code>df.mean()</code></td><td><code>mean(x)</code></td></tr>
+              <tr><td><span class="stat-name">Mediana</span></td><td>Valor central ordenado</td><td>Centro real de los datos</td><td><code>df.median()</code></td><td><code>median(x)</code></td></tr>
+              <tr><td><span class="stat-name">Desv. Estándar</span></td><td><span class="stat-formula">√(Σ(xᵢ-x̄)²/n)</span></td><td>Dispersión alrededor de la media</td><td><code>df.std()</code></td><td><code>sd(x)</code></td></tr>
+              <tr><td><span class="stat-name">Q1, Q3</span></td><td>Percentiles 25% y 75%</td><td>Rango intercuartílico (IQR)</td><td><code>df.quantile([.25,.75])</code></td><td><code>quantile(x, c(.25,.75))</code></td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Media vs Mediana</div>
+            <div class="cb">Cuando hay outliers, la <strong>mediana</strong> es más representativa que la media. Ejemplo: salarios — la media puede distorsionarse por salarios muy altos, la mediana muestra el "centro real".</div>
+          </div>
+        </section>
+
+        <section class="section" id="s4">
+          <h2>🐍 4.4 Python: EDA con pandas</h2>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'py1')">EDA Básico</button>
+              <button class="ctab" onclick="switchCodeTab(this,'py2')">EDA Visual</button>
+              <button class="ctab" onclick="switchCodeTab(this,'py3')">EDA Completo</button>
+            </div>
+            <div class="code-panel active" id="py1">
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+np.random.seed(42)
+
+# Dataset de e-commerce ecuatoriano
+n = 1000
+df = pd.DataFrame({
+    'order_id': range(1, n+1),
+    'cliente_id': np.random.randint(1, 300, n),
+    'producto': np.random.choice(['Electrónico','Ropa','Alimentos','Libros','Hogar'], n,
+                                  p=[.30,.25,.20,.15,.10]),
+    'precio': np.abs(np.random.lognormal(3.5, 0.8, n)).round(2),
+    'cantidad': np.random.randint(1, 6, n),
+    'rating': np.random.choice([1,2,3,4,5], n, p=[.05,.10,.20,.40,.25]),
+    'region': np.random.choice(['Sierra','Costa','Oriente'], n, p=[.50,.40,.10])
+})
+df['total'] = (df['precio'] * df['cantidad']).round(2)
+
+# ── PASO 1: INSPECCIÓN ──────────────────────────────
+print("=== PASO 1: INSPECCIÓN ===")
+print(f"Dimensiones: {df.shape[0]} filas × {df.shape[1]} columnas")
+print(f"\nTipos de datos:\n{df.dtypes}")
+print(f"\nPrimeras filas:")
+print(df.head(3).to_string())
+
+# ── PASO 2: CALIDAD ─────────────────────────────────
+print("\n=== PASO 2: CALIDAD ===")
+print(f"Valores nulos:\n{df.isnull().sum()}")
+print(f"Duplicados: {df.duplicated().sum()}")
+
+# ── PASO 3: ESTADÍSTICOS ────────────────────────────
+print("\n=== PASO 3: ESTADÍSTICOS ===")
+print(df[['precio','cantidad','total','rating']].describe().round(2))</code></pre>
+            </div>
+            <div class="code-panel" id="py2">
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+np.random.seed(42)
+
+n = 1000
+df = pd.DataFrame({
+    'producto': np.random.choice(['Electrónico','Ropa','Alimentos','Libros','Hogar'], n, p=[.30,.25,.20,.15,.10]),
+    'precio':   np.abs(np.random.lognormal(3.5, 0.8, n)).round(2),
+    'rating':   np.random.choice([1,2,3,4,5], n, p=[.05,.10,.20,.40,.25]),
+    'region':   np.random.choice(['Sierra','Costa','Oriente'], n, p=[.50,.40,.10])
+})
+df['total'] = (df['precio'] * np.random.randint(1, 6, n)).round(2)
+
+# ── PASO 4: VISUALIZACIÓN ───────────────────────────
+fig, axes = plt.subplots(2, 2, figsize=(13, 9))
+fig.suptitle('EDA: E-Commerce Ecuador — Distribuciones y Patrones', fontsize=12, fontweight='bold')
+
+# Histograma de precios
+axes[0,0].hist(df['precio'], bins=40, color='#3b82f6', alpha=0.8, edgecolor='white')
+axes[0,0].axvline(df['precio'].mean(), color='red', linestyle='--', label=f"Media: ${df.precio.mean():.0f}")
+axes[0,0].axvline(df['precio'].median(), color='green', linestyle='--', label=f"Mediana: ${df.precio.median():.0f}")
+axes[0,0].set_title('Distribución de Precios')
+axes[0,0].set_xlabel('Precio ($)')
+axes[0,0].legend()
+
+# Boxplot total por producto
+df.boxplot(column='total', by='producto', ax=axes[0,1], patch_artist=True,
+           medianprops={'color':'red','linewidth':2})
+axes[0,1].set_title('Total Venta por Categoría')
+axes[0,1].tick_params(axis='x', rotation=30)
+
+# Barras: ventas por región
+ventas_region = df.groupby('region')['total'].sum()
+axes[1,0].bar(ventas_region.index, ventas_region.values, color=['#2563eb','#f59e0b','#22c55e'])
+axes[1,0].set_title('Ventas Totales por Región ($)')
+
+# Rating distribución
+rating_counts = df['rating'].value_counts().sort_index()
+axes[1,1].bar(rating_counts.index, rating_counts.values, color='#8b5cf6', alpha=0.8)
+axes[1,1].set_title('Distribución de Ratings')
+axes[1,1].set_xlabel('Rating (1-5)')
+
+plt.tight_layout()
+plt.show()
+print(f"\n💡 CONCLUSIONES:")
+print(f"• Media precio ${df.precio.mean():.0f} > Mediana ${df.precio.median():.0f} → datos con sesgo positivo (outliers altos)")
+print(f"• Región Sierra genera el {ventas_region['Sierra']/ventas_region.sum()*100:.0f}% de las ventas")</code></pre>
+            </div>
+            <div class="code-panel" id="py3">
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+np.random.seed(42)
+
+n = 1000
+df = pd.DataFrame({
+    'precio': np.abs(np.random.lognormal(3.5, 0.8, n)).round(2),
+    'cantidad': np.random.randint(1, 6, n),
+    'rating': np.random.choice([1,2,3,4,5], n, p=[.05,.10,.20,.40,.25]),
+    'producto': np.random.choice(['Electrónico','Ropa','Alimentos','Libros','Hogar'], n, p=[.30,.25,.20,.15,.10]),
+    'region': np.random.choice(['Sierra','Costa','Oriente'], n, p=[.50,.40,.10])
+})
+df['total'] = (df['precio'] * df['cantidad']).round(2)
+
+# FUNCIÓN EDA AUTOMÁTICO
+def eda_completo(df, nombre_dataset="Dataset"):
+    print(f"{'='*55}")
+    print(f"  EDA COMPLETO: {nombre_dataset}")
+    print(f"{'='*55}")
+    print(f"\n📐 FORMA: {df.shape[0]:,} filas × {df.shape[1]} columnas")
+
+    print(f"\n🔍 TIPOS DE VARIABLES:")
+    for col in df.columns:
+        dtype = df[col].dtype
+        tipo = "Cuantitativa" if np.issubdtype(dtype, np.number) else "Cualitativa"
+        n_uniq = df[col].nunique()
+        print(f"   {col:15} → {tipo} | {str(dtype):10} | {n_uniq} valores únicos")
+
+    print(f"\n⚠️  CALIDAD:")
+    nulos = df.isnull().sum()
+    print(f"   Valores nulos:  {nulos[nulos>0].to_dict() or 'Ninguno ✓'}")
+    print(f"   Duplicados:     {df.duplicated().sum()}")
+
+    print(f"\n📊 ESTADÍSTICOS NUMÉRICOS:")
+    print(df.select_dtypes(include='number').describe().round(2).to_string())
+
+    print(f"\n🏷️  FRECUENCIAS (variables categóricas):")
+    for col in df.select_dtypes(include='object').columns:
+        print(f"\n   {col}:")
+        print(df[col].value_counts(normalize=True).mul(100).round(1).to_string())
+
+eda_completo(df, "E-Commerce Ecuador")</code></pre>
+            </div>
+            <div class="code-output">
+              <div class="out-label">Output (fragmento)</div>
+=== ESTADÍSTICOS ===<br>
+        precio   cantidad   total   rating<br>
+count  1000.00    1000.00  1000.00  1000.00<br>
+mean     55.43       3.01   167.14     3.70<br>
+std      62.18       1.41   192.33     1.05<br>
+min       5.12       1.00     5.12     1.00<br>
+25%      17.98       2.00    53.94     3.00<br>
+50%      35.87       3.00   107.60     4.00<br>
+75%      72.14       4.00   216.42     5.00<br>
+max     850.33       5.00  4251.65     5.00
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="s5">
+          <h2>📊 4.5 R: EDA con summary() y skimr</h2>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'r1')">R Básico</button>
+              <button class="ctab" onclick="switchCodeTab(this,'r2')">R con skimr + ggplot2</button>
+            </div>
+            <div class="code-panel active" id="r1">
+<pre><code class="language-r">set.seed(42)
+n <- 1000
+
+df <- data.frame(
+  precio   = abs(rlnorm(n, 3.5, 0.8)),
+  cantidad = sample(1:5, n, replace=TRUE),
+  rating   = sample(1:5, n, replace=TRUE, prob=c(.05,.10,.20,.40,.25)),
+  producto = sample(c("Electrónico","Ropa","Alimentos","Libros","Hogar"), n,
+                    replace=TRUE, prob=c(.30,.25,.20,.15,.10)),
+  region   = sample(c("Sierra","Costa","Oriente"), n, replace=TRUE, prob=c(.50,.40,.10))
+)
+df$total <- round(df$precio * df$cantidad, 2)
+
+# ── EDA BÁSICO ──────────────────────────────────────
+cat("=== PASO 1: INSPECCIÓN ===\n")
+cat(sprintf("Dimensiones: %d filas × %d columnas\n", nrow(df), ncol(df)))
+cat("\nTipos de datos:\n"); str(df)
+
+cat("\n=== PASO 2: CALIDAD ===\n")
+cat(sprintf("Valores nulos: %d\n", sum(is.na(df))))
+cat(sprintf("Duplicados: %d\n", sum(duplicated(df))))
+
+cat("\n=== PASO 3: ESTADÍSTICOS ===\n")
+print(summary(df[, c("precio","cantidad","total","rating")]))
+
+cat("\n=== ANÁLISIS ADICIONAL ===\n")
+cat(sprintf("Asimetría precio (media/mediana): %.2f / %.2f\n", mean(df$precio), median(df$precio)))
+cat("(Media > Mediana → distribución con sesgo positivo)\n")</code></pre>
+            </div>
+            <div class="code-panel" id="r2">
+<pre><code class="language-r">library(ggplot2)
+library(dplyr)
+library(tidyr)
+set.seed(42)
+
+# (mismo dataset anterior)
+n <- 1000
+df <- data.frame(
+  precio   = abs(rlnorm(n, 3.5, 0.8)),
+  cantidad = sample(1:5, n, replace=TRUE),
+  rating   = factor(sample(1:5, n, replace=TRUE, prob=c(.05,.10,.20,.40,.25))),
+  producto = sample(c("Electrónico","Ropa","Alimentos","Libros","Hogar"), n,
+                    replace=TRUE, prob=c(.30,.25,.20,.15,.10)),
+  region   = sample(c("Sierra","Costa","Oriente"), n, replace=TRUE, prob=c(.50,.40,.10))
+)
+df$total <- df$precio * df$cantidad
+
+# PANEL EDA VISUAL
+p1 <- ggplot(df, aes(x = precio)) +
+  geom_histogram(bins = 40, fill = "#3b82f6", alpha = 0.8, color="white") +
+  geom_vline(xintercept = mean(df$precio), color="red", linetype="dashed", linewidth=1,
+             aes(linetype="Media")) +
+  geom_vline(xintercept = median(df$precio), color="darkgreen", linetype="dashed", linewidth=1) +
+  labs(title="Distribución de Precios (sesgada positiva)", x="Precio ($)", y="Frecuencia") +
+  annotate("text", x=mean(df$precio)+20, y=100, label=sprintf("Media=$%.0f",mean(df$precio)),
+           color="red", size=3.5) +
+  annotate("text", x=median(df$precio)-20, y=90, label=sprintf("Mediana=$%.0f",median(df$precio)),
+           color="darkgreen", size=3.5, hjust=1) +
+  theme_minimal()
+
+p2 <- ggplot(df, aes(x = producto, y = total, fill = producto)) +
+  geom_boxplot(alpha=0.8, outlier.color="red", outlier.size=0.8) +
+  labs(title="Total Venta por Categoría", x="", y="Total ($)") +
+  theme_minimal() + theme(legend.position="none", axis.text.x=element_text(angle=30, hjust=1))
+
+p3 <- df |>
+  group_by(region, producto) |>
+  summarise(ventas=sum(total), .groups="drop") |>
+  ggplot(aes(x=region, y=ventas, fill=producto)) +
+  geom_bar(stat="identity", position="stack") +
+  labs(title="Ventas Totales por Región y Categoría", x="", y="Total ($)") +
+  theme_minimal()
+
+print(p1); print(p2); print(p3)</code></pre>
+            </div>
+            <div class="code-output"><div class="out-label">Output (summary)</div>
+   precio          total          rating<br>
+Min.  :  5.12    Min.  :   5.12    1: 50<br>
+Median: 35.87    Median: 107.60    4:400<br>
+Mean  : 55.43    Mean  : 167.14    5:250<br>
+Max.  :850.33    Max.  :4251.65
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="s6">
+          <h2>⚠️ 4.6 Errores Comunes en Estadística Descriptiva</h2>
+          <ul class="error-list">
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Usar la media con distribuciones sesgadas</div><div class="error-fix">✅ Usa la mediana cuando hay outliers extremos (salarios, precios de vivienda, tiempos de respuesta).</div></div></li>
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Graficar barras con ejes que no empiezan en 0</div><div class="error-fix">✅ Los ejes truncados exageran diferencias visuales. Siempre empieza en 0 o advierte claramente.</div></div></li>
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Confundir correlación con causalidad</div><div class="error-fix">✅ Un diagrama de dispersión muestra relación, no causa. "CPU alta → latencia alta" puede tener causas comunes.</div></div></li>
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Ignorar los valores nulos o rellenarlos con 0</div><div class="error-fix">✅ Los nulos tienen significado. Analiza el patrón de datos faltantes antes de decidir cómo manejarlos.</div></div></li>
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Usar porcentajes sin mencionar el N total</div><div class="error-fix">✅ "El 50% tuvo problemas" no dice nada si no sabes si son 2 de 4 personas o 500 de 1,000.</div></div></li>
+          </ul>
+        </section>
+
+        <section class="section" id="s7">
+          <h2>🎓 4.7 Cierre Tema 1 y Quiz Final</h2>
+
+          <div class="tema1-closure">
+            <h3>🏆 ¡Completaste el Tema 1: Introducción a la Estadística!</h3>
+            <div class="t1-grid">
+              <div class="t1-item"><div class="t1-icon">📊</div><div class="t1-title">Semana 1</div><div class="t1-desc">Estadística, Divisiones, Población y Muestra</div></div>
+              <div class="t1-item"><div class="t1-icon">🎲</div><div class="t1-title">Semana 2</div><div class="t1-desc">Muestreo, Variables y Escalas NOIR</div></div>
+              <div class="t1-item"><div class="t1-icon">📈</div><div class="t1-title">Semana 3</div><div class="t1-desc">Representación Gráfica: 6 tipos de gráficos</div></div>
+              <div class="t1-item"><div class="t1-icon">🔍</div><div class="t1-title">Semana 4</div><div class="t1-desc">EDA: Explorar, limpiar, resumir y visualizar</div></div>
+            </div>
+            <p style="font-size:.88rem;opacity:.85;margin-top:.5rem">La próxima semana iniciamos el Tema 2: Distribuciones de Frecuencias y Representaciones Gráficas Avanzadas.</p>
+          </div>
+
+          <div class="keypoints">
+            <h4>Puntos Clave Semana 4 · Cierre Tema 1</h4>
+            <div class="kp-item"><div class="kp-num">1</div><div class="kp-text">El EDA es el proceso de entender, limpiar, resumir y visualizar datos <strong>antes</strong> de cualquier análisis formal.</div></div>
+            <div class="kp-item"><div class="kp-num">2</div><div class="kp-text"><code>df.describe()</code> en Python y <code>summary()</code> en R generan los estadísticos básicos en una sola línea.</div></div>
+            <div class="kp-item"><div class="kp-num">3</div><div class="kp-text">Cuando <strong>media > mediana</strong>, la distribución tiene sesgo positivo (cola hacia valores altos). Al revés para sesgo negativo.</div></div>
+            <div class="kp-item"><div class="kp-num">4</div><div class="kp-text">Los 5 errores más comunes: media con outliers, ejes truncados, correlación ≠ causalidad, nulos ignorados, porcentajes sin N.</div></div>
+            <div class="kp-item"><div class="kp-num">5</div><div class="kp-text">El Tema 1 unifica: <em>¿qué datos tengo? → ¿cómo los tomé? → ¿de qué tipo son? → ¿cómo los visualizo? → ¿qué dicen?</em></div></div>
+          </div>
+
+          <div class="quiz-box">
+            <h3>✅ Quiz de Cierre · Tema 1</h3>
+            <div class="quiz-item"><div class="q-text">1. En un dataset de salarios, la media es $2,500 y la mediana es $1,800. ¿Qué conclusión sacas?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q1')">Los datos son simétricos</button><button class="q-btn" onclick="ansQ(this,true,'q1')">Hay sesgo positivo — salarios altos jalan la media</button><button class="q-btn" onclick="ansQ(this,false,'q1')">La mediana es el estadístico incorrecto</button></div><div id="q1-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">2. ¿Cuál es la primera cosa que debes hacer en un EDA?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q2')">Crear gráficos</button><button class="q-btn" onclick="ansQ(this,false,'q2')">Calcular la media</button><button class="q-btn" onclick="ansQ(this,true,'q2')">Inspeccionar dimensiones, tipos y calidad</button></div><div id="q2-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">3. En Python, ¿qué método genera un resumen estadístico completo de un DataFrame?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q3')">df.info()</button><button class="q-btn" onclick="ansQ(this,true,'q3')">df.describe()</button><button class="q-btn" onclick="ansQ(this,false,'q3')">df.summary()</button></div><div id="q3-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">4. Un analista dice: "Como el CPU de los servidores está alto, eso CAUSA la latencia." ¿Qué error estadístico comete?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q4')">Media con outliers</button><button class="q-btn" onclick="ansQ(this,false,'q4')">Ejes truncados</button><button class="q-btn" onclick="ansQ(this,true,'q4')">Confundir correlación con causalidad</button></div><div id="q4-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div id="quiz-score" class="quiz-score"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- TAB TALLER -->
+    <div id="ptab-taller" class="ptab-content">
+      <div class="taller-hero">
+        <h2>🛠 Taller Práctico · Semana 4</h2>
+        <p>Proyecto integrador del Tema 1: EDA completo de un dataset de e-commerce ecuatoriano, aplicando todo lo aprendido en las semanas 1-4.</p>
+        <div class="taller-meta"><span>⏱ 45 minutos</span><span>📋 Proyecto integrador</span><span>🐍 Python + 📊 R</span><span>📊 Cierre Tema 1</span></div>
+      </div>
+      <div class="taller-body">
+        <div class="taller-case" id="t1">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">🛒</span>
+            <h3>Proyecto Integrador: EDA de QuickyShop Ecuador</h3>
+            <span class="taller-case-badge">Tema 1 · Integrador · 30 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="scenario-box"><strong>Escenario:</strong> QuickyShop es una startup ecuatoriana de e-commerce con 6 meses de operación. Tienes acceso a 1,000 órdenes de compra. El gerente quiere un informe con estadísticas clave, visualizaciones y recomendaciones. Aplica todo el proceso EDA.</div>
+            <ol class="step-list">
+              <li><div class="step-num">1</div><div class="step-content"><div class="step-q">Identifica el tipo de variable y escala de medición para: order_id, producto, precio, rating, región, total.</div><div class="step-ans">order_id: Cuantitativa Discreta, Razón · producto: Cualitativa Nominal · precio: Cuantitativa Continua, Razón · rating: Cualitativa Ordinal (o Cuantitativa Discreta, Intervalo) · región: Cualitativa Nominal · total: Cuantitativa Continua, Razón</div></div></li>
+              <li><div class="step-num">2</div><div class="step-content"><div class="step-q">¿Qué tipo de muestreo usarías si solo puedes analizar el 20% de las órdenes pero quieres representación de todas las regiones?</div><div class="step-ans">Muestreo Estratificado proporcional por región: Sierra (50%), Costa (40%), Oriente (10%). Con 1,000 órdenes al 20%: muestra=200 → Sierra=100, Costa=80, Oriente=20.</div></div></li>
+              <li><div class="step-num">3</div><div class="step-content"><div class="step-q">Después de calcular estadísticos, la media de precios es $55 y la mediana es $36. ¿Qué significa esto y qué gráfico lo confirmaría?</div><div class="step-ans">Distribución con sesgo positivo (cola larga hacia valores altos). Lo confirma un histograma donde la mayoría de precios están a la izquierda con una cola hacia precios altos.</div></div></li>
+              <li><div class="step-num">4</div><div class="step-content"><div class="step-q">¿Qué gráfico usarías para comparar la distribución del precio por categoría de producto y detectar outliers?</div><div class="step-ans">Boxplot múltiple: eje X = categorías de producto, eje Y = precio. Los puntos fuera de los bigotes son outliers. Permite comparar mediana y variabilidad entre categorías.</div></div></li>
+              <li><div class="step-num">5</div><div class="step-content"><div class="step-q">Escribe la conclusión estadística del EDA: ¿qué hallazgos reportarías al gerente?</div><div class="step-ans">Los precios tienen sesgo positivo (median $36, mean $55) indicando algunos productos premium. La categoría Electrónicos tiene mayor variabilidad y outliers. Sierra genera el 50% del revenue. El rating promedio es 3.7/5 (satisfacción moderada-alta).</div></div></li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="taller-case" id="t2">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">💻</span>
+            <h3>Código: EDA Completo de QuickyShop</h3>
+            <span class="taller-case-badge">Python + R · 15 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="code-block">
+              <div class="code-tabs-header">
+                <button class="ctab active" onclick="switchCodeTab(this,'tp1')">🐍 Python</button>
+                <button class="ctab" onclick="switchCodeTab(this,'tr1')">📊 R</button>
+              </div>
+              <div class="code-panel active" id="tp1">
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+np.random.seed(42)
+
+# Dataset QuickyShop Ecuador (ya dado — no modifiques)
+n = 1000
+df = pd.DataFrame({
+    'producto': np.random.choice(['Electrónico','Ropa','Alimentos','Libros','Hogar'], n, p=[.30,.25,.20,.15,.10]),
+    'precio':   np.abs(np.random.lognormal(3.5, 0.8, n)).round(2),
+    'cantidad': np.random.randint(1, 6, n),
+    'rating':   np.random.choice([1,2,3,4,5], n, p=[.05,.10,.20,.40,.25]),
+    'region':   np.random.choice(['Sierra','Costa','Oriente'], n, p=[.50,.40,.10])
+})
+df['total'] = (df['precio'] * df['cantidad']).round(2)
+
+# ── PASO 1: Inspección ────────────────────────────────────
+# Pista: df.shape devuelve (filas, columnas)
+filas, cols = df._____
+print(f"Shape: {filas} filas × {cols} columnas")
+print(df._____)            # muestra los tipos de datos de cada columna
+
+# ── PASO 2: Calidad ───────────────────────────────────────
+# Pista: df.isnull().sum().sum() cuenta todos los nulos
+print(f"Nulos: {df.isnull()._____()._____()}")
+print(f"Duplicados: {df._____().sum()}")
+
+# ── PASO 3: Estadísticos ─────────────────────────────────
+# Pista: usa el método que genera count, mean, std, min, max, Q1, Q3
+print(df[['precio', 'total', 'rating']]._____().round(2))
+
+# ── Analiza el sesgo ──────────────────────────────────────
+media   = df['precio']._____()     # media aritmética
+mediana = df['precio']._____()     # valor central
+print(f"Media: ${media:.2f} | Mediana: ${mediana:.2f}")
+print(f"Sesgo: {'Positivo (media > mediana)' if media > mediana else 'Negativo'}")
+
+# ── PASO 4: Visualización ─────────────────────────────────
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# Gráfico 1: distribución de precios con media y mediana
+# Pista: axes[0].hist(datos, bins=número)
+axes[0]._____( df['_____'], bins=35, color='#f59e0b', alpha=0.8, edgecolor='white')
+axes[0].axvline(media,   color='red',   linestyle='--', label=f'Media ${media:.0f}')
+axes[0].axvline(mediana, color='green', linestyle='--', label=f'Mediana ${mediana:.0f}')
+axes[0].set_title('_____')
+axes[0].legend()
+
+# Gráfico 2: ventas totales por región
+# Pista: agrupa por 'region', suma 'total', haz un barplot
+ventas = df.groupby('_____')['_____']._____()
+axes[1]._____( ventas.index, ventas.values, color='#8b5cf6', alpha=0.8)
+axes[1].set_title('_____')
+
+plt.tight_layout()
+plt.show()</code></pre>
+              </div>
+              <div class="code-panel" id="tr1">
+<pre><code class="language-r">library(ggplot2)
+library(dplyr)
+set.seed(42)
+
+# Dataset QuickyShop Ecuador (ya dado — no modifiques)
+n <- 1000
+df <- data.frame(
+  producto = sample(c("Electrónico","Ropa","Alimentos","Libros","Hogar"), n,
+                    replace=TRUE, prob=c(.30,.25,.20,.15,.10)),
+  precio   = abs(rlnorm(n, 3.5, 0.8)),
+  cantidad = sample(1:5, n, replace=TRUE),
+  rating   = sample(1:5, n, replace=TRUE, prob=c(.05,.10,.20,.40,.25)),
+  region   = sample(c("Sierra","Costa","Oriente"), n, replace=TRUE, prob=c(.50,.40,.10))
+)
+df$total <- df$precio * df$cantidad
+
+# ── PASO 1 + 2: Inspección y calidad ─────────────────────
+# Pista: usa str(), nrow(), ncol(), sum(is.na(...)), sum(duplicated(...))
+cat(sprintf("Shape: %d filas × %d columnas\n", _____(df), _____(df)))
+cat(sprintf("Nulos: %d | Duplicados: %d\n", sum(is.na(df)), sum(_____(df))))
+_____(df)   # muestra los tipos de cada columna
+
+# ── PASO 3: Estadísticos ─────────────────────────────────
+# Pista: summary() genera los estadísticos básicos
+_____(df[, c("precio", "total", "rating")])
+
+# ── Analiza el sesgo ──────────────────────────────────────
+media   <- _____(df$precio)   # media aritmética
+mediana <- _____(df$precio)   # mediana
+cat(sprintf("Media: $%.2f | Mediana: $%.2f\n", media, mediana))
+cat(sprintf("Sesgo: %s\n", ifelse(media > mediana, "Positivo (media > mediana)", "Negativo")))
+
+# ── PASO 4: Visualización ─────────────────────────────────
+# Gráfico 1: histograma de precios con media y mediana
+# Pista: geom_histogram() + geom_vline()
+p1 <- ggplot(df, aes(x=_____)) +
+  geom_histogram(bins=35, fill="#f59e0b", alpha=0.8, color="white") +
+  geom_vline(xintercept=media,   color="red",       linetype="dashed", linewidth=1.2) +
+  geom_vline(xintercept=mediana, color="darkgreen", linetype="dashed", linewidth=1.2) +
+  labs(title="_____", x="Precio ($)", y="Frecuencia") +
+  theme_minimal()
+
+# Gráfico 2: boxplot del total por categoría
+# Pista: geom_boxplot() con x=producto, y=total
+p2 <- ggplot(df, aes(x=reorder(_____, total, FUN=sum), y=_____)) +
+  geom_boxplot(outlier.color="red", alpha=0.8) +
+  coord_flip() +
+  labs(title="_____", x="", y="Total ($)") +
+  theme_minimal()
+
+print(p1)
+print(p2)</code></pre>
+              </div>
+              <div class="code-output"><div class="out-label">Output</div>EDA COMPLETO — QuickyShop Ecuador<br>📐 1,000 órdenes × 7 variables | Nulos: 0 | Duplicados: 0<br>Precio → Media: $55 | Mediana: $36 → Sesgo positivo 📈<br>Muestra estratificada 20%: Sierra=100, Costa=80, Oriente=20 | Error precio: $1.87<br>✅ Dashboard guardado</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-nav">
+      <a href="../semana03/index.html" class="nav-card"><span class="nav-card-arrow">←</span><div><div class="nav-card-label">Anterior</div><div class="nav-card-title">Semana 3: Gráficas</div></div></a>
+      <a href="../index.html" class="nav-card next" style="opacity:.6"><span class="nav-card-arrow">→</span><div><div class="nav-card-label">Próximo</div><div class="nav-card-title">Semana 5: Distribuciones</div></div></a>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
+<script>
+const PWD='Ister_Estadistica2026',KEY='ister_auth_2026';
+function activarTaller(){document.querySelectorAll('.step-ans').forEach(el=>{el.textContent='';el.setAttribute('contenteditable','true');el.setAttribute('spellcheck','false');});}
+function checkPwd(){if(document.getElementById('pwd').value===PWD){localStorage.setItem(KEY,'true');document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}else{document.getElementById('pwd-err').style.display='block';document.getElementById('pwd').value='';}}
+window.onload=function(){if(localStorage.getItem(KEY)==='true'){document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}};
+function handleHash(){if(window.location.hash==='#taller')switchPTab('taller');}
+function switchPTab(id){document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.ptab-content').forEach(c=>c.classList.remove('active'));document.querySelector(`.ptab[data-tab="${id}"]`).classList.add('active');document.getElementById('ptab-'+id).classList.add('active');document.getElementById('toc-clase').style.display=id==='clase'?'':'none';document.getElementById('toc-taller').style.display=id==='taller'?'':'none';history.replaceState(null,null,id==='taller'?'#taller':'#');}
+function switchCodeTab(btn,id){const b=btn.closest('.code-block');b.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));b.querySelectorAll('.code-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');b.querySelector('#'+id).classList.add('active');}
+const qA={};
+function ansQ(btn,ok,id){const item=btn.closest('.quiz-item');if(item.querySelector('.q-btn.q-correct')||item.querySelector('.q-btn.q-wrong'))return;btn.classList.add(ok?'q-correct':'q-wrong');if(!ok)item.querySelectorAll('.q-btn').forEach(b=>{if(b!==btn)b.classList.add('q-correct');});qA[id]=ok;const fb=document.getElementById(id+'-fb');if(fb){fb.style.display='block';fb.style.color=ok?'#6ee7b7':'#fca5a5';fb.textContent=ok?'✅ ¡Correcto!':'❌ Revisa la respuesta.';}if(Object.keys(qA).length===4){const s=Object.values(qA).filter(Boolean).length;const el=document.getElementById('quiz-score');el.style.display='block';el.textContent=`Resultado: ${s}/4 — ${s===4?'🎉 ¡Tema 1 Completado!':s>=3?'👍 ¡Muy bien!':'📚 Repasa los conceptos.'}`;}};
+</script>
+</body>
+</html>
