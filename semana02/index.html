@@ -20,6 +20,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-alt);color:var
 a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
 #gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;z-index:9999}
+html.authed #gate{display:none!important}
 .gate-card{background:#fff;border-radius:16px;padding:2.5rem;width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
 .gate-title{font-size:1.4rem;font-weight:700;color:var(--blue-dark);margin-bottom:.25rem}
 .gate-sub{font-size:.85rem;color:var(--text-light);margin-bottom:1.5rem}
@@ -153,6 +154,7 @@ a:hover{text-decoration:underline}
 .taller-hint{background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:.45rem .85rem;margin:.35rem 0;font-size:.78rem;color:#78350f}
 .taller-hint::before{content:'💡 Pista: ';font-weight:700}
 </style>
+<script>if(localStorage.getItem('ister_auth_2026')==='true')document.documentElement.classList.add('authed');</script>
 </head>
 <body>
 <div id="gate">
@@ -178,7 +180,7 @@ a:hover{text-decoration:underline}
       <a href="../semana03/index.html" class="sb-link done">Semana 3 · Gráficas <span class="badge badge-d">Vista</span></a>
       <a href="../semana04/index.html" class="sb-link done">Semana 4 · EDA <span class="badge badge-d">Vista</span></a>
       <div class="sb-section">Tema 2 · Frecuencias</div>
-      <a href="#" class="sb-link locked">Semana 5 <span class="badge badge-l">🔒</span></a>
+      <a href="../semana05/index.html" class="sb-link done">Semana 5 · Frecuencias <span class="badge badge-d">Vista</span></a>
       <a href="#" class="sb-link locked">Semana 6 <span class="badge badge-l">🔒</span></a>
       <a href="#" class="sb-link locked">Semana 7 <span class="badge badge-l">🔒</span></a>
       <a href="#" class="sb-link locked">Semana 8 <span class="badge badge-l">🔒</span></a>

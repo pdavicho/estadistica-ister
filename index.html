@@ -36,6 +36,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue-mid) 100%);
   display:flex;align-items:center;justify-content:center;z-index:9999;
 }
+html.authed #gate{display:none!important}
 .gate-card{
   background:var(--white);border-radius:20px;padding:3rem 2.5rem;width:100%;max-width:420px;
   box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;
@@ -135,6 +136,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 footer{background:var(--blue-dark);color:rgba(255,255,255,.6);text-align:center;padding:2rem;font-size:.8rem;margin-top:2rem}
 footer strong{color:#fff}
 </style>
+<script>if(localStorage.getItem('ister_auth_2026')==='true')document.documentElement.classList.add('authed');</script>
 </head>
 <body>
 
@@ -207,21 +209,19 @@ footer strong{color:#fff}
           <div class="wc-sub">Muestreo probabilístico y no probabilístico. Tipos de variables y escalas de medición.</div>
           <div class="wc-tags"><span class="wc-tag tag-py">Python</span><span class="wc-tag tag-r">R</span><span class="wc-tag tag-teoria">Teoría</span></div>
         </div>
-        <!-- Semana 3 BLOQUEADA -->
-        <div class="week-card locked">
+        <div class="week-card available" onclick="location.href='semana03/index.html'">
           <div class="wc-header">
             <span class="wc-num">Semana 3</span>
-            <span class="wc-badge badge-lock">🔒</span>
+            <span class="wc-badge badge-done">✓ Vista</span>
           </div>
           <div class="wc-title">Representación Gráfica de Datos</div>
           <div class="wc-sub">Barras, líneas, histograma, boxplot, dispersión.</div>
         </div>
 
-        <!-- Semana 4 BLOQUEADA -->
-        <div class="week-card locked">
+        <div class="week-card available" onclick="location.href='semana04/index.html'">
           <div class="wc-header">
             <span class="wc-num">Semana 4</span>
-            <span class="wc-badge badge-lock">🔒</span>
+            <span class="wc-badge badge-done">✓ Vista</span>
           </div>
           <div class="wc-title">Análisis Exploratorio (EDA) · Cierre Tema 1</div>
           <div class="wc-sub">Proceso EDA en 5 pasos. Proyecto integrador.</div>
@@ -233,7 +233,7 @@ footer strong{color:#fff}
     <div class="theme-block">
       <div class="theme-label">📗 Tema 2 · Semanas 5–8 · Distribuciones de Frecuencias y Gráficas</div>
       <div class="week-grid">
-        <div class="week-card locked"><div class="wc-header"><span class="wc-num">Semana 5</span><span class="wc-badge badge-lock">🔒</span></div><div class="wc-title">Tipos de Frecuencias</div><div class="wc-sub">Frecuencias absolutas, relativas y acumuladas.</div></div>
+        <div class="week-card available" onclick="location.href='semana05/index.html'"><div class="wc-header"><span class="wc-num">Semana 5</span><span class="wc-badge badge-done">✓ Vista</span></div><div class="wc-title">Tipos de Frecuencias</div><div class="wc-sub">Frecuencias absolutas, relativas y acumuladas.</div></div>
         <div class="week-card locked"><div class="wc-header"><span class="wc-num">Semana 6</span><span class="wc-badge badge-lock">🔒</span></div><div class="wc-title">Distribución de Frecuencias</div><div class="wc-sub">APP: Técnicas de muestreo (8h).</div></div>
         <div class="week-card locked"><div class="wc-header"><span class="wc-num">Semana 7</span><span class="wc-badge badge-lock">🔒</span></div><div class="wc-title">Tamaño de Clase e Intervalos</div><div class="wc-sub">Regla de Sturges y construcción de tablas.</div></div>
         <div class="week-card locked"><div class="wc-header"><span class="wc-num">Semana 8</span><span class="wc-badge badge-lock">🔒</span></div><div class="wc-title">Histogramas y Polígonos</div><div class="wc-sub">Visualización avanzada de distribuciones.</div></div>

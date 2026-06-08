@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S5 · Distribuciones de Frecuencias</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bd:#0d2137;--bm:#1a3a6b;--bl:#2563eb;--bll:#3b82f6;--blp:#dbeafe;--w:#fff;--wa:#f8fafc;--t:#0f172a;--tm:#334155;--tl:#64748b;--gr:#22c55e;--am:#f59e0b;--rd:#ef4444;--pu:#a855f7}
+html,body{width:100%;height:100%;overflow:hidden;background:#0d2137}
+body{font-family:'Inter',sans-serif}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--bll);transition:width .3s;z-index:999}
+.deck{width:100%;height:100vh;position:relative}
+.slide{position:absolute;inset:0;flex-direction:column}
+.slide:not(.on){display:none!important}
+.slide.on{display:flex;animation:fi .25s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.s-title{background:linear-gradient(135deg,var(--bd),var(--bm) 60%,#1e4080);color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-title .tit{font-size:2.4rem;font-weight:800;line-height:1.15;margin-bottom:.5rem;letter-spacing:-.03em}
+.s-title .sub{font-size:1.05rem;opacity:.8;margin-bottom:1.5rem}
+.s-title .meta{font-size:.82rem;opacity:.6;border-top:1px solid rgba(255,255,255,.15);padding-top:1rem;margin-top:1rem}
+.s-title .meta span{margin:0 .75rem}
+.s-section{background:linear-gradient(135deg,var(--bl),var(--bm));color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-section .num{font-size:1rem;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.15em;margin-bottom:.75rem}
+.s-section .tit{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+.s-section .desc{font-size:.92rem;opacity:.75;margin-top:.75rem;max-width:600px}
+.s-body{background:var(--w);display:flex;flex-direction:column}
+.sh{background:var(--bm);color:var(--w);padding:.55rem 2rem;display:flex;justify-content:space-between;align-items:center;font-size:.82rem;font-weight:600}
+.sh .sn{opacity:.6;font-size:.72rem}
+.sc{flex:1;padding:1.4rem 2.5rem;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.sf{background:var(--bd);color:#64748b;font-size:.65rem;padding:.25rem 2rem;display:flex;justify-content:space-between}
+.s-dark{background:var(--bd);color:var(--w);display:flex;flex-direction:column}
+.s-dark .sh{background:rgba(255,255,255,.08);color:var(--w)}
+.s-code{background:#0f172a;color:var(--w);display:flex;flex-direction:column}
+.s-code .sh{background:rgba(255,255,255,.06);color:#93c5fd}
+.def-box{background:var(--blp);border-left:4px solid var(--bl);border-radius:0 8px 8px 0;padding:.9rem 1.2rem;margin:.6rem 0}
+.def-box .dl{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bl);margin-bottom:.3rem}
+.def-box .dt{font-size:.9rem;color:var(--t);font-weight:500;line-height:1.5}
+.warn-box{background:#fef3c7;border-left:4px solid var(--am);border-radius:0 8px 8px 0;padding:.85rem 1.2rem;margin:.6rem 0}
+.warn-box .dl{color:#92400e;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.warn-box .dt{color:#78350f;font-size:.86rem}
+.tip-box{background:#f0fdf4;border-left:4px solid var(--gr);border-radius:0 8px 8px 0;padding:.8rem 1.2rem;margin:.6rem 0}
+.tip-box .dl{color:#166534;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.tip-box .dt{color:#14532d;font-size:.85rem}
+h1.t{font-size:1.45rem;font-weight:800;color:var(--t);margin-bottom:.8rem;letter-spacing:-.02em}
+ul.b{list-style:none;padding:0;margin:.4rem 0}
+ul.b li{padding:.38rem 0 .38rem 1.4rem;position:relative;font-size:.87rem;color:var(--tm);border-bottom:1px solid #f1f5f9}
+ul.b li:last-child{border-bottom:none}
+ul.b li::before{content:'›';position:absolute;left:0;color:var(--bl);font-weight:700;font-size:1rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin:.6rem 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin:.6rem 0}
+.card{border-radius:8px;padding:.9rem;border:1px solid #e2e8f0;background:#fff}
+.card-b{border-top:3px solid var(--bl);background:#f0f9ff}
+.card-g{border-top:3px solid var(--gr);background:#f0fdf4}
+.card-a{border-top:3px solid var(--am);background:#fefce8}
+.card-p{border-top:3px solid var(--pu);background:#fdf4ff}
+.card-r{border-top:3px solid var(--rd);background:#fff1f2}
+.card h4{font-size:.83rem;font-weight:700;margin-bottom:.3rem}
+.card p{font-size:.77rem;color:var(--tm);line-height:1.4;margin-bottom:.25rem}
+.card code{font-family:'JetBrains Mono',monospace;font-size:.74rem;background:rgba(0,0,0,.06);padding:.1rem .35rem;border-radius:3px}
+table.st{width:100%;border-collapse:collapse;font-size:.8rem}
+table.st th{background:var(--bm);color:#fff;padding:.5rem .85rem;text-align:left;font-weight:600}
+table.st td{padding:.45rem .85rem;border-bottom:1px solid #e2e8f0;color:var(--tm)}
+table.st tr:hover td{background:var(--wa)}
+table.st code{font-family:'JetBrains Mono',monospace;font-size:.76rem;background:var(--wa);padding:.1rem .35rem;border-radius:3px}
+table.st td.num{font-family:'JetBrains Mono',monospace;text-align:right}
+table.st tfoot td{font-weight:700;color:var(--t);background:var(--wa)}
+pre{background:#1e293b;color:#e2e8f0;padding:.9rem 1.1rem;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.74rem;line-height:1.55;overflow-x:auto;margin:.5rem 0}
+.out{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.71rem;padding:.6rem 1rem;border-radius:8px;margin:.35rem 0;line-height:1.4}
+.kp-list{list-style:none;padding:0;margin:.4rem 0}
+.kp-list li{display:flex;align-items:flex-start;gap:.65rem;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.kp-list li:last-child{border-bottom:none}
+.knum{background:var(--bll);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kt{font-size:.87rem;color:#cbd5e1;line-height:1.45}
+/* FRECUENCIA flow */
+.frec-flow{display:flex;gap:0;margin:.85rem 0;align-items:stretch}
+.frec-step{flex:1;padding:.85rem .75rem;text-align:center;position:relative;background:var(--wa);border:1px solid #e2e8f0}
+.frec-step:first-child{border-radius:8px 0 0 8px}
+.frec-step:last-child{border-radius:0 8px 8px 0}
+.frec-step::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--bll);font-size:.9rem;z-index:1}
+.frec-step:last-child::after{display:none}
+.frec-num{background:var(--bl);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;margin:0 auto .4rem}
+.frec-title{font-size:.75rem;font-weight:700;color:var(--t);margin-bottom:.2rem}
+.frec-desc{font-size:.68rem;color:var(--tl)}
+.formula-box{background:#1e293b;border-radius:8px;padding:.9rem 1.2rem;text-align:center;margin:.5rem 0}
+.formula-box .fx{font-family:'JetBrains Mono',monospace;font-size:1.05rem;color:#93c5fd;font-weight:600}
+.formula-box .fl{font-size:.72rem;color:#94a3b8;margin-top:.35rem}
+#controls{position:fixed;bottom:0;left:0;right:0;background:rgba(13,33,55,.95);padding:.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between;z-index:100;backdrop-filter:blur(8px)}
+#counter{font-size:.75rem;color:#64748b;font-family:'JetBrains Mono',monospace}
+.nbtns{display:flex;gap:.5rem;align-items:center}
+.nb{height:34px;padding:0 1rem;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.79rem;font-weight:600;transition:.15s}
+.nb.p{background:rgba(255,255,255,.08);color:#94a3b8}.nb.p:hover{background:rgba(255,255,255,.15);color:#fff}
+.nb.n{background:var(--bl);color:#fff}.nb.n:hover{background:var(--bll)}
+.nb:disabled{opacity:.3;cursor:not-allowed}
+#fs{background:none;border:1px solid rgba(255,255,255,.15);color:#64748b;height:34px;width:34px;border-radius:6px;cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center;transition:.15s}
+#fs:hover{border-color:var(--bll);color:var(--bll)}
+#dots{display:flex;gap:.28rem;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:.15s}
+.dot.on{background:var(--bll);width:16px;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="deck">
+
+<!-- 1 TITLE -->
+<div class="slide s-title on">
+  <div style="font-size:2.8rem;margin-bottom:1.25rem">📋</div>
+  <div style="font-size:.82rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:.65rem">Instituto Superior Tecnológico Rumiñahui</div>
+  <div class="tit">Semana 5</div>
+  <div class="sub">Distribuciones de Frecuencias: Conceptos y Tipos</div>
+  <div style="font-size:.88rem;opacity:.6;margin-bottom:1.75rem">Inicio del Tema 2 · Frecuencias absolutas, relativas y acumuladas</div>
+  <div class="meta"><span>👨‍🏫 Ing. David Minango, PhD.</span><span>📅 18 de mayo, 2026</span><span>⏱ ~20 minutos</span></div>
+</div>
+
+<!-- 2 QUÉ ES UNA DISTRIBUCIÓN DE FRECUENCIAS -->
+<div class="slide s-body">
+  <div class="sh">¿Qué es una Distribución de Frecuencias? <span class="sn">2 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">Una <strong>distribución de frecuencias</strong> es una tabla que organiza un conjunto de datos mostrando, para cada valor o categoría, <em>cuántas veces aparece</em> (su frecuencia). Es la forma más básica de resumir datos.</div></div>
+    <p style="font-size:.88rem;color:var(--tm);margin:.75rem 0 .5rem">Bienvenido al Tema 2. Ya sabes identificar variables (S2), graficarlas (S3) y explorarlas con EDA (S4). Ahora aprenderás a <strong>resumirlas en tablas</strong> — el paso previo a cualquier gráfico de distribución.</p>
+    <div class="g2">
+      <div class="card card-b"><h4>🎯 ¿Para qué sirve?</h4><p>Convierte cientos o miles de datos individuales en un resumen comprensible de un vistazo.</p></div>
+      <div class="card card-g"><h4>🔗 Conexión</h4><p>Toda tabla de frecuencias es la base de un histograma, un gráfico de barras o un polígono de frecuencias.</p></div>
+    </div>
+    <div class="tip-box"><div class="dl">💡 Analogía</div><div class="dt">Es como pasar lista: en lugar de leer 40 nombres uno por uno, cuentas "30 presentes, 10 ausentes" — ya tienes una distribución de frecuencias de 2 categorías.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 5 · Frecuencias</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 3 PARA QUÉ SIRVEN -->
+<div class="slide s-body">
+  <div class="sh">¿Por qué Construir Tablas de Frecuencias? <span class="sn">3 / 18</span></div>
+  <div class="sc">
+    <div class="g3">
+      <div class="card card-b"><h4>📊 Resumir</h4><p>Reduce un conjunto de datos extenso a una tabla compacta y fácil de leer.</p></div>
+      <div class="card card-g"><h4>⚖️ Comparar</h4><p>Permite comparar categorías o intervalos entre sí: ¿cuál es más común? ¿cuál es rara?</p></div>
+      <div class="card card-p"><h4>🔍 Detectar patrones</h4><p>Revela qué valores concentran los datos y cuáles son atípicos, antes de graficar.</p></div>
+    </div>
+    <div class="def-box"><div class="dl">🧩 El símbolo n</div><div class="dt">En toda tabla de frecuencias, <strong>n</strong> representa el número total de datos (el tamaño de la muestra). La suma de todas las frecuencias absolutas siempre es igual a <strong>n</strong>.</div></div>
+    <div class="warn-box"><div class="dl">⚠️ Antes de construir la tabla</div><div class="dt">Recuerda identificar primero el <strong>tipo de variable</strong> (Semana 2): si es cualitativa o cuantitativa discreta, agrupas por categorías; si es cuantitativa continua, agrupas por <strong>intervalos de clase</strong> (lo veremos en la Semana 7).</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 5 · Para qué sirven</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 4 SECTION TIPOS DE FRECUENCIA -->
+<div class="slide s-section">
+  <div class="num">5.2</div>
+  <div class="tit">Los 4 Tipos de Frecuencia</div>
+  <div class="desc">Absoluta, relativa, porcentual y acumulada — cada una responde una pregunta distinta sobre tus datos.</div>
+</div>
+
+<!-- 5 FRECUENCIA ABSOLUTA -->
+<div class="slide s-body">
+  <div class="sh">Frecuencia Absoluta (fᵢ) <span class="sn">5 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">La <strong>frecuencia absoluta (fᵢ)</strong> es el número de veces que se repite un valor o categoría en el conjunto de datos. Responde: <em>"¿cuántos hay?"</em></div></div>
+    <div class="formula-box"><div class="fx">Σ fᵢ = n</div><div class="fl">La suma de todas las frecuencias absolutas es igual al total de datos (n)</div></div>
+    <div class="card card-b"><h4>📋 Ejemplo: Medio de transporte de 40 estudiantes</h4><p>Bus → <code>fᵢ = 16</code> &nbsp;|&nbsp; Auto propio → <code>fᵢ = 8</code> &nbsp;|&nbsp; Caminando → <code>fᵢ = 9</code> &nbsp;|&nbsp; Bicicleta → <code>fᵢ = 4</code> &nbsp;|&nbsp; Taxi/App → <code>fᵢ = 3</code></p><p>Comprobación: 16+8+9+4+3 = <strong>40 = n</strong> ✓</p></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 5 · Frec. Absoluta</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 6 FRECUENCIA RELATIVA Y PORCENTUAL -->
+<div class="slide s-body">
+  <div class="sh">Frecuencia Relativa (hᵢ) y Porcentual <span class="sn">6 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">La <strong>frecuencia relativa (hᵢ)</strong> es la proporción que representa cada valor respecto al total. Responde: <em>"¿qué parte del total es?"</em> Multiplicada por 100 se obtiene la <strong>frecuencia porcentual</strong>.</div></div>
+    <div class="formula-box"><div class="fx">hᵢ = fᵢ / n &nbsp;&nbsp;·&nbsp;&nbsp; %ᵢ = hᵢ × 100</div><div class="fl">La frecuencia relativa siempre está entre 0 y 1; la suma de todas las hᵢ es igual a 1 (o 100%)</div></div>
+    <div class="card card-g"><h4>📋 Ejemplo: continuando con los 40 estudiantes</h4><p>Bus → <code>hᵢ = 16/40 = 0.40</code> → <strong>40%</strong> &nbsp;|&nbsp; Auto propio → <code>8/40 = 0.20</code> → <strong>20%</strong> &nbsp;|&nbsp; Caminando → <code>9/40 = 0.225</code> → <strong>22.5%</strong></p></div>
+    <div class="tip-box"><div class="dl">💡 ¿Por qué usar frecuencia relativa?</div><div class="dt">Permite <strong>comparar grupos de distinto tamaño</strong>. "16 estudiantes usan bus" no se compara directamente con "60 de otra sección", pero "40%" sí.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 5 · Frec. Relativa</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 7 FRECUENCIA ACUMULADA -->
+<div class="slide s-body">
+  <div class="sh">Frecuencia Acumulada (Fᵢ) y Relativa Acumulada (Hᵢ) <span class="sn">7 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">La <strong>frecuencia acumulada (Fᵢ)</strong> suma progresivamente las frecuencias absolutas hasta cada categoría. Responde: <em>"¿cuántos datos hay hasta este punto o por debajo de él?"</em> Su versión relativa (Hᵢ) se expresa como proporción o porcentaje.</div></div>
+    <div class="formula-box"><div class="fx">Fᵢ = f₁ + f₂ + ... + fᵢ &nbsp;&nbsp;·&nbsp;&nbsp; Hᵢ = Fᵢ / n</div><div class="fl">La última frecuencia acumulada siempre es igual a n (y Hᵢ final = 1, o 100%)</div></div>
+    <div class="card card-p"><h4>📋 Ejemplo: orden Bus, Auto, Caminando, Bicicleta, Taxi</h4><p>Fᵢ: 16 → <strong>24</strong> → <strong>33</strong> → <strong>37</strong> → <strong>40</strong></p><p>Lectura: "33 de los 40 estudiantes (82.5%) se movilizan en Bus, Auto propio o Caminando".</p></div>
+    <div class="warn-box"><div class="dl">⚠️ Solo tiene sentido lógico cuando hay un orden</div><div class="dt">La frecuencia acumulada solo se interpreta de forma natural en variables <strong>cuantitativas o cualitativas ordinales</strong>. En variables nominales (Bus, Auto, Bicicleta...) el orden es arbitrario, así que se usa más con fines de cálculo que de interpretación directa.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 5 · Frec. Acumulada</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 8 TABLA RESUMEN -->
+<div class="slide s-body">
+  <div class="sh">Resumen: Los 4 Tipos en una Sola Tabla <span class="sn">8 / 18</span></div>
+  <div class="sc">
+    <table class="st">
+      <thead><tr><th>Tipo</th><th>Símbolo</th><th>Fórmula</th><th>Pregunta que responde</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Absoluta</strong></td><td><code>fᵢ</code></td><td><code>conteo directo</code></td><td>¿Cuántos hay en esta categoría?</td></tr>
+        <tr><td><strong>Relativa</strong></td><td><code>hᵢ</code></td><td><code>fᵢ / n</code></td><td>¿Qué proporción del total representa?</td></tr>
+        <tr><td><strong>Porcentual</strong></td><td><code>%ᵢ</code></td><td><code>hᵢ × 100</code></td><td>¿Qué porcentaje del total representa?</td></tr>
+        <tr><td><strong>Acumulada</strong></td><td><code>Fᵢ</code></td><td><code>f₁+f₂+...+fᵢ</code></td><td>¿Cuántos hay hasta esta categoría (inclusive)?</td></tr>
+        <tr><td><strong>Rel. Acumulada</strong></td><td><code>Hᵢ</code></td><td><code>Fᵢ / n</code></td><td>¿Qué proporción acumula hasta este punto?</td></tr>
+      </tbody>
+    </table>
+    <div class="tip-box" style="margin-top:.7rem"><div class="dl">💡 Regla de oro</div><div class="dt">Una tabla de frecuencias completa casi siempre incluye <strong>fᵢ, hᵢ (o %ᵢ) y Fᵢ</strong> juntas — eso permite leer la tabla desde tres ángulos distintos sin recalcular nada.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 5 · Resumen 4 tipos</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 9 CONSTRUCCIÓN PASO A PASO -->
+<div class="slide s-body">
+  <div class="sh">Construcción de una Tabla de Frecuencias <span class="sn">9 / 18</span></div>
+  <div class="sc">
+    <div class="frec-flow">
+      <div class="frec-step"><div class="frec-num">1</div><div class="frec-title">Listar categorías</div><div class="frec-desc">Identifica los valores únicos de la variable</div></div>
+      <div class="frec-step"><div class="frec-num">2</div><div class="frec-title">Contar (fᵢ)</div><div class="frec-desc">Cuenta cuántas veces aparece cada valor</div></div>
+      <div class="frec-step"><div class="frec-num">3</div><div class="frec-title">Calcular hᵢ y %ᵢ</div><div class="frec-desc">Divide cada fᵢ entre n y multiplica por 100</div></div>
+      <div class="frec-step"><div class="frec-num">4</div><div class="frec-title">Acumular (Fᵢ, Hᵢ)</div><div class="frec-desc">Suma progresivamente fᵢ y hᵢ</div></div>
+      <div class="frec-step"><div class="frec-num">5</div><div class="frec-title">Verificar</div><div class="frec-desc">Σfᵢ = n &nbsp;·&nbsp; Σhᵢ = 1 &nbsp;·&nbsp; última Fᵢ = n</div></div>
+    </div>
+    <table class="st" style="margin-top:.6rem">
+      <thead><tr><th>Medio de transporte</th><th class="num">fᵢ</th><th class="num">hᵢ</th><th class="num">%ᵢ</th><th class="num">Fᵢ</th><th class="num">Hᵢ %</th></tr></thead>
+      <tbody>
+        <tr><td>Bus</td><td class="num">16</td><td class="num">0.400</td><td class="num">40.0%</td><td class="num">16</td><td class="num">40.0%</td></tr>
+        <tr><td>Caminando</td><td class="num">9</td><td class="num">0.225</td><td class="num">22.5%</td><td class="num">25</td><td class="num">62.5%</td></tr>
+        <tr><td>Auto propio</td><td class="num">8</td><td class="num">0.200</td><td class="num">20.0%</td><td class="num">33</td><td class="num">82.5%</td></tr>
+        <tr><td>Bicicleta</td><td class="num">4</td><td class="num">0.100</td><td class="num">10.0%</td><td class="num">37</td><td class="num">92.5%</td></tr>
+        <tr><td>Taxi / App</td><td class="num">3</td><td class="num">0.075</td><td class="num">7.5%</td><td class="num">40</td><td class="num">100.0%</td></tr>
+      </tbody>
+      <tfoot><tr><td>Total</td><td class="num">40</td><td class="num">1.000</td><td class="num">100%</td><td class="num">—</td><td class="num">—</td></tr></tfoot>
+    </table>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 5 · Construcción</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 10 SECTION PYTHON -->
+<div class="slide s-section">
+  <div class="num">5.4</div>
+  <div class="tit">Python: Tablas de Frecuencia con pandas</div>
+  <div class="desc"><code style="background:rgba(255,255,255,.15);padding:.15rem .4rem;border-radius:4px">value_counts()</code> calcula frecuencias absolutas y relativas en una sola línea — y se combina con <code style="background:rgba(255,255,255,.15);padding:.15rem .4rem;border-radius:4px">cumsum()</code> para acumular.</div>
+</div>
+
+<!-- 11 PYTHON VALUE_COUNTS -->
+<div class="slide s-code">
+  <div class="sh">🐍 Python: value_counts() + tabla completa <span class="sn" style="color:#475569">11 / 18</span></div>
+  <div class="sc">
+<pre>import pandas as pd
+
+# Encuesta: medio de transporte de 40 estudiantes ISTER
+datos = ['Bus']*16 + ['Caminando']*9 + ['Auto propio']*8 + ['Bicicleta']*4 + ['Taxi/App']*3
+serie = pd.Series(datos)
+
+# Frecuencia absoluta (fi)
+fi = serie.value_counts()
+
+# Frecuencia relativa (hi) y porcentual (%i)
+hi = serie.value_counts(normalize=True)
+
+# Tabla de frecuencias completa
+tabla = pd.DataFrame({
+    'fi': fi,
+    'hi': hi.round(3),
+    '%i': (hi * 100).round(1)
+})
+tabla['Fi'] = tabla['fi'].cumsum()          # frecuencia acumulada
+tabla['Hi%'] = tabla['%i'].cumsum().round(1) # rel. acumulada %
+
+print(tabla)
+print(f"\nVerificación: Σfi = {tabla['fi'].sum()}  (debe ser igual a n = {len(serie)})")</pre>
+    <div class="out">             fi     hi    %i   Fi   Hi%<br>Bus          16  0.400  40.0   16  40.0<br>Caminando     9  0.225  22.5   25  62.5<br>Auto propio   8  0.200  20.0   33  82.5<br>Bicicleta     4  0.100  10.0   37  92.5<br>Taxi/App      3  0.075   7.5   40 100.0<br>Verificación: Σfi = 40  (debe ser igual a n = 40)</div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 5 · Python</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 12 PYTHON CROSSTAB -->
+<div class="slide s-code">
+  <div class="sh">🐍 Python: tablas cruzadas con crosstab() <span class="sn" style="color:#475569">12 / 18</span></div>
+  <div class="sc">
+<pre>import pandas as pd
+import numpy as np
+np.random.seed(42)
+
+# ¿El medio de transporte cambia según la jornada (Matutina/Nocturna)?
+n = 120
+df = pd.DataFrame({
+    'transporte': np.random.choice(['Bus','Caminando','Auto propio','Bicicleta','Taxi/App'],
+                                    n, p=[.40,.225,.20,.10,.075]),
+    'jornada':    np.random.choice(['Matutina','Nocturna'], n, p=[.6,.4])
+})
+
+# Tabla cruzada: frecuencias absolutas
+print("Frecuencia absoluta (conteo):")
+print(pd.crosstab(df['transporte'], df['jornada'], margins=True, margins_name='Total'))
+
+# Tabla cruzada: frecuencia relativa por fila (normalize='index')
+print("\nFrecuencia relativa por jornada (% dentro de cada columna):")
+print((pd.crosstab(df['transporte'], df['jornada'], normalize='columns') * 100).round(1))</pre>
+    <div class="out">jornada      Matutina  Nocturna  Total<br>Bus                29        18     47<br>Caminando          18        10     28<br>Auto propio        14        10     24<br>Bicicleta           7         5     12<br>Taxi/App            4         5      9<br>Total              72        48    120<br>→ crosstab() resume dos variables cualitativas en una sola tabla de doble entrada</div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 5 · Python crosstab</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 13 SECTION R -->
+<div class="slide s-section">
+  <div class="num">5.5</div>
+  <div class="tit">R: Tablas de Frecuencia con table()</div>
+  <div class="desc"><code style="background:rgba(255,255,255,.15);padding:.15rem .4rem;border-radius:4px">table()</code> y <code style="background:rgba(255,255,255,.15);padding:.15rem .4rem;border-radius:4px">prop.table()</code> son el equivalente directo de value_counts() en R.</div>
+</div>
+
+<!-- 14 R TABLE -->
+<div class="slide s-code">
+  <div class="sh" style="color:#86efac">📊 R: table(), prop.table() y cumsum() <span class="sn" style="color:#475569">14 / 18</span></div>
+  <div class="sc">
+<pre>datos &lt;- c(rep("Bus", 16), rep("Caminando", 9), rep("Auto propio", 8),
+           rep("Bicicleta", 4), rep("Taxi/App", 3))
+
+# Frecuencia absoluta (fi)
+fi &lt;- table(datos)
+fi &lt;- sort(fi, decreasing = TRUE)
+
+# Frecuencia relativa (hi) y porcentual
+hi  &lt;- prop.table(fi)
+pct &lt;- round(hi * 100, 1)
+
+# Tabla completa con acumuladas
+tabla &lt;- data.frame(
+  categoria = names(fi),
+  fi  = as.vector(fi),
+  hi  = round(as.vector(hi), 3),
+  pct = as.vector(pct),
+  Fi  = cumsum(as.vector(fi)),
+  Hi_pct = round(cumsum(as.vector(pct)), 1)
+)
+print(tabla)
+cat(sprintf("\nVerificación: suma(fi) = %d  (n = %d)\n", sum(tabla$fi), length(datos)))</pre>
+    <div class="out">    categoria fi    hi   pct  Fi Hi_pct<br>1         Bus 16 0.400  40.0  16   40.0<br>2   Caminando  9 0.225  22.5  25   62.5<br>3 Auto propio  8 0.200  20.0  33   82.5<br>4   Bicicleta  4 0.100  10.0  37   92.5<br>5    Taxi/App  3 0.075   7.5  40  100.0<br>Verificación: suma(fi) = 40  (n = 40)</div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 5 · R</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 15 ERRORES COMUNES -->
+<div class="slide s-body">
+  <div class="sh">❌ Errores Comunes al Construir Tablas de Frecuencia <span class="sn">15 / 18</span></div>
+  <div class="sc">
+    <div style="display:flex;flex-direction:column;gap:.7rem">
+      <div style="display:flex;gap:.85rem;background:#fff1f2;border-radius:8px;padding:.9rem;border-left:4px solid var(--rd)">
+        <div style="font-size:1.4rem;flex-shrink:0">❌</div>
+        <div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--rd);margin-bottom:.25rem">Error 1: Que Σfᵢ no sea igual a n</div>
+          <div style="font-size:.81rem;color:var(--tm)">Si las frecuencias absolutas no suman el total de datos, alguna categoría quedó mal contada o duplicada. <strong>Siempre verifica esta suma primero.</strong></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.85rem;background:#fff1f2;border-radius:8px;padding:.9rem;border-left:4px solid var(--rd)">
+        <div style="font-size:1.4rem;flex-shrink:0">❌</div>
+        <div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--rd);margin-bottom:.25rem">Error 2: Confundir frecuencia relativa con porcentaje</div>
+          <div style="font-size:.81rem;color:var(--tm)">hᵢ = 0.40 y %ᵢ = 40% son la <em>misma</em> proporción expresada de dos formas. Reportar "0.40%" en lugar de "40%" cambia completamente el significado.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.85rem;background:#fff1f2;border-radius:8px;padding:.9rem;border-left:4px solid var(--rd)">
+        <div style="font-size:1.4rem;flex-shrink:0">❌</div>
+        <div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--rd);margin-bottom:.25rem">Error 3: Acumular frecuencias en variables nominales sin orden lógico</div>
+          <div style="font-size:.81rem;color:var(--tm)">"Hasta Bicicleta llevamos el 92.5%" no tiene sentido si el orden de las categorías (Bus, Auto, Caminando...) es arbitrario. La acumulación es natural en datos ordinales o cuantitativos.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.85rem;background:#fff1f2;border-radius:8px;padding:.9rem;border-left:4px solid var(--rd)">
+        <div style="font-size:1.4rem;flex-shrink:0">❌</div>
+        <div>
+          <div style="font-weight:700;font-size:.88rem;color:var(--rd);margin-bottom:.25rem">Error 4: Redondear demasiado pronto</div>
+          <div style="font-size:.81rem;color:var(--tm)">Redondear cada hᵢ antes de sumarlas puede hacer que Σhᵢ ≠ 1 (ej. 0.40+0.23+0.20+0.10+0.08 = 1.01). Calcula con precisión completa y redondea solo al presentar la tabla final.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 5 · Errores comunes</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 16 CUÁNDO USAR CADA TIPO -->
+<div class="slide s-body">
+  <div class="sh">¿Cuándo Usar Cada Tipo de Frecuencia? <span class="sn">16 / 18</span></div>
+  <div class="sc">
+    <div class="g2">
+      <div style="background:#eff6ff;border-radius:8px;padding:1rem;border-top:3px solid var(--bl)">
+        <h4 style="color:var(--bm);font-size:.9rem;margin-bottom:.6rem">📊 Frecuencia absoluta (fᵢ)</h4>
+        <ul class="b">
+          <li>Cuando el número real de casos importa para la decisión (ej. "se necesitan 16 buses").</li>
+          <li>Para verificar la consistencia de los datos (Σfᵢ = n).</li>
+        </ul>
+      </div>
+      <div style="background:#f0fdf4;border-radius:8px;padding:1rem;border-top:3px solid var(--gr)">
+        <h4 style="color:#166534;font-size:.9rem;margin-bottom:.6rem">📐 Frecuencia relativa / porcentual (hᵢ, %ᵢ)</h4>
+        <ul class="b">
+          <li>Para comparar grupos de tamaños distintos (40% en Sierra vs 60% en Costa).</li>
+          <li>En reportes y presentaciones — los porcentajes son más intuitivos para el público.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="g2">
+      <div style="background:#fdf4ff;border-radius:8px;padding:1rem;border-top:3px solid var(--pu)">
+        <h4 style="color:#6b21a8;font-size:.9rem;margin-bottom:.6rem">📈 Frecuencia acumulada (Fᵢ, Hᵢ)</h4>
+        <ul class="b">
+          <li>Para responder "¿cuántos están por debajo / hasta cierto valor?" (ej. percentiles, medianas).</li>
+          <li>Es la base para construir la <strong>ojiva</strong> (gráfico de frecuencias acumuladas, Semana 8).</li>
+        </ul>
+      </div>
+      <div class="tip-box" style="margin:0"><div class="dl">🔑 En la práctica</div><div class="dt">Una buena tabla de frecuencias casi nunca usa un solo tipo: combina <strong>fᵢ + %ᵢ + Fᵢ</strong> para que cualquier lector encuentre la lectura que necesita.</div></div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 5 · Cuándo usar cada tipo</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 17 PUNTOS CLAVE -->
+<div class="slide s-dark">
+  <div class="sh">Puntos Clave de la Semana 5 <span class="sn" style="color:#475569">17 / 18</span></div>
+  <div class="sc">
+    <ul class="kp-list">
+      <li><div class="knum">1</div><div class="kt">Una distribución de frecuencias <strong style="color:#93c5fd">resume</strong> un conjunto de datos mostrando cuántas veces aparece cada valor o categoría.</div></li>
+      <li><div class="knum">2</div><div class="kt"><strong style="color:#93c5fd">fᵢ</strong> = conteo &nbsp;·&nbsp; <strong style="color:#93c5fd">hᵢ = fᵢ/n</strong> = proporción &nbsp;·&nbsp; <strong style="color:#93c5fd">%ᵢ = hᵢ×100</strong> &nbsp;·&nbsp; <strong style="color:#93c5fd">Fᵢ</strong> = suma acumulada de fᵢ</div></li>
+      <li><div class="knum">3</div><div class="kt">Dos verificaciones obligatorias: <strong style="color:#93c5fd">Σfᵢ = n</strong> y <strong style="color:#93c5fd">Σhᵢ = 1</strong> (o 100%).</div></li>
+      <li><div class="knum">4</div><div class="kt">En Python: <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">value_counts()</code>, <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">cumsum()</code>, <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">crosstab()</code>. En R: <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">table()</code>, <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">prop.table()</code>, <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">cumsum()</code>.</div></li>
+      <li><div class="knum">5</div><div class="kt">La acumulación (Fᵢ, Hᵢ) solo se interpreta de forma natural cuando existe un <strong style="color:#93c5fd">orden lógico</strong> entre las categorías.</div></li>
+    </ul>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.3)"><span>Estadística · ISTER</span><span>Semana 5 · Resumen</span><span>18 may 2026</span></div>
+</div>
+
+<!-- 18 CIERRE -->
+<div class="slide s-title">
+  <div style="font-size:2.8rem;margin-bottom:1.25rem">🎓</div>
+  <div class="tit" style="font-size:1.9rem">¿Preguntas?</div>
+  <div class="sub" style="margin-top:.5rem">Próxima semana:</div>
+  <div style="font-size:1.15rem;font-weight:700;color:#93c5fd;margin-top:.4rem">Semana 6 · Distribución de Frecuencias Agrupadas</div>
+  <div style="font-size:.88rem;opacity:.65;margin-top:.5rem">Construcción de tablas con intervalos de clase · APP: Técnicas de Muestreo</div>
+  <div style="margin-top:1.75rem;font-size:.79rem;opacity:.5;border-top:1px solid rgba(255,255,255,.12);padding-top:.85rem">Ing. David Minango, PhD. · Instituto Superior Tecnológico Rumiñahui</div>
+</div>
+
+</div>
+<div id="controls">
+  <span id="counter">1 / 18</span>
+  <div id="dots"></div>
+  <div class="nbtns">
+    <button class="nb p" id="pb" onclick="mv(-1)" disabled>← Anterior</button>
+    <button class="nb n" id="nb2" onclick="mv(1)">Siguiente →</button>
+    <button id="fs" onclick="tFS()">⛶</button>
+  </div>
+</div>
+<script>
+const sl=document.querySelectorAll('.slide'),tot=sl.length;let cur=0;
+const pr=document.getElementById('progress'),ct=document.getElementById('counter'),pb=document.getElementById('pb'),nb=document.getElementById('nb2'),de=document.getElementById('dots');
+for(let i=0;i<tot;i++){const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>go(i);de.appendChild(d);}
+function go(n){sl[cur].classList.remove('on');de.children[cur].classList.remove('on');cur=Math.max(0,Math.min(n,tot-1));sl[cur].classList.add('on');de.children[cur].classList.add('on');pr.style.width=((cur+1)/tot*100)+'%';ct.textContent=(cur+1)+' / '+tot;pb.disabled=cur===0;nb.disabled=cur===tot-1;nb.textContent=cur===tot-1?'✓ Fin':'Siguiente →';}
+function mv(d){go(cur+d);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')mv(1);if(e.key==='ArrowLeft')mv(-1);});
+function tFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+</script>
+</body>
+</html>

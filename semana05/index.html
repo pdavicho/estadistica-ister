@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 5: Distribuciones de Frecuencias · ISTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue-dark:#0d2137;--blue-mid:#1a3a6b;--blue:#2563eb;--blue-light:#3b82f6;--blue-pale:#dbeafe;
+  --text:#0f172a;--text-mid:#334155;--text-light:#64748b;--bg:#ffffff;--bg-alt:#f8fafc;--border:#e2e8f0;
+  --green:#22c55e;--green-pale:#dcfce7;--amber:#f59e0b;--amber-pale:#fef3c7;
+  --red:#ef4444;--red-pale:#fee2e2;--sidebar-w:270px;--radius:8px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.7;font-size:15px}
+.hidden{display:none!important}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+#gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;z-index:9999}
+html.authed #gate{display:none!important}
+.gate-card{background:#fff;border-radius:16px;padding:2.5rem;width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.gate-title{font-size:1.4rem;font-weight:700;color:var(--blue-dark);margin-bottom:.25rem}.gate-sub{font-size:.85rem;color:var(--text-light);margin-bottom:1.5rem}
+.gate-input{width:100%;padding:.75rem 1rem;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:.9rem;outline:none;transition:.2s}.gate-input:focus{border-color:var(--blue)}
+.gate-btn{width:100%;margin-top:.75rem;padding:.75rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+.gate-error{color:var(--red);font-size:.82rem;margin-top:.5rem;display:none}
+#app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--blue-dark);color:#cbd5e1;height:100vh;position:fixed;top:0;left:0;overflow-y:auto;display:flex;flex-direction:column;z-index:50}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.sb-header{padding:1.25rem 1rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;margin-bottom:.75rem}
+.sb-logo-box{background:var(--blue);border-radius:6px;padding:.35rem .55rem;font-size:.7rem;font-weight:700;color:#fff}
+.sb-course{font-size:.82rem;font-weight:600;color:#e2e8f0}.sb-meta{font-size:.72rem;color:#94a3b8;margin-top:.1rem}
+.sb-home{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:6px;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;margin-top:.5rem}
+.sb-home:hover{background:rgba(255,255,255,.08);color:#e2e8f0;text-decoration:none}
+.sb-nav{flex:1;padding:.75rem 0}
+.sb-section{padding:.5rem 1rem .25rem;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-top:.75rem}
+.sb-link{display:block;padding:.45rem 1rem;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;border-left:2px solid transparent;line-height:1.4}
+.sb-link:hover{background:rgba(255,255,255,.06);color:#e2e8f0;text-decoration:none}
+.sb-link.active{color:#93c5fd;border-left-color:var(--blue-light);background:rgba(59,130,246,.12)}
+.sb-link.done{color:#6ee7b7}.sb-link.locked{color:#475569;pointer-events:none}
+.sb-link .badge{font-size:.65rem;padding:.1rem .35rem;border-radius:3px;margin-left:.35rem}
+.badge-d{background:rgba(110,231,183,.15);color:#6ee7b7}.badge-l{background:rgba(255,255,255,.05);color:#475569}
+.sb-toc-section{padding:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-toc-title{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-bottom:.5rem}
+.sb-toc-link{display:block;font-size:.78rem;color:#94a3b8;padding:.3rem 0 .3rem .6rem;text-decoration:none;transition:.15s;border-left:2px solid transparent}
+.sb-toc-link:hover{color:#e2e8f0;text-decoration:none}.sb-toc-link.toc-active{color:#93c5fd;border-left-color:var(--blue-light)}
+.content-wrap{margin-left:var(--sidebar-w);flex:1;min-width:0;background:var(--bg)}
+.content-header{padding:1.5rem 3rem 0;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:40}
+.breadcrumb{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-light);margin-bottom:.75rem}
+.breadcrumb a{color:var(--text-light);text-decoration:none}.breadcrumb a:hover{color:var(--blue)}
+.page-title-row{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.75rem}
+.week-pill{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .7rem;border-radius:4px;margin-top:.2rem;white-space:nowrap}
+.page-main-title{font-size:1.8rem;font-weight:800;color:var(--blue-dark);line-height:1.2;letter-spacing:-.02em}
+.page-subtitle{font-size:.95rem;color:var(--text-mid);margin-top:.4rem}
+.page-meta{display:flex;gap:1rem;margin-top:.5rem;flex-wrap:wrap}.meta-item{font-size:.78rem;color:var(--text-light)}
+.page-tabs{display:flex;border-top:1px solid var(--border);margin-top:.75rem}
+.ptab{padding:.65rem 1.25rem;font-family:inherit;font-size:.85rem;font-weight:600;border:none;background:none;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;display:flex;align-items:center;gap:.4rem;margin-bottom:-1px}
+.ptab:hover{color:var(--text)}.ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.ptab-content{display:none}.ptab-content.active{display:block}
+.content-body{padding:2.5rem 3rem;max-width:860px}
+.section{margin-bottom:3.5rem;scroll-margin-top:160px}
+.section h2{font-size:1.35rem;font-weight:700;color:var(--blue-dark);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--blue-pale)}
+.section h3{font-size:1.05rem;font-weight:600;color:var(--text);margin:1.5rem 0 .75rem}
+.section p{margin-bottom:1rem;color:var(--text-mid)}.section ul{margin:.5rem 0 1rem 1.25rem;color:var(--text-mid)}.section li{margin-bottom:.4rem}
+.callout{border-radius:var(--radius);padding:1.1rem 1.25rem;margin:1.25rem 0;border-left:4px solid}
+.callout-def{background:var(--blue-pale);border-color:var(--blue)}.callout-def .ct{color:var(--blue-dark);font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-def .cb{color:var(--text-mid);font-size:.9rem}
+.callout-tip{background:#f0fdf4;border-color:var(--green)}.callout-tip .ct{color:#166534;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-tip .cb{color:#166534;font-size:.9rem}
+.callout-warn{background:var(--amber-pale);border-color:var(--amber)}.callout-warn .ct{color:#92400e;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-warn .cb{color:#78350f;font-size:.9rem}
+.callout-example{background:#faf5ff;border-color:#a855f7}.callout-example .ct{color:#6b21a8;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-example .cb{color:#581c87;font-size:.9rem}
+/* FRECUENCIA STEPS */
+.eda-steps{display:flex;gap:0;margin:1.25rem 0;flex-wrap:wrap}
+.eda-step{flex:1;min-width:140px;padding:1rem;text-align:center;position:relative}
+.eda-step::after{content:'→';position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:1.1rem}
+.eda-step:last-child::after{display:none}
+.eda-step-num{width:36px;height:36px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto .5rem;font-size:.9rem}
+.eda-step-title{font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:.25rem}
+.eda-step-desc{font-size:.75rem;color:var(--text-light)}
+/* STATS TABLE */
+.stats-table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.85rem}
+.stats-table th{background:var(--blue-dark);color:#fff;padding:.7rem 1rem;text-align:left;font-weight:600;font-size:.8rem}
+.stats-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:var(--text-mid);vertical-align:top}
+.stats-table tr:hover td{background:var(--bg-alt)}
+.stats-table tfoot td{font-weight:700;color:var(--text);background:var(--bg-alt)}
+.stats-table .stat-name{font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.82rem}
+.stats-table .stat-formula{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--bg-alt);padding:.15rem .4rem;border-radius:3px}
+.stats-table td.num{font-family:'JetBrains Mono',monospace;text-align:right}
+/* CODE */
+.code-block{margin:1.25rem 0;border-radius:var(--radius);overflow:hidden;border:1px solid #1e293b;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.code-tabs-header{background:#1e293b;display:flex;align-items:center;padding:0 .75rem;gap:.25rem;border-bottom:1px solid #334155}
+.ctab{padding:.65rem .9rem;font-size:.8rem;font-weight:600;border:none;background:none;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;font-family:inherit}
+.ctab:hover{color:#e2e8f0}.ctab.active{color:#93c5fd;border-bottom-color:var(--blue-light)}
+.code-panel{display:none}.code-panel.active{display:block}
+.code-panel pre{margin:0;border-radius:0}.code-panel pre code{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.6}
+.code-output{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:1rem 1.25rem;border-top:1px solid #1e293b;line-height:1.5}
+.out-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569;margin-bottom:.4rem}
+.exercise-box{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.exercise-box h4{font-size:.95rem;font-weight:700;color:var(--blue-dark);margin-bottom:.5rem}
+.ex-scenario{background:#fff;border-left:3px solid var(--blue);padding:.75rem 1rem;border-radius:0 6px 6px 0;font-size:.88rem;color:var(--text);margin-bottom:1rem;font-style:italic}
+.ex-options{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem}
+.ex-btn{padding:.45rem 1rem;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--text-mid);font-family:inherit;font-size:.83rem;font-weight:500;cursor:pointer;transition:.15s}
+.ex-btn:hover{border-color:var(--blue);color:var(--blue)}.ex-btn.correct{background:var(--green-pale);border-color:var(--green);color:#166534}.ex-btn.wrong{background:var(--red-pale);border-color:var(--red);color:#991b1b}
+.ex-feedback{font-size:.83rem;padding:.5rem .75rem;border-radius:6px;margin-top:.4rem;display:none}
+.fb-ok{background:var(--green-pale);color:#166534}.fb-err{background:var(--red-pale);color:#991b1b}
+.ex-reset{font-size:.78rem;color:var(--text-light);background:none;border:none;cursor:pointer;margin-top:.5rem;text-decoration:underline}
+/* ERRORES COMUNES */
+.error-list{list-style:none;padding:0;margin:1rem 0}
+.error-item{display:flex;gap:.75rem;padding:.75rem;border-radius:var(--radius);margin-bottom:.5rem;background:#fff;border:1px solid var(--border)}
+.error-icon{font-size:1.2rem;flex-shrink:0}
+.error-content .error-title{font-size:.88rem;font-weight:700;color:var(--red)}
+.error-content .error-fix{font-size:.83rem;color:var(--text-mid);margin-top:.2rem}
+/* TALLER */
+.taller-hero{background:linear-gradient(135deg,var(--blue-dark),#1e4a8a);color:#fff;padding:2rem 3rem;border-bottom:3px solid var(--blue)}
+.taller-hero h2{font-size:1.5rem;font-weight:800;margin-bottom:.4rem}.taller-hero p{font-size:.9rem;opacity:.85;max-width:680px}
+.taller-meta{display:flex;gap:1.25rem;margin-top:.9rem;flex-wrap:wrap}.taller-meta span{font-size:.78rem;background:rgba(255,255,255,.12);padding:.3rem .75rem;border-radius:20px}
+.taller-body{padding:2rem 3rem;max-width:860px}
+.taller-case{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:2rem;overflow:hidden}
+.taller-case-header{background:var(--blue-dark);color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem}
+.taller-case-header h3{font-size:1rem;font-weight:700}.taller-case-badge{font-size:.7rem;background:rgba(255,255,255,.15);padding:.2rem .6rem;border-radius:4px}
+.taller-case-body{padding:1.5rem}
+.scenario-box{background:var(--bg-alt);border-left:4px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.9rem;color:var(--text-mid)}
+.step-list{counter-reset:step;list-style:none;margin:0;padding:0}
+.step-list li{counter-increment:step;display:flex;align-items:flex-start;gap:.9rem;padding:1rem 0;border-bottom:1px solid var(--border)}
+.step-list li:last-child{border-bottom:none}
+.step-num{background:var(--blue);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.step-content{flex:1}.step-q{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.35rem}
+.keypoints{background:var(--blue-dark);color:#fff;border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.keypoints h4{font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;margin-bottom:1rem}
+.kp-item{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.07)}.kp-item:last-child{border-bottom:none}
+.kp-num{background:var(--blue);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kp-text{font-size:.88rem;color:#cbd5e1}
+.quiz-box{background:linear-gradient(135deg,var(--blue-dark),#1a3a6b);border-radius:var(--radius);padding:1.75rem;margin:1.25rem 0;color:#fff}
+.quiz-box h3{font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:#93c5fd}
+.quiz-item{background:rgba(255,255,255,.06);border-radius:6px;padding:1rem;margin-bottom:.75rem}
+.q-text{font-size:.88rem;margin-bottom:.75rem;color:#e2e8f0}.q-opts{display:flex;gap:.5rem;flex-wrap:wrap}
+.q-btn{padding:.4rem .85rem;border:1.5px solid rgba(255,255,255,.2);border-radius:6px;background:rgba(255,255,255,.05);color:#cbd5e1;font-family:inherit;font-size:.8rem;cursor:pointer;transition:.15s}
+.q-btn:hover{border-color:var(--blue-light);color:#fff}.q-btn.q-correct{background:rgba(34,197,94,.15);border-color:var(--green);color:#6ee7b7}.q-btn.q-wrong{background:rgba(239,68,68,.15);border-color:var(--red);color:#fca5a5}
+.quiz-score{font-size:.88rem;color:#93c5fd;margin-top:1rem;text-align:center;display:none}
+.page-nav{display:flex;justify-content:space-between;padding:2rem 3rem;border-top:1px solid var(--border);margin-top:1rem}
+.nav-card{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.25rem;border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;color:var(--text);transition:.2s;max-width:220px}
+.nav-card:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12);text-decoration:none;color:var(--text)}
+.nav-card.next{flex-direction:row-reverse;text-align:right}
+.nav-card-arrow{font-size:1.1rem;color:var(--text-light)}.nav-card-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:.15rem}
+.nav-card-title{font-size:.85rem;font-weight:600;color:var(--blue-dark);line-height:1.3}
+.slides-wrap{margin-bottom:2.5rem;border-radius:10px;overflow:hidden;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.slides-bar{background:var(--blue-dark);color:#fff;padding:.55rem 1.1rem;display:flex;justify-content:space-between;align-items:center;font-size:.78rem}
+.slides-bar a{color:#93c5fd;font-size:.75rem;text-decoration:none;padding:.2rem .55rem;border:1px solid rgba(255,255,255,.2);border-radius:4px;transition:.15s}
+.slides-bar a:hover{background:rgba(255,255,255,.1);text-decoration:none}
+.slides-ratio{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#0d2137}
+.slides-ratio iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.step-ans{display:block;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:6px;padding:.7rem .95rem;min-height:52px;margin-top:.4rem;font-size:.87rem;line-height:1.6;color:var(--text);outline:none;cursor:text;transition:border-color .15s,background .15s,box-shadow .15s;font-family:'Inter',system-ui,sans-serif}
+.step-ans:focus{border-color:var(--blue);border-style:solid;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.step-ans:empty::before{content:'✏️ Escribe tu respuesta aquí...';color:#94a3b8;font-style:italic;font-size:.82rem;pointer-events:none}
+.taller-hint{background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:.45rem .85rem;margin:.35rem 0;font-size:.78rem;color:#78350f}
+.taller-hint::before{content:'💡 Pista: ';font-weight:700}
+</style>
+<script>if(localStorage.getItem('ister_auth_2026')==='true')document.documentElement.classList.add('authed');</script>
+</head>
+<body>
+<div id="gate">
+  <div class="gate-card">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">📊</div>
+    <div class="gate-title">Estadística · ISTER</div>
+    <div class="gate-sub">Ingresa la clave del curso para continuar</div>
+    <input id="pwd" class="gate-input" type="password" placeholder="Clave del curso" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div id="pwd-err" class="gate-error">❌ Clave incorrecta</div>
+    <button class="gate-btn" onclick="checkPwd()">Ingresar</button>
+  </div>
+</div>
+<div id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="sb-header">
+      <a href="../index.html" class="sb-logo"><span class="sb-logo-box">ISTER</span><div><div class="sb-course">Estadística</div><div class="sb-meta">2026-1 · Sistemas & Data</div></div></a>
+      <a href="../index.html" class="sb-home">← Inicio del curso</a>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Tema 1 · Introducción</div>
+      <a href="../semana01/index.html" class="sb-link done">Semana 1 · Introducción <span class="badge badge-d">Vista</span></a>
+      <a href="../semana02/index.html" class="sb-link done">Semana 2 · Muestreo <span class="badge badge-d">Vista</span></a>
+      <a href="../semana03/index.html" class="sb-link done">Semana 3 · Gráficas <span class="badge badge-d">Vista</span></a>
+      <a href="../semana04/index.html" class="sb-link done">Semana 4 · EDA <span class="badge badge-d">Vista</span></a>
+      <div class="sb-section">Tema 2 · Frecuencias</div>
+      <a href="index.html" class="sb-link active">Semana 5 · Frecuencias <span class="badge badge-d">Vista</span></a>
+      <a href="#" class="sb-link locked">Semana 6 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 7 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 8 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 3 · Tendencia Central</div>
+      <a href="#" class="sb-link locked">Semana 9 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 10 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 11 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 12 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 4 · Probabilidad</div>
+      <a href="#" class="sb-link locked">Semana 13 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 14 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 15 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 16 <span class="badge badge-l">🔒</span></a>
+    </nav>
+    <div class="sb-toc-section" id="toc-clase">
+      <div class="sb-toc-title">En esta página · Clase</div>
+      <a href="#s1" class="sb-toc-link">1. ¿Qué es una distribución de frecuencias?</a>
+      <a href="#s2" class="sb-toc-link">2. Los 4 tipos de frecuencia</a>
+      <a href="#s3" class="sb-toc-link">3. Construcción paso a paso</a>
+      <a href="#s4" class="sb-toc-link">4. Python: pandas</a>
+      <a href="#s5" class="sb-toc-link">5. R: table() y prop.table()</a>
+      <a href="#s6" class="sb-toc-link">6. Errores comunes</a>
+      <a href="#s7" class="sb-toc-link">7. Puntos clave + Quiz</a>
+    </div>
+    <div class="sb-toc-section" id="toc-taller" style="display:none">
+      <div class="sb-toc-title">En esta página · Taller</div>
+      <a href="#t1" class="sb-toc-link">Caso: Encuesta de dispositivos</a>
+      <a href="#t2" class="sb-toc-link">Código con blancos: Python + R</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <div class="content-header">
+      <div class="breadcrumb"><a href="../index.html">🏠 Inicio</a><span>›</span><span>Semana 5</span><span>›</span><span>Distribuciones de Frecuencias</span></div>
+      <div class="page-title-row">
+        <span class="week-pill">Semana 5</span>
+        <div>
+          <div class="page-main-title">Distribuciones de Frecuencias: Conceptos y Tipos</div>
+          <div class="page-subtitle">Inicio del Tema 2 · Frecuencias absolutas, relativas, porcentuales y acumuladas</div>
+          <div class="page-meta">
+            <span class="meta-item">👨‍🏫 Ing. David Minango, PhD.</span>
+            <span class="meta-item">📅 18 de mayo, 2026</span>
+            <span class="meta-item">⏱ ~90 min clase · 45 min taller</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-tabs">
+        <button class="ptab active" data-tab="clase" onclick="switchPTab('clase')">📖 Clase</button>
+        <button class="ptab" data-tab="taller" onclick="switchPTab('taller')">🛠 Taller Práctico</button>
+      </div>
+    </div>
+
+    <!-- TAB CLASE -->
+    <div id="ptab-clase" class="ptab-content active">
+      <div class="content-body">
+
+        <div class="slides-wrap">
+          <div class="slides-bar">
+            <span>📽 Presentación · 18 diapositivas · ~20 min · usa ← → o teclado</span>
+            <a href="../slides/s05.html" target="_blank">⛶ Pantalla completa</a>
+          </div>
+          <div class="slides-ratio">
+            <iframe src="../slides/s05.html" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <section class="section" id="s1">
+          <h2>📌 5.1 ¿Qué es una Distribución de Frecuencias?</h2>
+          <div class="callout callout-def">
+            <div class="ct">📖 Definición</div>
+            <div class="cb">Una <strong>distribución de frecuencias</strong> es una tabla que organiza un conjunto de datos mostrando, para cada valor o categoría, <em>cuántas veces aparece</em> (su frecuencia). Es la forma más básica — y más útil — de resumir datos.</div>
+          </div>
+          <p>Iniciamos el Tema 2. Ya sabes identificar variables y escalas (Semana 2), graficarlas (Semana 3) y explorarlas con EDA (Semana 4). Ahora aprenderás a <strong>resumirlas en tablas de frecuencia</strong> — el paso previo a cualquier histograma, gráfico de barras o polígono de frecuencias.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:1rem 0">
+            <div style="background:#f0f9ff;border-radius:8px;padding:1rem;border-top:3px solid var(--blue)"><div style="font-size:1.4rem;margin-bottom:.4rem">📊</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Resumir</div><div style="font-size:.82rem;color:var(--text-mid)">Convierte cientos de datos individuales en una tabla comprensible de un vistazo.</div></div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:1rem;border-top:3px solid var(--green)"><div style="font-size:1.4rem;margin-bottom:.4rem">⚖️</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Comparar</div><div style="font-size:.82rem;color:var(--text-mid)">Permite comparar categorías o intervalos: ¿cuál es más común? ¿cuál es rara?</div></div>
+            <div style="background:#fdf4ff;border-radius:8px;padding:1rem;border-top:3px solid #a855f7"><div style="font-size:1.4rem;margin-bottom:.4rem">🔍</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Detectar patrones</div><div style="font-size:.82rem;color:var(--text-mid)">Revela qué valores concentran los datos antes de graficar o modelar.</div></div>
+          </div>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Analogía</div>
+            <div class="cb">Es como pasar lista: en lugar de leer 40 nombres uno por uno, dices "30 presentes, 10 ausentes" — ya construiste una distribución de frecuencias de 2 categorías.</div>
+          </div>
+          <div class="callout callout-warn">
+            <div class="ct">🧩 El símbolo n</div>
+            <div class="cb">En toda tabla de frecuencias, <strong>n</strong> representa el número total de datos (tamaño de la muestra). La suma de todas las frecuencias absolutas siempre es igual a <strong>n</strong>. Antes de construir la tabla, identifica el <strong>tipo de variable</strong> (Semana 2): si es cualitativa o cuantitativa discreta con pocos valores, agrupas por categorías; si es cuantitativa continua, agrupas por <strong>intervalos de clase</strong> (lo veremos en la Semana 7).</div>
+          </div>
+        </section>
+
+        <section class="section" id="s2">
+          <h2>📌 5.2 Los 4 Tipos de Frecuencia</h2>
+          <table class="stats-table">
+            <thead><tr><th>Tipo</th><th>Símbolo</th><th>Fórmula</th><th>¿Qué responde?</th></tr></thead>
+            <tbody>
+              <tr><td><span class="stat-name">Absoluta</span></td><td><span class="stat-formula">fᵢ</span></td><td>Conteo directo</td><td>¿Cuántos hay en esta categoría?</td></tr>
+              <tr><td><span class="stat-name">Relativa</span></td><td><span class="stat-formula">hᵢ</span></td><td><span class="stat-formula">fᵢ / n</span></td><td>¿Qué proporción del total representa?</td></tr>
+              <tr><td><span class="stat-name">Porcentual</span></td><td><span class="stat-formula">%ᵢ</span></td><td><span class="stat-formula">hᵢ × 100</span></td><td>¿Qué porcentaje del total representa?</td></tr>
+              <tr><td><span class="stat-name">Acumulada</span></td><td><span class="stat-formula">Fᵢ</span></td><td><span class="stat-formula">f₁+f₂+...+fᵢ</span></td><td>¿Cuántos hay hasta esta categoría (inclusive)?</td></tr>
+              <tr><td><span class="stat-name">Rel. Acumulada</span></td><td><span class="stat-formula">Hᵢ</span></td><td><span class="stat-formula">Fᵢ / n</span></td><td>¿Qué proporción acumula hasta este punto?</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-def">
+            <div class="ct">📖 Frecuencia absoluta y relativa — ejemplo</div>
+            <div class="cb">Encuesta a <strong>40 estudiantes</strong> sobre su medio de transporte: Bus → fᵢ=16 → hᵢ=16/40=<strong>0.40</strong> (40%); Auto propio → fᵢ=8 → hᵢ=<strong>0.20</strong> (20%); Caminando → fᵢ=9 → hᵢ=<strong>0.225</strong> (22.5%). Comprobación: 16+8+9+4+3 = <strong>40 = n</strong> ✓</div>
+          </div>
+          <div class="callout callout-example">
+            <div class="ct">📋 Frecuencia acumulada — ejemplo</div>
+            <div class="cb">Ordenando de mayor a menor frecuencia (Bus, Caminando, Auto propio, Bicicleta, Taxi/App), la Fᵢ avanza así: 16 → 25 → 33 → 37 → 40. Lectura: "33 de los 40 estudiantes (82.5%) se movilizan en Bus, Caminando o Auto propio".</div>
+          </div>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Regla de oro</div>
+            <div class="cb">Una tabla de frecuencias completa casi siempre incluye <strong>fᵢ, hᵢ (o %ᵢ) y Fᵢ</strong> juntas — así cualquier lector encuentra la lectura que necesita sin recalcular nada. Y siempre verifica: <strong>Σfᵢ = n</strong> y <strong>Σhᵢ = 1</strong> (o 100%).</div>
+          </div>
+        </section>
+
+        <section class="section" id="s3">
+          <h2>📌 5.3 Construcción de una Tabla de Frecuencias</h2>
+          <div class="eda-steps">
+            <div class="eda-step"><div class="eda-step-num">1</div><div class="eda-step-title">Listar categorías</div><div class="eda-step-desc">Identifica los valores únicos de la variable</div></div>
+            <div class="eda-step"><div class="eda-step-num">2</div><div class="eda-step-title">Contar (fᵢ)</div><div class="eda-step-desc">Cuenta cuántas veces aparece cada valor</div></div>
+            <div class="eda-step"><div class="eda-step-num">3</div><div class="eda-step-title">Calcular hᵢ y %ᵢ</div><div class="eda-step-desc">Divide cada fᵢ entre n y multiplica por 100</div></div>
+            <div class="eda-step"><div class="eda-step-num">4</div><div class="eda-step-title">Acumular (Fᵢ, Hᵢ)</div><div class="eda-step-desc">Suma progresivamente fᵢ y %ᵢ</div></div>
+            <div class="eda-step"><div class="eda-step-num">5</div><div class="eda-step-title">Verificar</div><div class="eda-step-desc">Σfᵢ=n · Σhᵢ=1 · última Fᵢ=n</div></div>
+          </div>
+          <table class="stats-table">
+            <thead><tr><th>Medio de transporte</th><th class="num">fᵢ</th><th class="num">hᵢ</th><th class="num">%ᵢ</th><th class="num">Fᵢ</th><th class="num">Hᵢ %</th></tr></thead>
+            <tbody>
+              <tr><td>Bus</td><td class="num">16</td><td class="num">0.400</td><td class="num">40.0%</td><td class="num">16</td><td class="num">40.0%</td></tr>
+              <tr><td>Caminando</td><td class="num">9</td><td class="num">0.225</td><td class="num">22.5%</td><td class="num">25</td><td class="num">62.5%</td></tr>
+              <tr><td>Auto propio</td><td class="num">8</td><td class="num">0.200</td><td class="num">20.0%</td><td class="num">33</td><td class="num">82.5%</td></tr>
+              <tr><td>Bicicleta</td><td class="num">4</td><td class="num">0.100</td><td class="num">10.0%</td><td class="num">37</td><td class="num">92.5%</td></tr>
+              <tr><td>Taxi / App</td><td class="num">3</td><td class="num">0.075</td><td class="num">7.5%</td><td class="num">40</td><td class="num">100.0%</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td><td class="num">40</td><td class="num">1.000</td><td class="num">100%</td><td class="num">—</td><td class="num">—</td></tr></tfoot>
+          </table>
+          <div class="callout callout-warn">
+            <div class="ct">⚠️ Solo tiene sentido lógico cuando hay un orden</div>
+            <div class="cb">La frecuencia acumulada se interpreta de forma natural en variables <strong>cuantitativas o cualitativas ordinales</strong>. En variables nominales (Bus, Auto, Bicicleta...) el orden es arbitrario, así que se usa más con fines de cálculo que de interpretación directa.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s4">
+          <h2>🐍 5.4 Python: Tablas de Frecuencia con pandas</h2>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'py1')">value_counts()</button>
+              <button class="ctab" onclick="switchCodeTab(this,'py2')">crosstab()</button>
+            </div>
+            <div class="code-panel active" id="py1">
+<pre><code class="language-python">import pandas as pd
+
+# Encuesta: medio de transporte de 40 estudiantes ISTER
+datos = ['Bus']*16 + ['Caminando']*9 + ['Auto propio']*8 + ['Bicicleta']*4 + ['Taxi/App']*3
+serie = pd.Series(datos)
+
+# Frecuencia absoluta (fi)
+fi = serie.value_counts()
+
+# Frecuencia relativa (hi) y porcentual (%i)
+hi = serie.value_counts(normalize=True)
+
+# Tabla de frecuencias completa
+tabla = pd.DataFrame({
+    'fi': fi,
+    'hi': hi.round(3),
+    '%i': (hi * 100).round(1)
+})
+tabla['Fi']  = tabla['fi'].cumsum()           # frecuencia acumulada
+tabla['Hi%'] = tabla['%i'].cumsum().round(1)  # rel. acumulada %
+
+print(tabla)
+print(f"\nVerificación: Σfi = {tabla['fi'].sum()}  (debe ser igual a n = {len(serie)})")</code></pre>
+            </div>
+            <div class="code-panel" id="py2">
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+np.random.seed(42)
+
+# ¿El medio de transporte cambia según la jornada (Matutina/Nocturna)?
+n = 120
+df = pd.DataFrame({
+    'transporte': np.random.choice(['Bus','Caminando','Auto propio','Bicicleta','Taxi/App'],
+                                    n, p=[.40,.225,.20,.10,.075]),
+    'jornada':    np.random.choice(['Matutina','Nocturna'], n, p=[.6,.4])
+})
+
+# Tabla cruzada: frecuencias absolutas
+print("Frecuencia absoluta (conteo):")
+print(pd.crosstab(df['transporte'], df['jornada'], margins=True, margins_name='Total'))
+
+# Tabla cruzada: frecuencia relativa por columna (normalize='columns')
+print("\nFrecuencia relativa por jornada (% dentro de cada columna):")
+print((pd.crosstab(df['transporte'], df['jornada'], normalize='columns') * 100).round(1))</code></pre>
+            </div>
+            <div class="code-output">
+              <div class="out-label">Output</div>
+             fi     hi    %i   Fi   Hi%<br>
+Bus          16  0.400  40.0   16  40.0<br>
+Caminando     9  0.225  22.5   25  62.5<br>
+Auto propio   8  0.200  20.0   33  82.5<br>
+Bicicleta     4  0.100  10.0   37  92.5<br>
+Taxi/App      3  0.075   7.5   40 100.0<br>
+Verificación: Σfi = 40  (debe ser igual a n = 40)
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="s5">
+          <h2>📊 5.5 R: Tablas de Frecuencia con table() y prop.table()</h2>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'r1')">R: tabla completa</button>
+            </div>
+            <div class="code-panel active" id="r1">
+<pre><code class="language-r">datos <- c(rep("Bus", 16), rep("Caminando", 9), rep("Auto propio", 8),
+           rep("Bicicleta", 4), rep("Taxi/App", 3))
+
+# Frecuencia absoluta (fi)
+fi <- table(datos)
+fi <- sort(fi, decreasing = TRUE)
+
+# Frecuencia relativa (hi) y porcentual
+hi  <- prop.table(fi)
+pct <- round(hi * 100, 1)
+
+# Tabla completa con acumuladas
+tabla <- data.frame(
+  categoria = names(fi),
+  fi  = as.vector(fi),
+  hi  = round(as.vector(hi), 3),
+  pct = as.vector(pct),
+  Fi  = cumsum(as.vector(fi)),
+  Hi_pct = round(cumsum(as.vector(pct)), 1)
+)
+print(tabla)
+cat(sprintf("\nVerificación: suma(fi) = %d  (n = %d)\n", sum(tabla$fi), length(datos)))</code></pre>
+            </div>
+            <div class="code-output"><div class="out-label">Output</div>
+    categoria fi    hi   pct  Fi Hi_pct<br>
+1         Bus 16 0.400  40.0  16   40.0<br>
+2   Caminando  9 0.225  22.5  25   62.5<br>
+3 Auto propio  8 0.200  20.0  33   82.5<br>
+4   Bicicleta  4 0.100  10.0  37   92.5<br>
+5    Taxi/App  3 0.075   7.5  40  100.0<br>
+Verificación: suma(fi) = 40  (n = 40)
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Equivalencias Python ↔ R</div>
+            <div class="cb"><code>value_counts()</code> ↔ <code>table()</code> &nbsp;·&nbsp; <code>value_counts(normalize=True)</code> ↔ <code>prop.table(table(x))</code> &nbsp;·&nbsp; <code>cumsum()</code> ↔ <code>cumsum()</code> (idéntico en ambos lenguajes) &nbsp;·&nbsp; <code>crosstab()</code> ↔ <code>table(x, y)</code></div>
+          </div>
+        </section>
+
+        <section class="section" id="s6">
+          <h2>⚠️ 5.6 Errores Comunes al Construir Tablas de Frecuencia</h2>
+          <ul class="error-list">
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Que Σfᵢ no sea igual a n</div><div class="error-fix">✅ Si las frecuencias absolutas no suman el total de datos, alguna categoría quedó mal contada o duplicada. Verifica esta suma siempre primero.</div></div></li>
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Confundir frecuencia relativa con porcentaje</div><div class="error-fix">✅ hᵢ=0.40 y %ᵢ=40% son la misma proporción expresada de dos formas. Reportar "0.40%" en vez de "40%" cambia completamente el significado.</div></div></li>
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Acumular frecuencias en variables nominales sin orden lógico</div><div class="error-fix">✅ "Hasta Bicicleta llevamos el 92.5%" no aporta si el orden de las categorías es arbitrario. La acumulación es natural en datos ordinales o cuantitativos.</div></div></li>
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Redondear demasiado pronto</div><div class="error-fix">✅ Redondear cada hᵢ antes de sumarlas puede hacer que Σhᵢ ≠ 1 (ej. 0.40+0.23+0.20+0.10+0.08 = 1.01). Calcula con precisión completa y redondea solo al presentar la tabla final.</div></div></li>
+          </ul>
+        </section>
+
+        <section class="section" id="s7">
+          <h2>🎓 5.7 Puntos Clave y Quiz</h2>
+
+          <div class="keypoints">
+            <h4>Puntos Clave Semana 5</h4>
+            <div class="kp-item"><div class="kp-num">1</div><div class="kp-text">Una distribución de frecuencias <strong>resume</strong> un conjunto de datos mostrando cuántas veces aparece cada valor o categoría.</div></div>
+            <div class="kp-item"><div class="kp-num">2</div><div class="kp-text"><strong>fᵢ</strong> = conteo · <strong>hᵢ = fᵢ/n</strong> = proporción · <strong>%ᵢ = hᵢ×100</strong> · <strong>Fᵢ</strong> = suma acumulada de fᵢ.</div></div>
+            <div class="kp-item"><div class="kp-num">3</div><div class="kp-text">Dos verificaciones obligatorias en toda tabla: <strong>Σfᵢ = n</strong> y <strong>Σhᵢ = 1</strong> (o 100%).</div></div>
+            <div class="kp-item"><div class="kp-num">4</div><div class="kp-text">En Python: <code>value_counts()</code>, <code>cumsum()</code>, <code>crosstab()</code>. En R: <code>table()</code>, <code>prop.table()</code>, <code>cumsum()</code>.</div></div>
+            <div class="kp-item"><div class="kp-num">5</div><div class="kp-text">La acumulación (Fᵢ, Hᵢ) solo se interpreta de forma natural cuando existe un <strong>orden lógico</strong> entre las categorías.</div></div>
+          </div>
+
+          <div class="quiz-box">
+            <h3>✅ Quiz Semana 5</h3>
+            <div class="quiz-item"><div class="q-text">1. En una encuesta a 50 personas, la categoría "Café" tiene fᵢ = 20. ¿Cuál es su frecuencia relativa hᵢ?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q1')">20</button><button class="q-btn" onclick="ansQ(this,true,'q1')">0.40</button><button class="q-btn" onclick="ansQ(this,false,'q1')">40</button></div><div id="q1-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">2. Si Σfᵢ = 38 mientras n = 40, ¿qué significa esto?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q2')">Es normal, no hay que revisar nada</button><button class="q-btn" onclick="ansQ(this,true,'q2')">Hay un error: alguna categoría está mal contada o falta</button><button class="q-btn" onclick="ansQ(this,false,'q2')">Significa que hay 2 valores nulos válidos</button></div><div id="q2-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">3. ¿Qué función de pandas calcula directamente la frecuencia absoluta de cada categoría?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q3')">df.describe()</button><button class="q-btn" onclick="ansQ(this,true,'q3')">serie.value_counts()</button><button class="q-btn" onclick="ansQ(this,false,'q3')">df.cumsum()</button></div><div id="q3-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">4. ¿En qué tipo de variable tiene más sentido interpretar la frecuencia acumulada (Fᵢ)?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q4')">Cualitativa nominal (colores, marcas)</button><button class="q-btn" onclick="ansQ(this,true,'q4')">Cuantitativa o cualitativa ordinal (existe un orden)</button><button class="q-btn" onclick="ansQ(this,false,'q4')">No importa, siempre es igual de útil</button></div><div id="q4-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div id="quiz-score" class="quiz-score"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- TAB TALLER -->
+    <div id="ptab-taller" class="ptab-content">
+      <div class="taller-hero">
+        <h2>🛠 Taller Práctico · Semana 5</h2>
+        <p>Construye tu propia tabla de frecuencias a partir de una encuesta real del aula: dispositivo principal que usan los estudiantes para estudiar. Calcula, completa el código y redacta tus conclusiones.</p>
+        <div class="taller-meta"><span>⏱ 45 minutos</span><span>📋 Caso + código guiado</span><span>🐍 Python + 📊 R</span><span>✍️ Desarrollo propio</span></div>
+      </div>
+      <div class="taller-body">
+        <div class="taller-case" id="t1">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">💻</span>
+            <h3>Caso: Encuesta de dispositivos para estudiar</h3>
+            <span class="taller-case-badge">Tema 2 · Desarrollo · 20 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="scenario-box"><strong>Escenario:</strong> Se encuestó a <strong>60 estudiantes</strong> de Sistemas sobre cuál es el <strong>dispositivo principal</strong> que usan para estudiar. Los resultados (frecuencias absolutas) fueron: <strong>Laptop = 27</strong>, <strong>Smartphone = 18</strong>, <strong>PC de escritorio = 9</strong>, <strong>Tablet = 6</strong>. Construye la tabla de frecuencias completa y responde.</div>
+            <ol class="step-list">
+              <li><div class="step-num">1</div><div class="step-content"><div class="step-q">Calcula la frecuencia relativa (hᵢ) y porcentual (%ᵢ) de cada dispositivo. Muestra el cálculo (no solo el resultado).</div><div class="taller-hint">hᵢ = fᵢ / n, donde n = 60. Luego %ᵢ = hᵢ × 100.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">2</div><div class="step-content"><div class="step-q">Ordena las categorías de mayor a menor frecuencia y calcula la frecuencia acumulada (Fᵢ) y la relativa acumulada (Hᵢ %) para cada una.</div><div class="taller-hint">Fᵢ es la suma progresiva de fᵢ; Hᵢ % es la suma progresiva de %ᵢ. La última Fᵢ debe ser igual a n.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">3</div><div class="step-content"><div class="step-q">Verifica que Σfᵢ = n y Σhᵢ = 1. ¿Se cumplen ambas condiciones con tus cálculos? Si no se cumplieran, ¿qué tipo de error indicaría?</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">4</div><div class="step-content"><div class="step-q">Redacta una conclusión: ¿qué dispositivo predomina? Usando la frecuencia acumulada, ¿qué porcentaje de estudiantes usa Laptop o Smartphone (combinados) como su dispositivo principal?</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">5</div><div class="step-content"><div class="step-q">Si quisieras comparar este resultado con otra sección que tiene 90 estudiantes, ¿usarías las frecuencias absolutas (fᵢ) o las relativas (hᵢ)? Justifica tu elección.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="taller-case" id="t2">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">⌨️</span>
+            <h3>Código: construye la tabla con pandas / R</h3>
+            <span class="taller-case-badge">Python + R · 25 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="code-block">
+              <div class="code-tabs-header">
+                <button class="ctab active" onclick="switchCodeTab(this,'tp1')">🐍 Python</button>
+                <button class="ctab" onclick="switchCodeTab(this,'tr1')">📊 R</button>
+              </div>
+              <div class="code-panel active" id="tp1">
+<pre><code class="language-python">import pandas as pd
+
+# Encuesta: dispositivo principal para estudiar (60 estudiantes) — dataset ya dado, no modifiques
+datos = ['Laptop']*27 + ['Smartphone']*18 + ['PC de escritorio']*9 + ['Tablet']*6
+serie = pd.Series(datos)
+n = len(serie)
+
+# ── PASO 1: Frecuencia absoluta (fi) ──────────────────────
+# Pista: value_counts() cuenta cuántas veces aparece cada categoría
+fi = serie._____()
+
+# ── PASO 2: Frecuencia relativa (hi) y porcentual (%i) ────
+# Pista: value_counts(normalize=True) devuelve directamente las proporciones
+hi  = serie.value_counts(_____=True)
+pct = (hi * _____).round(1)
+
+# ── PASO 3: Tabla de frecuencias completa ─────────────────
+tabla = pd.DataFrame({
+    'fi': fi,
+    'hi': hi.round(3),
+    '%i': pct
+})
+
+# ── PASO 4: Frecuencias acumuladas ────────────────────────
+# Pista: cumsum() suma progresivamente los valores de una columna
+tabla['Fi']  = tabla['fi']._____()
+tabla['Hi%'] = tabla['%i']._____().round(1)
+
+print(tabla)
+
+# ── PASO 5: Verificación ──────────────────────────────────
+# Pista: .sum() suma todos los valores de una columna
+print(f"Verificación Σfi = {tabla['fi']._____()}  (debe ser igual a n = {_____})")
+print(f"Verificación Σhi = {tabla['hi']._____():.3f}  (debe ser igual a 1.000)")</code></pre>
+              </div>
+              <div class="code-panel" id="tr1">
+<pre><code class="language-r"># Encuesta: dispositivo principal para estudiar (60 estudiantes) — dataset ya dado, no modifiques
+datos <- c(rep("Laptop", 27), rep("Smartphone", 18), rep("PC de escritorio", 9), rep("Tablet", 6))
+n <- length(datos)
+
+# ── PASO 1: Frecuencia absoluta (fi) ──────────────────────
+# Pista: table() cuenta las apariciones de cada categoría
+fi <- _____(datos)
+fi <- sort(fi, decreasing = TRUE)
+
+# ── PASO 2: Frecuencia relativa (hi) y porcentual ─────────
+# Pista: prop.table() convierte conteos en proporciones
+hi  <- _____(fi)
+pct <- round(hi * 100, 1)
+
+# ── PASO 3 + 4: Tabla completa con acumuladas ─────────────
+# Pista: cumsum() acumula progresivamente los valores de un vector
+tabla <- data.frame(
+  categoria = names(fi),
+  fi  = as.vector(fi),
+  hi  = round(as.vector(hi), 3),
+  pct = as.vector(pct),
+  Fi  = _____(as.vector(fi)),
+  Hi_pct = round(_____(as.vector(pct)), 1)
+)
+print(tabla)
+
+# ── PASO 5: Verificación ──────────────────────────────────
+# Pista: sum() suma todos los elementos de un vector o columna
+cat(sprintf("Verificación: suma(fi) = %d (n = %d) | suma(hi) = %.3f\n",
+            _____(tabla$fi), n, _____(tabla$hi)))</code></pre>
+              </div>
+              <div class="code-output"><div class="out-label">Output esperado (verifica que tu tabla coincida)</div>fi: Laptop=27, Smartphone=18, PC de escritorio=9, Tablet=6 | n=60<br>Σfi = 60 ✓ &nbsp;|&nbsp; Σhi ≈ 1.000 ✓<br>La última Fi debe ser igual a 60 y la última Hi% igual a 100.0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-nav">
+      <a href="../semana04/index.html" class="nav-card"><span class="nav-card-arrow">←</span><div><div class="nav-card-label">Anterior</div><div class="nav-card-title">Semana 4: EDA</div></div></a>
+      <a href="../index.html" class="nav-card next" style="opacity:.6"><span class="nav-card-arrow">→</span><div><div class="nav-card-label">Próximo</div><div class="nav-card-title">Semana 6: Frec. Agrupadas</div></div></a>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
+<script>
+const PWD='Ister_Estadistica2026',KEY='ister_auth_2026';
+function activarTaller(){document.querySelectorAll('.step-ans').forEach(el=>{el.textContent='';el.setAttribute('contenteditable','true');el.setAttribute('spellcheck','false');});}
+function checkPwd(){if(document.getElementById('pwd').value===PWD){localStorage.setItem(KEY,'true');document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}else{document.getElementById('pwd-err').style.display='block';document.getElementById('pwd').value='';}}
+window.onload=function(){if(localStorage.getItem(KEY)==='true'){document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}};
+function handleHash(){if(window.location.hash==='#taller')switchPTab('taller');}
+function switchPTab(id){document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.ptab-content').forEach(c=>c.classList.remove('active'));document.querySelector(`.ptab[data-tab="${id}"]`).classList.add('active');document.getElementById('ptab-'+id).classList.add('active');document.getElementById('toc-clase').style.display=id==='clase'?'':'none';document.getElementById('toc-taller').style.display=id==='taller'?'':'none';history.replaceState(null,null,id==='taller'?'#taller':'#');}
+function switchCodeTab(btn,id){const b=btn.closest('.code-block');b.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));b.querySelectorAll('.code-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');b.querySelector('#'+id).classList.add('active');}
+const qA={};
+function ansQ(btn,ok,id){const item=btn.closest('.quiz-item');if(item.querySelector('.q-btn.q-correct')||item.querySelector('.q-btn.q-wrong'))return;btn.classList.add(ok?'q-correct':'q-wrong');if(!ok)item.querySelectorAll('.q-btn').forEach(b=>{if(b!==btn)b.classList.add('q-correct');});qA[id]=ok;const fb=document.getElementById(id+'-fb');if(fb){fb.style.display='block';fb.style.color=ok?'#6ee7b7':'#fca5a5';fb.textContent=ok?'✅ ¡Correcto!':'❌ Revisa la respuesta.';}if(Object.keys(qA).length===4){const s=Object.values(qA).filter(Boolean).length;const el=document.getElementById('quiz-score');el.style.display='block';el.textContent=`Resultado: ${s}/4 — ${s===4?'🎉 ¡Excelente!':s>=3?'👍 ¡Muy bien!':'📚 Repasa los conceptos.'}`;}};
+</script>
+</body>
+</html>
