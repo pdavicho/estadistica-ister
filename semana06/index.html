@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 6: Tipos de Distribución de Frecuencias · ISTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue-dark:#0d2137;--blue-mid:#1a3a6b;--blue:#2563eb;--blue-light:#3b82f6;--blue-pale:#dbeafe;
+  --text:#0f172a;--text-mid:#334155;--text-light:#64748b;--bg:#ffffff;--bg-alt:#f8fafc;--border:#e2e8f0;
+  --green:#22c55e;--green-pale:#dcfce7;--amber:#f59e0b;--amber-pale:#fef3c7;
+  --red:#ef4444;--red-pale:#fee2e2;--sidebar-w:270px;--radius:8px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.7;font-size:15px}
+.hidden{display:none!important}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+#gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;z-index:9999}
+html.authed #gate{display:none!important}
+.gate-card{background:#fff;border-radius:16px;padding:2.5rem;width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.gate-title{font-size:1.4rem;font-weight:700;color:var(--blue-dark);margin-bottom:.25rem}.gate-sub{font-size:.85rem;color:var(--text-light);margin-bottom:1.5rem}
+.gate-input{width:100%;padding:.75rem 1rem;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:.9rem;outline:none;transition:.2s}.gate-input:focus{border-color:var(--blue)}
+.gate-btn{width:100%;margin-top:.75rem;padding:.75rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+.gate-error{color:var(--red);font-size:.82rem;margin-top:.5rem;display:none}
+#app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--blue-dark);color:#cbd5e1;height:100vh;position:fixed;top:0;left:0;overflow-y:auto;display:flex;flex-direction:column;z-index:50}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.sb-header{padding:1.25rem 1rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;margin-bottom:.75rem}
+.sb-logo-box{background:var(--blue);border-radius:6px;padding:.35rem .55rem;font-size:.7rem;font-weight:700;color:#fff}
+.sb-course{font-size:.82rem;font-weight:600;color:#e2e8f0}.sb-meta{font-size:.72rem;color:#94a3b8;margin-top:.1rem}
+.sb-home{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:6px;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;margin-top:.5rem}
+.sb-home:hover{background:rgba(255,255,255,.08);color:#e2e8f0;text-decoration:none}
+.sb-nav{flex:1;padding:.75rem 0}
+.sb-section{padding:.5rem 1rem .25rem;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-top:.75rem}
+.sb-link{display:block;padding:.45rem 1rem;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;border-left:2px solid transparent;line-height:1.4}
+.sb-link:hover{background:rgba(255,255,255,.06);color:#e2e8f0;text-decoration:none}
+.sb-link.active{color:#93c5fd;border-left-color:var(--blue-light);background:rgba(59,130,246,.12)}
+.sb-link.done{color:#6ee7b7}.sb-link.locked{color:#475569;pointer-events:none}
+.sb-link .badge{font-size:.65rem;padding:.1rem .35rem;border-radius:3px;margin-left:.35rem}
+.badge-d{background:rgba(110,231,183,.15);color:#6ee7b7}.badge-l{background:rgba(255,255,255,.05);color:#475569}
+.sb-toc-section{padding:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-toc-title{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-bottom:.5rem}
+.sb-toc-link{display:block;font-size:.78rem;color:#94a3b8;padding:.3rem 0 .3rem .6rem;text-decoration:none;transition:.15s;border-left:2px solid transparent}
+.sb-toc-link:hover{color:#e2e8f0;text-decoration:none}.sb-toc-link.toc-active{color:#93c5fd;border-left-color:var(--blue-light)}
+.content-wrap{margin-left:var(--sidebar-w);flex:1;min-width:0;background:var(--bg)}
+.content-header{padding:1.5rem 3rem 0;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:40}
+.breadcrumb{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-light);margin-bottom:.75rem}
+.breadcrumb a{color:var(--text-light);text-decoration:none}.breadcrumb a:hover{color:var(--blue)}
+.page-title-row{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.75rem}
+.week-pill{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .7rem;border-radius:4px;margin-top:.2rem;white-space:nowrap}
+.page-main-title{font-size:1.8rem;font-weight:800;color:var(--blue-dark);line-height:1.2;letter-spacing:-.02em}
+.page-subtitle{font-size:.95rem;color:var(--text-mid);margin-top:.4rem}
+.page-meta{display:flex;gap:1rem;margin-top:.5rem;flex-wrap:wrap}.meta-item{font-size:.78rem;color:var(--text-light)}
+.page-tabs{display:flex;border-top:1px solid var(--border);margin-top:.75rem}
+.ptab{padding:.65rem 1.25rem;font-family:inherit;font-size:.85rem;font-weight:600;border:none;background:none;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;display:flex;align-items:center;gap:.4rem;margin-bottom:-1px}
+.ptab:hover{color:var(--text)}.ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.ptab-content{display:none}.ptab-content.active{display:block}
+.content-body{padding:2.5rem 3rem;max-width:860px}
+.section{margin-bottom:3.5rem;scroll-margin-top:160px}
+.section h2{font-size:1.35rem;font-weight:700;color:var(--blue-dark);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--blue-pale)}
+.section h3{font-size:1.05rem;font-weight:600;color:var(--text);margin:1.5rem 0 .75rem}
+.section p{margin-bottom:1rem;color:var(--text-mid)}.section ul{margin:.5rem 0 1rem 1.25rem;color:var(--text-mid)}.section li{margin-bottom:.4rem}
+.callout{border-radius:var(--radius);padding:1.1rem 1.25rem;margin:1.25rem 0;border-left:4px solid}
+.callout-def{background:var(--blue-pale);border-color:var(--blue)}.callout-def .ct{color:var(--blue-dark);font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-def .cb{color:var(--text-mid);font-size:.9rem}
+.callout-tip{background:#f0fdf4;border-color:var(--green)}.callout-tip .ct{color:#166534;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-tip .cb{color:#166534;font-size:.9rem}
+.callout-warn{background:var(--amber-pale);border-color:var(--amber)}.callout-warn .ct{color:#92400e;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-warn .cb{color:#78350f;font-size:.9rem}
+.callout-example{background:#faf5ff;border-color:#a855f7}.callout-example .ct{color:#6b21a8;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-example .cb{color:#581c87;font-size:.9rem}
+.eda-steps{display:flex;gap:0;margin:1.25rem 0;flex-wrap:wrap}
+.eda-step{flex:1;min-width:140px;padding:1rem;text-align:center;position:relative}
+.eda-step::after{content:'→';position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:1.1rem}
+.eda-step:last-child::after{display:none}
+.eda-step-num{width:36px;height:36px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto .5rem;font-size:.9rem}
+.eda-step-title{font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:.25rem}
+.eda-step-desc{font-size:.75rem;color:var(--text-light)}
+.stats-table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.85rem}
+.stats-table th{background:var(--blue-dark);color:#fff;padding:.7rem 1rem;text-align:left;font-weight:600;font-size:.8rem}
+.stats-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:var(--text-mid);vertical-align:top}
+.stats-table tr:hover td{background:var(--bg-alt)}
+.stats-table tfoot td{font-weight:700;color:var(--text);background:var(--bg-alt)}
+.stats-table .stat-name{font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.82rem}
+.stats-table .stat-formula{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--bg-alt);padding:.15rem .4rem;border-radius:3px}
+.stats-table td.num{font-family:'JetBrains Mono',monospace;text-align:right}
+.code-block{margin:1.25rem 0;border-radius:var(--radius);overflow:hidden;border:1px solid #1e293b;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.code-tabs-header{background:#1e293b;display:flex;align-items:center;padding:0 .75rem;gap:.25rem;border-bottom:1px solid #334155}
+.ctab{padding:.65rem .9rem;font-size:.8rem;font-weight:600;border:none;background:none;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;font-family:inherit}
+.ctab:hover{color:#e2e8f0}.ctab.active{color:#93c5fd;border-bottom-color:var(--blue-light)}
+.code-panel{display:none}.code-panel.active{display:block}
+.code-panel pre{margin:0;border-radius:0}.code-panel pre code{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.6}
+.code-output{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:1rem 1.25rem;border-top:1px solid #1e293b;line-height:1.5}
+.out-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569;margin-bottom:.4rem}
+.error-list{list-style:none;padding:0;margin:1rem 0}
+.error-item{display:flex;gap:.75rem;padding:.75rem;border-radius:var(--radius);margin-bottom:.5rem;background:#fff;border:1px solid var(--border)}
+.error-icon{font-size:1.2rem;flex-shrink:0}
+.error-content .error-title{font-size:.88rem;font-weight:700;color:var(--red)}
+.error-content .error-fix{font-size:.83rem;color:var(--text-mid);margin-top:.2rem}
+.taller-hero{background:linear-gradient(135deg,var(--blue-dark),#1e4a8a);color:#fff;padding:2rem 3rem;border-bottom:3px solid var(--blue)}
+.taller-hero h2{font-size:1.5rem;font-weight:800;margin-bottom:.4rem}.taller-hero p{font-size:.9rem;opacity:.85;max-width:680px}
+.taller-meta{display:flex;gap:1.25rem;margin-top:.9rem;flex-wrap:wrap}.taller-meta span{font-size:.78rem;background:rgba(255,255,255,.12);padding:.3rem .75rem;border-radius:20px}
+.taller-body{padding:2rem 3rem;max-width:860px}
+.taller-case{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:2rem;overflow:hidden}
+.taller-case-header{background:var(--blue-dark);color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem}
+.taller-case-header h3{font-size:1rem;font-weight:700}.taller-case-badge{font-size:.7rem;background:rgba(255,255,255,.15);padding:.2rem .6rem;border-radius:4px}
+.taller-case-body{padding:1.5rem}
+.scenario-box{background:var(--bg-alt);border-left:4px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.9rem;color:var(--text-mid)}
+.step-list{counter-reset:step;list-style:none;margin:0;padding:0}
+.step-list li{counter-increment:step;display:flex;align-items:flex-start;gap:.9rem;padding:1rem 0;border-bottom:1px solid var(--border)}
+.step-list li:last-child{border-bottom:none}
+.step-num{background:var(--blue);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.step-content{flex:1}.step-q{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.35rem}
+.keypoints{background:var(--blue-dark);color:#fff;border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.keypoints h4{font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;margin-bottom:1rem}
+.kp-item{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.07)}.kp-item:last-child{border-bottom:none}
+.kp-num{background:var(--blue);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kp-text{font-size:.88rem;color:#cbd5e1}
+.quiz-box{background:linear-gradient(135deg,var(--blue-dark),#1a3a6b);border-radius:var(--radius);padding:1.75rem;margin:1.25rem 0;color:#fff}
+.quiz-box h3{font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:#93c5fd}
+.quiz-item{background:rgba(255,255,255,.06);border-radius:6px;padding:1rem;margin-bottom:.75rem}
+.q-text{font-size:.88rem;margin-bottom:.75rem;color:#e2e8f0}.q-opts{display:flex;gap:.5rem;flex-wrap:wrap}
+.q-btn{padding:.4rem .85rem;border:1.5px solid rgba(255,255,255,.2);border-radius:6px;background:rgba(255,255,255,.05);color:#cbd5e1;font-family:inherit;font-size:.8rem;cursor:pointer;transition:.15s}
+.q-btn:hover{border-color:var(--blue-light);color:#fff}.q-btn.q-correct{background:rgba(34,197,94,.15);border-color:var(--green);color:#6ee7b7}.q-btn.q-wrong{background:rgba(239,68,68,.15);border-color:var(--red);color:#fca5a5}
+.quiz-score{font-size:.88rem;color:#93c5fd;margin-top:1rem;text-align:center;display:none}
+.page-nav{display:flex;justify-content:space-between;padding:2rem 3rem;border-top:1px solid var(--border);margin-top:1rem}
+.nav-card{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.25rem;border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;color:var(--text);transition:.2s;max-width:220px}
+.nav-card:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12);text-decoration:none;color:var(--text)}
+.nav-card.next{flex-direction:row-reverse;text-align:right}
+.nav-card-arrow{font-size:1.1rem;color:var(--text-light)}.nav-card-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:.15rem}
+.nav-card-title{font-size:.85rem;font-weight:600;color:var(--blue-dark);line-height:1.3}
+.slides-wrap{margin-bottom:2.5rem;border-radius:10px;overflow:hidden;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.slides-bar{background:var(--blue-dark);color:#fff;padding:.55rem 1.1rem;display:flex;justify-content:space-between;align-items:center;font-size:.78rem}
+.slides-bar a{color:#93c5fd;font-size:.75rem;text-decoration:none;padding:.2rem .55rem;border:1px solid rgba(255,255,255,.2);border-radius:4px;transition:.15s}
+.slides-bar a:hover{background:rgba(255,255,255,.1);text-decoration:none}
+.slides-ratio{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#0d2137}
+.slides-ratio iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.step-ans{display:block;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:6px;padding:.7rem .95rem;min-height:52px;margin-top:.4rem;font-size:.87rem;line-height:1.6;color:var(--text);outline:none;cursor:text;transition:border-color .15s,background .15s,box-shadow .15s;font-family:'Inter',system-ui,sans-serif}
+.step-ans:focus{border-color:var(--blue);border-style:solid;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.step-ans:empty::before{content:'✏️ Escribe tu respuesta aquí...';color:#94a3b8;font-style:italic;font-size:.82rem;pointer-events:none}
+.taller-hint{background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:.45rem .85rem;margin:.35rem 0;font-size:.78rem;color:#78350f}
+.taller-hint::before{content:'💡 Pista: ';font-weight:700}
+</style>
+<script>if(localStorage.getItem('ister_auth_2026')==='true')document.documentElement.classList.add('authed');</script>
+</head>
+<body>
+<div id="gate">
+  <div class="gate-card">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">📊</div>
+    <div class="gate-title">Estadística · ISTER</div>
+    <div class="gate-sub">Ingresa la clave del curso para continuar</div>
+    <input id="pwd" class="gate-input" type="password" placeholder="Clave del curso" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div id="pwd-err" class="gate-error">❌ Clave incorrecta</div>
+    <button class="gate-btn" onclick="checkPwd()">Ingresar</button>
+  </div>
+</div>
+<div id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="sb-header">
+      <a href="../index.html" class="sb-logo"><span class="sb-logo-box">ISTER</span><div><div class="sb-course">Estadística</div><div class="sb-meta">2026-1 · Sistemas & Data</div></div></a>
+      <a href="../index.html" class="sb-home">← Inicio del curso</a>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Tema 1 · Introducción</div>
+      <a href="../semana01/index.html" class="sb-link done">Semana 1 · Introducción <span class="badge badge-d">Vista</span></a>
+      <a href="../semana02/index.html" class="sb-link done">Semana 2 · Muestreo <span class="badge badge-d">Vista</span></a>
+      <a href="../semana03/index.html" class="sb-link done">Semana 3 · Gráficas <span class="badge badge-d">Vista</span></a>
+      <a href="../semana04/index.html" class="sb-link done">Semana 4 · EDA <span class="badge badge-d">Vista</span></a>
+      <div class="sb-section">Tema 2 · Frecuencias</div>
+      <a href="../semana05/index.html" class="sb-link done">Semana 5 · Frecuencias <span class="badge badge-d">Vista</span></a>
+      <a href="index.html" class="sb-link active">Semana 6 · Tipos de Distribución <span class="badge badge-d">Vista</span></a>
+      <a href="../semana07/index.html" class="sb-link done">Semana 7 · Clases e Intervalos <span class="badge badge-d">Vista</span></a>
+      <a href="#" class="sb-link locked">Semana 8 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 3 · Tendencia Central</div>
+      <a href="#" class="sb-link locked">Semana 9 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 10 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 11 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 12 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 4 · Probabilidad</div>
+      <a href="#" class="sb-link locked">Semana 13 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 14 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 15 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 16 <span class="badge badge-l">🔒</span></a>
+    </nav>
+    <div class="sb-toc-section" id="toc-clase">
+      <div class="sb-toc-title">En esta página · Clase</div>
+      <a href="#s1" class="sb-toc-link">1. ¿Cómo se clasifican?</a>
+      <a href="#s2" class="sb-toc-link">2. Según el tipo de variable</a>
+      <a href="#s3" class="sb-toc-link">3. No agrupadas vs agrupadas</a>
+      <a href="#s4" class="sb-toc-link">4. Distribuciones acumuladas</a>
+      <a href="#s5" class="sb-toc-link">5. Código: la tabla correcta</a>
+      <a href="#s6" class="sb-toc-link">6. Puntos clave + Quiz</a>
+    </div>
+    <div class="sb-toc-section" id="toc-taller" style="display:none">
+      <div class="sb-toc-title">En esta página · Taller (APP)</div>
+      <a href="#t1" class="sb-toc-link">APP: Técnicas de muestreo</a>
+      <a href="#t2" class="sb-toc-link">Código con blancos: Python + R</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <div class="content-header">
+      <div class="breadcrumb"><a href="../index.html">🏠 Inicio</a><span>›</span><span>Semana 6</span><span>›</span><span>Tipos de Distribución de Frecuencias</span></div>
+      <div class="page-title-row">
+        <span class="week-pill">Semana 6</span>
+        <div>
+          <div class="page-main-title">Tipos de Distribución de Frecuencias</div>
+          <div class="page-subtitle">Tema 2 · Clasificación de las distribuciones + APP: Técnicas de muestreo (8h)</div>
+          <div class="page-meta">
+            <span class="meta-item">👨‍🏫 Ing. David Minango, PhD.</span>
+            <span class="meta-item">📅 25 de mayo, 2026</span>
+            <span class="meta-item">⏱ ~90 min clase · APP 8h</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-tabs">
+        <button class="ptab active" data-tab="clase" onclick="switchPTab('clase')">📖 Clase</button>
+        <button class="ptab" data-tab="taller" onclick="switchPTab('taller')">🛠 Taller Práctico (APP)</button>
+      </div>
+    </div>
+
+    <!-- TAB CLASE -->
+    <div id="ptab-clase" class="ptab-content active">
+      <div class="content-body">
+
+        <div class="slides-wrap">
+          <div class="slides-bar">
+            <span>📽 Presentación · 18 diapositivas · ~20 min · usa ← → o teclado</span>
+            <a href="../slides/s06.html" target="_blank">⛶ Pantalla completa</a>
+          </div>
+          <div class="slides-ratio">
+            <iframe src="../slides/s06.html" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <section class="section" id="s1">
+          <h2>📌 6.1 ¿Cómo se Clasifican las Distribuciones de Frecuencias?</h2>
+          <div class="callout callout-def">
+            <div class="ct">📖 Idea central</div>
+            <div class="cb">En la Semana 5 vimos los <strong>tipos de frecuencia</strong> (las columnas: fᵢ, hᵢ, %ᵢ, Fᵢ). Esta semana vemos los <strong>tipos de distribución</strong>: las distintas <em>formas de estructurar la tabla</em>. No todas las distribuciones se construyen igual.</div>
+          </div>
+          <p>La estructura correcta de una tabla de frecuencias depende de dos decisiones:</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0">
+            <div style="background:#fdf4ff;border-radius:8px;padding:1rem;border-top:3px solid #a855f7"><div style="font-size:1.4rem;margin-bottom:.4rem">①</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Según el tipo de variable</div><div style="font-size:.82rem;color:var(--text-mid)">Cualitativa → por categorías · Cuantitativa → por valores o por intervalos.</div></div>
+            <div style="background:#fefce8;border-radius:8px;padding:1rem;border-top:3px solid var(--amber)"><div style="font-size:1.4rem;margin-bottom:.4rem">②</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Según el agrupamiento</div><div style="font-size:.82rem;color:var(--text-mid)">No agrupada (una fila por valor) · Agrupada (una fila por intervalo).</div></div>
+          </div>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Una mirada transversal: la acumulación</div>
+            <div class="cb">Cualquier distribución, sea del tipo que sea, puede mostrarse de forma <strong>simple</strong> (fᵢ, hᵢ) o <strong>acumulada</strong> (Fᵢ, Hᵢ).</div>
+          </div>
+        </section>
+
+        <section class="section" id="s2">
+          <h2>📌 6.2 Según el Tipo de Variable</h2>
+          <p>Recordando la Semana 2: la <strong>naturaleza de la variable</strong> decide cómo se organiza la tabla.</p>
+
+          <h3>a) Variable cualitativa → por categorías</h3>
+          <p>Una fila por cada categoría. Ejemplo: medio de transporte de 40 estudiantes.</p>
+          <table class="stats-table">
+            <thead><tr><th>Categoría</th><th class="num">fᵢ</th><th class="num">hᵢ</th><th class="num">%ᵢ</th></tr></thead>
+            <tbody>
+              <tr><td>Bus</td><td class="num">16</td><td class="num">0.400</td><td class="num">40.0%</td></tr>
+              <tr><td>Caminando</td><td class="num">9</td><td class="num">0.225</td><td class="num">22.5%</td></tr>
+              <tr><td>Auto propio</td><td class="num">8</td><td class="num">0.200</td><td class="num">20.0%</td></tr>
+              <tr><td>Bicicleta</td><td class="num">4</td><td class="num">0.100</td><td class="num">10.0%</td></tr>
+              <tr><td>Taxi / App</td><td class="num">3</td><td class="num">0.075</td><td class="num">7.5%</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td><td class="num">40</td><td class="num">1.000</td><td class="num">100%</td></tr></tfoot>
+          </table>
+
+          <h3>b) Variable cuantitativa discreta (pocos valores) → por valores</h3>
+          <p>Una fila por cada valor numérico. Ejemplo: nº de dispositivos por estudiante (n = 50). Aquí la acumulada SÍ se interpreta.</p>
+          <table class="stats-table">
+            <thead><tr><th>Nº dispositivos</th><th class="num">fᵢ</th><th class="num">hᵢ</th><th class="num">Fᵢ</th><th class="num">Hᵢ %</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td class="num">6</td><td class="num">0.12</td><td class="num">6</td><td class="num">12%</td></tr>
+              <tr><td>2</td><td class="num">21</td><td class="num">0.42</td><td class="num">27</td><td class="num">54%</td></tr>
+              <tr><td>3</td><td class="num">15</td><td class="num">0.30</td><td class="num">42</td><td class="num">84%</td></tr>
+              <tr><td>4</td><td class="num">8</td><td class="num">0.16</td><td class="num">50</td><td class="num">100%</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td><td class="num">50</td><td class="num">1.00</td><td class="num">—</td><td class="num">—</td></tr></tfoot>
+          </table>
+
+          <h3>c) Variable cuantitativa continua → por intervalos</h3>
+          <p>Muchos valores distintos: se agrupa en clases. Cada fila es un intervalo con su marca de clase (xₘ). <strong>Cómo dimensionar esos intervalos es justo el tema de la Semana 7.</strong></p>
+          <div class="callout callout-warn">
+            <div class="ct">⚠️ La acumulada y el tipo de variable</div>
+            <div class="cb">La frecuencia acumulada (Fᵢ) solo se interpreta de forma natural cuando existe un <strong>orden</strong>: en variables cuantitativas y cualitativas ordinales. En nominales (colores, marcas) el orden es arbitrario.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s3">
+          <h2>📌 6.3 No Agrupadas vs. Agrupadas</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0">
+            <div style="background:#f0fdf4;border-radius:8px;padding:1rem;border-top:3px solid var(--green)"><div style="font-weight:700;font-size:.9rem;margin-bottom:.4rem">📋 No agrupada</div><div style="font-size:.83rem;color:var(--text-mid)">Una fila por valor o categoría. No se pierde detalle. Ideal para cualitativas o discretas con pocos valores.</div></div>
+            <div style="background:#f0f9ff;border-radius:8px;padding:1rem;border-top:3px solid var(--blue)"><div style="font-weight:700;font-size:.9rem;margin-bottom:.4rem">📊 Agrupada</div><div style="font-size:.83rem;color:var(--text-mid)">Una fila por intervalo. Gana legibilidad y muestra la forma, a costa del detalle. Ideal para continuas o muchos valores.</div></div>
+          </div>
+          <h3>Regla práctica: ¿cuándo agrupar?</h3>
+          <table class="stats-table">
+            <thead><tr><th>Situación</th><th>Tipo de distribución</th></tr></thead>
+            <tbody>
+              <tr><td>Variable cualitativa (nominal u ordinal)</td><td>No agrupada (por categorías)</td></tr>
+              <tr><td>Cuantitativa discreta, pocos valores (≤ ~15)</td><td>No agrupada (por valores)</td></tr>
+              <tr><td>Cuantitativa discreta con muchos valores</td><td>Agrupada (intervalos)</td></tr>
+              <tr><td>Cuantitativa continua</td><td>Agrupada (intervalos)</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Criterio guía</div>
+            <div class="cb">Si al listar los valores únicos la tabla supera ~15 filas y se vuelve difícil de leer, <strong>agrupa</strong>. El objetivo siempre es resumir sin ocultar el patrón.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s4">
+          <h2>📌 6.4 Distribuciones de Frecuencias Acumuladas</h2>
+          <p>Cualquier distribución (agrupada o no) puede expresarse en forma <strong>acumulada</strong>: cada fila suma su frecuencia más todas las anteriores. Responde la pregunta "¿cuántos datos hay <em>hasta</em> este punto?".</p>
+          <div class="callout callout-def">
+            <div class="ct">📖 Fórmulas</div>
+            <div class="cb"><strong>Fᵢ = f₁ + f₂ + … + fᵢ</strong> (acumulada absoluta) &nbsp;·&nbsp; <strong>Hᵢ = Fᵢ / n</strong> (acumulada relativa). La última Fᵢ siempre es igual a n, y la última Hᵢ es 100%.</div>
+          </div>
+          <div class="callout callout-tip">
+            <div class="ct">🔗 Hacia la Semana 8</div>
+            <div class="cb">La distribución acumulada es la base de la <strong>ojiva</strong> (gráfico de frecuencias acumuladas) que veremos junto a los histogramas en la Semana 8.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s5">
+          <h2>💻 6.5 Código: Elegir la Tabla Correcta según el Tipo</h2>
+          <p>La regla es simple: <code>value_counts()</code> / <code>table()</code> para distribuciones <strong>no agrupadas</strong>, y <code>pd.cut()</code> / <code>cut()</code> para <strong>agrupadas</strong>.</p>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'py1')">🐍 Python</button>
+              <button class="ctab" onclick="switchCodeTab(this,'r1')">📊 R</button>
+            </div>
+            <div class="code-panel active" id="py1">
+<pre><code class="language-python">import pandas as pd
+
+# --- NO AGRUPADA: cualitativa / discreta con pocos valores ---
+transporte = pd.Series(['Bus']*16 + ['Caminando']*9 + ['Auto']*8 +
+                        ['Bici']*4 + ['Taxi']*3)
+print(transporte.value_counts())             # una fila por categoría
+
+# --- AGRUPADA: continua con muchos valores ---
+tiempos = pd.Series([20,21,23,24,26,27,28,29,31,34,36,39,41])   # ms
+print(pd.cut(tiempos, bins=4).value_counts().sort_index())  # una fila por intervalo</code></pre>
+            </div>
+            <div class="code-panel" id="r1">
+<pre><code class="language-r"># --- NO AGRUPADA: cualitativa / discreta con pocos valores ---
+transporte <- c(rep("Bus",16), rep("Caminando",9), rep("Auto",8),
+                rep("Bici",4), rep("Taxi",3))
+table(transporte)                       # una fila por categoría
+
+# --- AGRUPADA: continua con muchos valores ---
+tiempos <- c(20,21,23,24,26,27,28,29,31,34,36,39,41)
+table(cut(tiempos, breaks = 4))         # una fila por intervalo</code></pre>
+            </div>
+            <div class="code-output"><div class="out-label">Output (Python)</div>Bus          16<br>Caminando     9<br>Auto          8<br>Bici          4<br>Taxi          3<br><br>(19.979, 25.25]  4<br>(25.25, 30.5]    4<br>(30.5, 35.75]    2<br>(35.75, 41.0]    3</div>
+          </div>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Equivalencias Python ↔ R</div>
+            <div class="cb"><code>value_counts()</code> ↔ <code>table()</code> &nbsp;·&nbsp; <code>pd.cut()</code> ↔ <code>cut()</code>. La elección de la función refleja directamente el <strong>tipo de distribución</strong> que quieres construir.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s6">
+          <h2>🎓 6.6 Puntos Clave y Quiz</h2>
+
+          <div class="keypoints">
+            <h4>Puntos Clave Semana 6</h4>
+            <div class="kp-item"><div class="kp-num">1</div><div class="kp-text">La <strong>estructura de la tabla</strong> depende del tipo de variable y de si conviene agrupar.</div></div>
+            <div class="kp-item"><div class="kp-num">2</div><div class="kp-text"><strong>Cualitativa</strong> → por categorías; <strong>discreta con pocos valores</strong> → por valores; <strong>continua o muchos valores</strong> → por intervalos.</div></div>
+            <div class="kp-item"><div class="kp-num">3</div><div class="kp-text">Distribución <strong>no agrupada</strong> (fila por valor) vs <strong>agrupada</strong> (fila por intervalo).</div></div>
+            <div class="kp-item"><div class="kp-num">4</div><div class="kp-text">Toda distribución puede ser <strong>simple</strong> o <strong>acumulada</strong> (Fᵢ, Hᵢ); la acumulada exige un orden.</div></div>
+            <div class="kp-item"><div class="kp-num">5</div><div class="kp-text">En código: <code>value_counts()/table()</code> = no agrupada · <code>pd.cut()/cut()</code> = agrupada.</div></div>
+          </div>
+
+          <div class="quiz-box">
+            <h3>✅ Quiz Semana 6</h3>
+            <div class="quiz-item"><div class="q-text">1. Para la variable "marca de celular" (Samsung, Apple, Xiaomi…), ¿qué tipo de distribución corresponde?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,true,'q1')">No agrupada, por categorías</button><button class="q-btn" onclick="ansQ(this,false,'q1')">Agrupada, en intervalos</button><button class="q-btn" onclick="ansQ(this,false,'q1')">Acumulada nominal</button></div><div id="q1-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">2. Tienes los ingresos mensuales (en USD) de 200 personas, casi todos distintos. ¿Qué conviene?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q2')">Una fila por cada ingreso</button><button class="q-btn" onclick="ansQ(this,true,'q2')">Agrupar en intervalos de clase</button><button class="q-btn" onclick="ansQ(this,false,'q2')">No se puede tabular</button></div><div id="q2-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">3. ¿En cuál de estas variables tiene sentido interpretar la frecuencia acumulada?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q3')">Color favorito (nominal)</button><button class="q-btn" onclick="ansQ(this,true,'q3')">Nivel de satisfacción 1–5 (ordinal)</button><button class="q-btn" onclick="ansQ(this,false,'q3')">Ciudad de origen</button></div><div id="q3-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">4. En Python, ¿qué función usas para construir una distribución AGRUPADA?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q4')">value_counts()</button><button class="q-btn" onclick="ansQ(this,true,'q4')">pd.cut()</button><button class="q-btn" onclick="ansQ(this,false,'q4')">describe()</button></div><div id="q4-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div id="quiz-score" class="quiz-score"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- TAB TALLER (APP) -->
+    <div id="ptab-taller" class="ptab-content">
+      <div class="taller-hero">
+        <h2>🧪 Taller Práctico (APP) · Técnicas de Muestreo</h2>
+        <p>Actividad Práctica Programada del Tema 2 (8 horas). Aplica el cálculo de técnicas de muestreo probabilístico y no probabilístico sobre un caso real. Esta práctica cuenta para la Evaluación Práctica 1P.</p>
+        <div class="taller-meta"><span>⏱ 8 horas (APP)</span><span>📋 Caso + cálculo</span><span>🐍 Python + 📊 R</span><span>✍️ Desarrollo propio</span></div>
+      </div>
+      <div class="taller-body">
+        <div class="taller-case" id="t1">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">🎓</span>
+            <h3>Caso: Encuesta de satisfacción en un tecnológico</h3>
+            <span class="taller-case-badge">APP · Desarrollo · probabilístico + no probabilístico</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="scenario-box"><strong>Escenario:</strong> Un instituto tiene <strong>N = 1500 estudiantes</strong> distribuidos en 4 carreras: <strong>Sistemas = 600</strong>, <strong>Industrial = 450</strong>, <strong>Mecánica = 300</strong> y <strong>Ambiental = 150</strong>. Se desea aplicar una encuesta de satisfacción a una muestra de <strong>n = 150</strong> estudiantes. Diseña el muestreo y responde.</div>
+            <ol class="step-list">
+              <li><div class="step-num">1</div><div class="step-content"><div class="step-q">Calcula la fracción de muestreo f = n/N. ¿Qué porcentaje de la población vas a encuestar?</div><div class="taller-hint">f = n/N. Multiplica por 100 para el porcentaje.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">2</div><div class="step-content"><div class="step-q">Aplica muestreo estratificado proporcional: ¿cuántos estudiantes encuestas de cada carrera? Muestra el cálculo y verifica que sumen 150.</div><div class="taller-hint">nₕ = Nₕ × (n/N). Por ejemplo, Sistemas = 600 × f.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">3</div><div class="step-content"><div class="step-q">Si en lugar de estratificar usaras muestreo sistemático sobre la lista completa, ¿cuál es el intervalo de selección k? ¿Cómo eliges el punto de arranque?</div><div class="taller-hint">k = N/n. El arranque es un número aleatorio entre 1 y k; luego seleccionas cada k-ésimo elemento.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">4</div><div class="step-content"><div class="step-q">El coordinador propone "encuestar solo a los estudiantes que estén en la cafetería al mediodía". Identifica qué técnica es y qué sesgo introduce.</div><div class="taller-hint">¿Es probabilística o no? Piensa en qué estudiantes quedan sistemáticamente excluidos.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">5</div><div class="step-content"><div class="step-q">Justifica: ¿por qué el muestreo estratificado es preferible al aleatorio simple en este caso? ¿Qué garantiza respecto a las carreras pequeñas como Ambiental?</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="taller-case" id="t2">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">⌨️</span>
+            <h3>Código: simula el muestreo con Python / R</h3>
+            <span class="taller-case-badge">Python + R · completa los blancos</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="code-block">
+              <div class="code-tabs-header">
+                <button class="ctab active" onclick="switchCodeTab(this,'tp1')">🐍 Python</button>
+                <button class="ctab" onclick="switchCodeTab(this,'tr1')">📊 R</button>
+              </div>
+              <div class="code-panel active" id="tp1">
+<pre><code class="language-python">import numpy as np
+rng = np.random.default_rng(42)
+
+# Datos del caso — no los modifiques
+N = 1500
+n = 150
+estratos = {'Sistemas': 600, 'Industrial': 450, 'Mecanica': 300, 'Ambiental': 150}
+
+# ── Fracción de muestreo ──────────────────────────────────
+# Pista: la fracción es n dividido para N
+f = n / _____
+print(f"Fracción de muestreo = {f:.2%}")
+
+# ── Muestreo estratificado proporcional ───────────────────
+print("\nReparto estratificado proporcional:")
+total = 0
+for carrera, Nh in estratos.items():
+    # Pista: nº por estrato = tamaño del estrato * fracción
+    nh = round(Nh * _____)
+    total += nh
+    print(f"  {carrera:12s}: {nh}")
+print(f"  Suma = {total}  (debe ser {n})")
+
+# ── Muestreo sistemático ──────────────────────────────────
+# Pista: el intervalo k es N dividido para n
+k = N // _____
+arranque = rng.integers(1, k + 1)        # punto de partida aleatorio
+seleccion = list(range(arranque, N + 1, k))
+print(f"\nSistemático: k = {k}, arranque = {arranque}, seleccionados = {len(seleccion)}")</code></pre>
+              </div>
+              <div class="code-panel" id="tr1">
+<pre><code class="language-r">set.seed(42)
+
+# Datos del caso — no los modifiques
+N <- 1500
+n <- 150
+estratos <- c(Sistemas = 600, Industrial = 450, Mecanica = 300, Ambiental = 150)
+
+# ── Fracción de muestreo ──────────────────────────────────
+# Pista: la fracción es n dividido para N
+f <- n / _____
+cat(sprintf("Fracción de muestreo = %.1f%%\n", f * 100))
+
+# ── Muestreo estratificado proporcional ───────────────────
+# Pista: nº por estrato = tamaño del estrato * fracción
+nh <- round(estratos * _____)
+print(nh)
+cat("Suma =", sum(nh), " (debe ser", n, ")\n")
+
+# ── Muestreo sistemático ──────────────────────────────────
+# Pista: el intervalo k es N dividido para n
+k <- N %/% _____
+arranque <- sample(1:k, 1)
+seleccion <- seq(arranque, N, by = k)
+cat("Sistemático: k =", k, " arranque =", arranque,
+    " seleccionados =", length(seleccion), "\n")</code></pre>
+              </div>
+              <div class="code-output"><div class="out-label">Output esperado (verifica tu cálculo)</div>Fracción de muestreo = 10.00%<br>Estratos → deben sumar exactamente 150<br>Sistemático → k = 10, y se seleccionan 150 elementos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-nav">
+      <a href="../semana05/index.html" class="nav-card"><span class="nav-card-arrow">←</span><div><div class="nav-card-label">Anterior</div><div class="nav-card-title">Semana 5: Frecuencias</div></div></a>
+      <a href="../semana07/index.html" class="nav-card next"><span class="nav-card-arrow">→</span><div><div class="nav-card-label">Próximo</div><div class="nav-card-title">Semana 7: Clases e Intervalos</div></div></a>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
+<script>
+const PWD='Ister_Estadistica2026',KEY='ister_auth_2026';
+function activarTaller(){document.querySelectorAll('.step-ans').forEach(el=>{el.textContent='';el.setAttribute('contenteditable','true');el.setAttribute('spellcheck','false');});}
+function checkPwd(){if(document.getElementById('pwd').value===PWD){localStorage.setItem(KEY,'true');document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}else{document.getElementById('pwd-err').style.display='block';document.getElementById('pwd').value='';}}
+window.onload=function(){if(localStorage.getItem(KEY)==='true'){document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}};
+function handleHash(){if(window.location.hash==='#taller')switchPTab('taller');}
+function switchPTab(id){document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.ptab-content').forEach(c=>c.classList.remove('active'));document.querySelector(`.ptab[data-tab="${id}"]`).classList.add('active');document.getElementById('ptab-'+id).classList.add('active');document.getElementById('toc-clase').style.display=id==='clase'?'':'none';document.getElementById('toc-taller').style.display=id==='taller'?'':'none';history.replaceState(null,null,id==='taller'?'#taller':'#');}
+function switchCodeTab(btn,id){const b=btn.closest('.code-block');b.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));b.querySelectorAll('.code-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');b.querySelector('#'+id).classList.add('active');}
+const qA={};
+function ansQ(btn,ok,id){const item=btn.closest('.quiz-item');if(item.querySelector('.q-btn.q-correct')||item.querySelector('.q-btn.q-wrong'))return;btn.classList.add(ok?'q-correct':'q-wrong');if(!ok)item.querySelectorAll('.q-btn').forEach(b=>{if(b!==btn)b.classList.add('q-correct');});qA[id]=ok;const fb=document.getElementById(id+'-fb');if(fb){fb.style.display='block';fb.style.color=ok?'#6ee7b7':'#fca5a5';fb.textContent=ok?'✅ ¡Correcto!':'❌ Revisa la respuesta.';}if(Object.keys(qA).length===4){const s=Object.values(qA).filter(Boolean).length;const el=document.getElementById('quiz-score');el.style.display='block';el.textContent=`Resultado: ${s}/4 — ${s===4?'🎉 ¡Excelente!':s>=3?'👍 ¡Muy bien!':'📚 Repasa los conceptos.'}`;}};
+</script>
+</body>
+</html>

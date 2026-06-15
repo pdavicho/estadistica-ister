@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S6 · Tipos de Distribución de Frecuencias</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bd:#0d2137;--bm:#1a3a6b;--bl:#2563eb;--bll:#3b82f6;--blp:#dbeafe;--w:#fff;--wa:#f8fafc;--t:#0f172a;--tm:#334155;--tl:#64748b;--gr:#22c55e;--am:#f59e0b;--rd:#ef4444;--pu:#a855f7}
+html,body{width:100%;height:100%;overflow:hidden;background:#0d2137}
+body{font-family:'Inter',sans-serif}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--bll);transition:width .3s;z-index:999}
+.deck{width:100%;height:100vh;position:relative}
+.slide{position:absolute;inset:0;flex-direction:column}
+.slide:not(.on){display:none!important}
+.slide.on{display:flex;animation:fi .25s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.s-title{background:linear-gradient(135deg,var(--bd),var(--bm) 60%,#1e4080);color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-title .tit{font-size:2.4rem;font-weight:800;line-height:1.15;margin-bottom:.5rem;letter-spacing:-.03em}
+.s-title .sub{font-size:1.05rem;opacity:.8;margin-bottom:1.5rem}
+.s-title .meta{font-size:.82rem;opacity:.6;border-top:1px solid rgba(255,255,255,.15);padding-top:1rem;margin-top:1rem}
+.s-title .meta span{margin:0 .75rem}
+.s-section{background:linear-gradient(135deg,var(--bl),var(--bm));color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-section .num{font-size:1rem;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.15em;margin-bottom:.75rem}
+.s-section .tit{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+.s-section .desc{font-size:.92rem;opacity:.75;margin-top:.75rem;max-width:600px}
+.s-body{background:var(--w);display:flex;flex-direction:column}
+.sh{background:var(--bm);color:var(--w);padding:.55rem 2rem;display:flex;justify-content:space-between;align-items:center;font-size:.82rem;font-weight:600}
+.sh .sn{opacity:.6;font-size:.72rem}
+.sc{flex:1;padding:1.4rem 2.5rem;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.sf{background:var(--bd);color:#64748b;font-size:.65rem;padding:.25rem 2rem;display:flex;justify-content:space-between}
+.s-dark{background:var(--bd);color:var(--w);display:flex;flex-direction:column}
+.s-dark .sh{background:rgba(255,255,255,.08);color:var(--w)}
+.s-code{background:#0f172a;color:var(--w);display:flex;flex-direction:column}
+.s-code .sh{background:rgba(255,255,255,.06);color:#93c5fd}
+.def-box{background:var(--blp);border-left:4px solid var(--bl);border-radius:0 8px 8px 0;padding:.9rem 1.2rem;margin:.6rem 0}
+.def-box .dl{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bl);margin-bottom:.3rem}
+.def-box .dt{font-size:.9rem;color:var(--t);font-weight:500;line-height:1.5}
+.warn-box{background:#fef3c7;border-left:4px solid var(--am);border-radius:0 8px 8px 0;padding:.85rem 1.2rem;margin:.6rem 0}
+.warn-box .dl{color:#92400e;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.warn-box .dt{color:#78350f;font-size:.86rem}
+.tip-box{background:#f0fdf4;border-left:4px solid var(--gr);border-radius:0 8px 8px 0;padding:.8rem 1.2rem;margin:.6rem 0}
+.tip-box .dl{color:#166534;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.tip-box .dt{color:#14532d;font-size:.85rem}
+h1.t{font-size:1.45rem;font-weight:800;color:var(--t);margin-bottom:.8rem;letter-spacing:-.02em}
+ul.b{list-style:none;padding:0;margin:.4rem 0}
+ul.b li{padding:.38rem 0 .38rem 1.4rem;position:relative;font-size:.87rem;color:var(--tm);border-bottom:1px solid #f1f5f9}
+ul.b li:last-child{border-bottom:none}
+ul.b li::before{content:'›';position:absolute;left:0;color:var(--bl);font-weight:700;font-size:1rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin:.6rem 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin:.6rem 0}
+.card{border-radius:8px;padding:.9rem;border:1px solid #e2e8f0;background:#fff}
+.card-b{border-top:3px solid var(--bl);background:#f0f9ff}
+.card-g{border-top:3px solid var(--gr);background:#f0fdf4}
+.card-a{border-top:3px solid var(--am);background:#fefce8}
+.card-p{border-top:3px solid var(--pu);background:#fdf4ff}
+.card-r{border-top:3px solid var(--rd);background:#fff1f2}
+.card h4{font-size:.83rem;font-weight:700;margin-bottom:.3rem}
+.card p{font-size:.77rem;color:var(--tm);line-height:1.4;margin-bottom:.25rem}
+.card code{font-family:'JetBrains Mono',monospace;font-size:.74rem;background:rgba(0,0,0,.06);padding:.1rem .35rem;border-radius:3px}
+table.st{width:100%;border-collapse:collapse;font-size:.8rem}
+table.st th{background:var(--bm);color:#fff;padding:.5rem .85rem;text-align:left;font-weight:600}
+table.st td{padding:.45rem .85rem;border-bottom:1px solid #e2e8f0;color:var(--tm)}
+table.st tr:hover td{background:var(--wa)}
+table.st code{font-family:'JetBrains Mono',monospace;font-size:.76rem;background:var(--wa);padding:.1rem .35rem;border-radius:3px}
+table.st td.num{font-family:'JetBrains Mono',monospace;text-align:right}
+table.st tfoot td{font-weight:700;color:var(--t);background:var(--wa)}
+pre{background:#1e293b;color:#e2e8f0;padding:.9rem 1.1rem;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.74rem;line-height:1.55;overflow-x:auto;margin:.5rem 0}
+.out{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.71rem;padding:.6rem 1rem;border-radius:8px;margin:.35rem 0;line-height:1.4}
+.kp-list{list-style:none;padding:0;margin:.4rem 0}
+.kp-list li{display:flex;align-items:flex-start;gap:.65rem;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.kp-list li:last-child{border-bottom:none}
+.knum{background:var(--bll);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kt{font-size:.87rem;color:#cbd5e1;line-height:1.45}
+.frec-flow{display:flex;gap:0;margin:.85rem 0;align-items:stretch}
+.frec-step{flex:1;padding:.85rem .75rem;text-align:center;position:relative;background:var(--wa);border:1px solid #e2e8f0}
+.frec-step:first-child{border-radius:8px 0 0 8px}
+.frec-step:last-child{border-radius:0 8px 8px 0}
+.frec-step::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--bll);font-size:.9rem;z-index:1}
+.frec-step:last-child::after{display:none}
+.frec-num{background:var(--bl);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;margin:0 auto .4rem}
+.frec-title{font-size:.75rem;font-weight:700;color:var(--t);margin-bottom:.2rem}
+.frec-desc{font-size:.68rem;color:var(--tl)}
+.formula-box{background:#1e293b;border-radius:8px;padding:.9rem 1.2rem;text-align:center;margin:.5rem 0}
+.formula-box .fx{font-family:'JetBrains Mono',monospace;font-size:1.05rem;color:#93c5fd;font-weight:600}
+.formula-box .fl{font-size:.72rem;color:#94a3b8;margin-top:.35rem}
+#controls{position:fixed;bottom:0;left:0;right:0;background:rgba(13,33,55,.95);padding:.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between;z-index:100;backdrop-filter:blur(8px)}
+#counter{font-size:.75rem;color:#64748b;font-family:'JetBrains Mono',monospace}
+.nbtns{display:flex;gap:.5rem;align-items:center}
+.nb{height:34px;padding:0 1rem;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.79rem;font-weight:600;transition:.15s}
+.nb.p{background:rgba(255,255,255,.08);color:#94a3b8}.nb.p:hover{background:rgba(255,255,255,.15);color:#fff}
+.nb.n{background:var(--bl);color:#fff}.nb.n:hover{background:var(--bll)}
+.nb:disabled{opacity:.3;cursor:not-allowed}
+#fs{background:none;border:1px solid rgba(255,255,255,.15);color:#64748b;height:34px;width:34px;border-radius:6px;cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center;transition:.15s}
+#fs:hover{border-color:var(--bll);color:var(--bll)}
+#dots{display:flex;gap:.28rem;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:.15s}
+.dot.on{background:var(--bll);width:16px;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="deck">
+
+<!-- 1 TITLE -->
+<div class="slide s-title on">
+  <div style="font-size:2.8rem;margin-bottom:1.25rem">🗂️</div>
+  <div style="font-size:.82rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:.65rem">Instituto Superior Tecnológico Rumiñahui</div>
+  <div class="tit">Semana 6</div>
+  <div class="sub">Tipos de Distribución de Frecuencias</div>
+  <div style="font-size:.88rem;opacity:.6;margin-bottom:1.75rem">Tema 2 · Clasificación de las distribuciones + APP: Técnicas de Muestreo (8h)</div>
+  <div class="meta"><span>👨‍🏫 Ing. David Minango, PhD.</span><span>📅 25 de mayo, 2026</span><span>⏱ ~20 minutos</span></div>
+</div>
+
+<!-- 2 REPASO + HOY -->
+<div class="slide s-body">
+  <div class="sh">De los Tipos de Frecuencia a los Tipos de Distribución <span class="sn">2 / 18</span></div>
+  <div class="sc">
+    <div class="g2">
+      <div class="card card-b"><h4>✅ Semana 5 — Tipos de FRECUENCIA</h4><p>Aprendimos las columnas: absoluta (fᵢ), relativa (hᵢ), porcentual (%ᵢ) y acumulada (Fᵢ).</p></div>
+      <div class="card card-g"><h4>🎯 Semana 6 — Tipos de DISTRIBUCIÓN</h4><p>Hoy vemos las distintas <strong>formas de tabla</strong> según el tipo de dato: ¿una fila por categoría, por valor, o por intervalo?</p></div>
+    </div>
+    <div class="def-box"><div class="dl">📖 Idea central</div><div class="dt">No todas las distribuciones de frecuencias se construyen igual. La <strong>estructura de la tabla</strong> depende del <strong>tipo de variable</strong> y de si conviene <strong>agrupar o no</strong> los datos.</div></div>
+    <div class="tip-box"><div class="dl">💡 Conexión</div><div class="dt">Esta semana decides <em>qué tipo</em> de tabla usar; en la <strong>Semana 7</strong> aprenderás a <em>dimensionar</em> los intervalos cuando la distribución es agrupada.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 6 · Repaso y hoy</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 3 MAPA DE CLASIFICACIÓN -->
+<div class="slide s-body">
+  <div class="sh">¿Cómo se Clasifican las Distribuciones de Frecuencias? <span class="sn">3 / 18</span></div>
+  <div class="sc">
+    <div class="g2">
+      <div class="card card-p"><h4>① Según el tipo de variable</h4><p><strong>Cualitativa</strong> (nominal/ordinal) → tabla por categorías.</p><p><strong>Cuantitativa</strong> (discreta/continua) → tabla por valores o por intervalos.</p></div>
+      <div class="card card-a"><h4>② Según el agrupamiento</h4><p><strong>No agrupada</strong> → una fila por valor o categoría.</p><p><strong>Agrupada</strong> → una fila por intervalo de clase.</p></div>
+    </div>
+    <div class="def-box"><div class="dl">📖 Una tercera mirada: la acumulación</div><div class="dt">Cualquier distribución puede mostrarse de forma <strong>simple</strong> (fᵢ, hᵢ) o <strong>acumulada</strong> (Fᵢ, Hᵢ) — útil para responder "¿cuántos hay hasta…?".</div></div>
+    <div class="tip-box"><div class="dl">💡 En resumen</div><div class="dt">Tipo de variable + decisión de agrupar = <strong>la estructura correcta de tu tabla</strong>.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 6 · Clasificación</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 4 SECTION VARIABLE -->
+<div class="slide s-section">
+  <div class="num">6.1</div>
+  <div class="tit">Según el Tipo de Variable</div>
+  <div class="desc">La naturaleza del dato determina si la tabla se organiza por categorías, por valores o por intervalos.</div>
+</div>
+
+<!-- 5 CUALITATIVA -->
+<div class="slide s-body">
+  <div class="sh">Distribución de una Variable Cualitativa <span class="sn">5 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">La variable expresa <strong>categorías</strong> (nominal: sin orden; ordinal: con orden). La tabla tiene <strong>una fila por categoría</strong>.</div></div>
+    <table class="st">
+      <thead><tr><th>Medio de transporte</th><th class="num">fᵢ</th><th class="num">hᵢ</th><th class="num">%ᵢ</th></tr></thead>
+      <tbody>
+        <tr><td>Bus</td><td class="num">16</td><td class="num">0.400</td><td class="num">40.0%</td></tr>
+        <tr><td>Caminando</td><td class="num">9</td><td class="num">0.225</td><td class="num">22.5%</td></tr>
+        <tr><td>Auto propio</td><td class="num">8</td><td class="num">0.200</td><td class="num">20.0%</td></tr>
+        <tr><td>Bicicleta</td><td class="num">4</td><td class="num">0.100</td><td class="num">10.0%</td></tr>
+        <tr><td>Taxi / App</td><td class="num">3</td><td class="num">0.075</td><td class="num">7.5%</td></tr>
+      </tbody>
+      <tfoot><tr><td>Total</td><td class="num">40</td><td class="num">1.000</td><td class="num">100%</td></tr></tfoot>
+    </table>
+    <div class="warn-box"><div class="dl">⚠️ Ojo con la acumulada</div><div class="dt">En variables <strong>nominales</strong> la frecuencia acumulada no se interpreta de forma natural (el orden es arbitrario). Sí tiene sentido en variables <strong>ordinales</strong>.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 6 · Cualitativa</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 6 CUANTITATIVA DISCRETA -->
+<div class="slide s-body">
+  <div class="sh">Distribución de una Variable Cuantitativa Discreta <span class="sn">6 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">Toma <strong>valores numéricos contables</strong> (0, 1, 2, …). Si hay <strong>pocos valores distintos</strong>, se hace una fila por valor — <strong>sin agrupar</strong>.</div></div>
+    <div class="card card-b"><h4>📋 Ejemplo: nº de dispositivos por estudiante (50 encuestados)</h4></div>
+    <table class="st" style="margin-top:.4rem">
+      <thead><tr><th>Nº dispositivos</th><th class="num">fᵢ</th><th class="num">hᵢ</th><th class="num">Fᵢ</th><th class="num">Hᵢ %</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="num">6</td><td class="num">0.12</td><td class="num">6</td><td class="num">12%</td></tr>
+        <tr><td>2</td><td class="num">21</td><td class="num">0.42</td><td class="num">27</td><td class="num">54%</td></tr>
+        <tr><td>3</td><td class="num">15</td><td class="num">0.30</td><td class="num">42</td><td class="num">84%</td></tr>
+        <tr><td>4</td><td class="num">8</td><td class="num">0.16</td><td class="num">50</td><td class="num">100%</td></tr>
+      </tbody>
+      <tfoot><tr><td>Total</td><td class="num">50</td><td class="num">1.00</td><td class="num">—</td><td class="num">—</td></tr></tfoot>
+    </table>
+    <div class="tip-box"><div class="dl">💡 Aquí SÍ tiene sentido la acumulada</div><div class="dt">"El 54% de los estudiantes tiene 2 dispositivos o menos" (Fᵢ). Como hay un orden numérico, la acumulación es interpretable.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 6 · Discreta</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 7 CUANTITATIVA CONTINUA -->
+<div class="slide s-body">
+  <div class="sh">Distribución de una Variable Cuantitativa Continua <span class="sn">7 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">Puede tomar <strong>infinitos valores</strong> en un rango (tiempos, pesos, ingresos). Casi siempre hay muchos valores distintos → conviene <strong>agrupar en intervalos</strong>.</div></div>
+    <table class="st">
+      <thead><tr><th>Tiempo de respuesta (ms)</th><th class="num">xₘ</th><th class="num">fᵢ</th><th class="num">%ᵢ</th></tr></thead>
+      <tbody>
+        <tr><td>19 – 23</td><td class="num">21</td><td class="num">6</td><td class="num">15.0%</td></tr>
+        <tr><td>23 – 27</td><td class="num">25</td><td class="num">9</td><td class="num">22.5%</td></tr>
+        <tr><td>27 – 31</td><td class="num">29</td><td class="num">9</td><td class="num">22.5%</td></tr>
+        <tr><td>31 – 35</td><td class="num">33</td><td class="num">7</td><td class="num">17.5%</td></tr>
+        <tr><td>… </td><td class="num">…</td><td class="num">…</td><td class="num">…</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box"><div class="dl">⚠️ Esta es la distribución AGRUPADA</div><div class="dt">Aquí cada fila es un <strong>intervalo</strong> con su <strong>marca de clase</strong> (xₘ). Cómo elegir cuántos intervalos y de qué ancho → <strong>Semana 7</strong>.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 6 · Continua</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 8 SECTION AGRUPAMIENTO -->
+<div class="slide s-section">
+  <div class="num">6.2</div>
+  <div class="tit">No Agrupadas vs. Agrupadas</div>
+  <div class="desc">La gran decisión: ¿una fila por cada valor, o una fila por intervalo?</div>
+</div>
+
+<!-- 9 NO AGRUPADAS -->
+<div class="slide s-body">
+  <div class="sh">Distribución NO Agrupada <span class="sn">9 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">Una fila por cada <strong>valor o categoría distinta</strong>. No se pierde detalle: cada dato es identificable.</div></div>
+    <div class="g2">
+      <div class="card card-g"><h4>✅ Úsala cuando…</h4><p>La variable es cualitativa, o cuantitativa discreta con <strong>pocos valores distintos</strong> (p. ej. 1–10).</p></div>
+      <div class="card card-r"><h4>❌ Evítala cuando…</h4><p>Hay muchísimos valores casi únicos (40 tiempos distintos) → la tabla sería tan larga como los datos.</p></div>
+    </div>
+    <div class="tip-box"><div class="dl">💡 Ejemplos</div><div class="dt">Medio de transporte · Nivel de satisfacción (1–5) · Nº de hijos · Marca de celular.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 6 · No agrupada</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 10 AGRUPADAS -->
+<div class="slide s-body">
+  <div class="sh">Distribución Agrupada (en intervalos) <span class="sn">10 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">Una fila por cada <strong>intervalo o clase</strong>. Se gana legibilidad y se ve la <strong>forma</strong> de la distribución, a costa de perder el detalle de cada dato.</div></div>
+    <div class="g2">
+      <div class="card card-g"><h4>✅ Úsala cuando…</h4><p>La variable es cuantitativa continua, o discreta con <strong>muchos valores distintos</strong> y n grande.</p></div>
+      <div class="card card-b"><h4>🔗 Elementos nuevos</h4><p>Límites (Lᵢ, Lₛ), ancho (i) y marca de clase (xₘ). Su cálculo: <strong>Semana 7</strong>.</p></div>
+    </div>
+    <div class="tip-box"><div class="dl">💡 Ejemplos</div><div class="dt">Tiempos de respuesta (ms) · Ingresos mensuales · Estaturas · Edades de una población amplia.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 6 · Agrupada</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 11 ¿CUÁNDO AGRUPAR? -->
+<div class="slide s-body">
+  <div class="sh">¿Cuándo Agrupar? — Regla Práctica <span class="sn">11 / 18</span></div>
+  <div class="sc">
+    <table class="st">
+      <thead><tr><th>Situación</th><th>Tipo de distribución</th></tr></thead>
+      <tbody>
+        <tr><td>Variable cualitativa (nominal u ordinal)</td><td>No agrupada (por categorías)</td></tr>
+        <tr><td>Cuantitativa discreta, pocos valores (≤ ~15)</td><td>No agrupada (por valores)</td></tr>
+        <tr><td>Cuantitativa discreta, muchos valores</td><td>Agrupada (intervalos)</td></tr>
+        <tr><td>Cuantitativa continua</td><td>Agrupada (intervalos)</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box"><div class="dl">⚠️ Criterio guía</div><div class="dt">Si al listar valores únicos la tabla supera ~15 filas y se vuelve difícil de leer, <strong>agrupa</strong>. El objetivo siempre es <em>resumir sin ocultar el patrón</em>.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 6 · Cuándo agrupar</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 12 ACUMULADAS -->
+<div class="slide s-body">
+  <div class="sh">Distribución de Frecuencias Acumuladas <span class="sn">12 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">Cualquier distribución (agrupada o no) puede expresarse en forma <strong>acumulada</strong>: cada fila suma su frecuencia más todas las anteriores. Responde "¿cuántos datos hay <em>hasta</em> este punto?".</div></div>
+    <div class="formula-box"><div class="fx">Fᵢ = f₁ + f₂ + … + fᵢ &nbsp;·&nbsp; Hᵢ = Fᵢ / n</div><div class="fl">La última Fᵢ siempre es igual a n (y Hᵢ final = 100%)</div></div>
+    <div class="g2">
+      <div class="card card-b"><h4>📈 "Menor que"</h4><p>Acumula de arriba hacia abajo: cuántos datos hay por debajo de cada límite superior.</p></div>
+      <div class="card card-p"><h4>🔗 Hacia la ojiva</h4><p>La distribución acumulada es la base de la <strong>ojiva</strong> (gráfico de acumuladas) que veremos en la Semana 8.</p></div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 6 · Acumuladas</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 13 SECTION CÓDIGO -->
+<div class="slide s-section">
+  <div class="num">6.3</div>
+  <div class="tit">Código: la Tabla Correcta según el Tipo</div>
+  <div class="desc"><code style="background:rgba(255,255,255,.15);padding:.15rem .4rem;border-radius:4px">value_counts()</code> para no agrupar · <code style="background:rgba(255,255,255,.15);padding:.15rem .4rem;border-radius:4px">pd.cut()</code> para agrupar.</div>
+</div>
+
+<!-- 14 PYTHON -->
+<div class="slide s-code">
+  <div class="sh">🐍 Python: elegir según el tipo de dato <span class="sn" style="color:#475569">14 / 18</span></div>
+  <div class="sc">
+<pre>import pandas as pd
+
+# --- NO AGRUPADA: variable cualitativa / discreta con pocos valores ---
+transporte = pd.Series(['Bus']*16 + ['Caminando']*9 + ['Auto']*8 +
+                       ['Bici']*4 + ['Taxi']*3)
+print(transporte.value_counts())            # una fila por categoría
+
+# --- AGRUPADA: variable continua con muchos valores ---
+tiempos = pd.Series([20,21,23,24,26,27,28,29,31,34,36,39,41])  # ms
+print(pd.cut(tiempos, bins=4).value_counts().sort_index())  # una fila por intervalo</pre>
+    <div class="out">Bus       16<br>Caminando  9<br>Auto       8<br>Bici       4<br>Taxi       3<br>--------------------------<br>(19.979, 25.25]  4<br>(25.25, 30.5]    4<br>(30.5, 35.75]    2<br>(35.75, 41.0]    3</div>
+    <div class="tip-box" style="margin-top:.3rem;background:#0f2a1a;border-color:#22c55e"><div class="dl" style="color:#6ee7b7">💡 Clave</div><div class="dt" style="color:#a7f3d0"><code>value_counts()</code> = NO agrupada &nbsp;·&nbsp; <code>pd.cut()</code> = agrupada</div></div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 6 · Python</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 15 R -->
+<div class="slide s-code">
+  <div class="sh" style="color:#86efac">📊 R: table() vs cut() <span class="sn" style="color:#475569">15 / 18</span></div>
+  <div class="sc">
+<pre># --- NO AGRUPADA: cualitativa / discreta con pocos valores ---
+transporte &lt;- c(rep("Bus",16), rep("Caminando",9), rep("Auto",8),
+               rep("Bici",4), rep("Taxi",3))
+table(transporte)                       # una fila por categoría
+
+# --- AGRUPADA: continua con muchos valores ---
+tiempos &lt;- c(20,21,23,24,26,27,28,29,31,34,36,39,41)
+table(cut(tiempos, breaks = 4))         # una fila por intervalo</pre>
+    <div class="out">transporte<br>     Auto      Bici       Bus Caminando      Taxi<br>        8         4        16         9         3<br>--------------------------<br>(20,25.2] (25.2,30.5] (30.5,35.8] (35.8,41]<br>        4           4           2         3</div>
+    <div class="tip-box" style="margin-top:.3rem;background:#0f2a1a;border-color:#22c55e"><div class="dl" style="color:#6ee7b7">💡 Equivalencias</div><div class="dt" style="color:#a7f3d0"><code>table()</code> ↔ <code>value_counts()</code> &nbsp;·&nbsp; <code>cut()</code> ↔ <code>pd.cut()</code></div></div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 6 · R</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 16 APP MUESTREO -->
+<div class="slide s-body">
+  <div class="sh">🧪 APP de la Semana: Técnicas de Muestreo (8h) <span class="sn">16 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📋 Actividad Práctica Programada</div><div class="dt">Esta semana incluye la <strong>práctica experimental</strong> del Tema 2: aplicar el <strong>cálculo de diferentes técnicas de muestreo</strong> probabilístico y no probabilístico (repaso aplicado de la Semana 2). Cuenta para la <strong>Evaluación Práctica 1P</strong>.</div></div>
+    <div class="g2">
+      <div class="card card-b"><h4>🎯 Probabilístico</h4><p>Aleatorio simple · Sistemático (k = N/n) · Estratificado (reparto proporcional) · Por conglomerados.</p></div>
+      <div class="card card-a"><h4>⚡ No probabilístico</h4><p>Por conveniencia · Por cuotas · Bola de nieve · Por juicio del experto.</p></div>
+    </div>
+    <div class="tip-box"><div class="dl">💡 En el Taller Práctico</div><div class="dt">Encontrarás el caso completo (población, estratos, tamaño de muestra) para que <strong>calcules tú</strong> el reparto estratificado y el intervalo sistemático, con apoyo de Python y R.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 6 · APP Muestreo</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 17 PUNTOS CLAVE -->
+<div class="slide s-dark">
+  <div class="sh">Puntos Clave de la Semana 6 <span class="sn" style="color:#475569">17 / 18</span></div>
+  <div class="sc">
+    <ul class="kp-list">
+      <li><div class="knum">1</div><div class="kt">La <strong style="color:#93c5fd">estructura de la tabla</strong> depende del tipo de variable y de si conviene agrupar.</div></li>
+      <li><div class="knum">2</div><div class="kt"><strong style="color:#93c5fd">Cualitativa</strong> → por categorías; <strong style="color:#93c5fd">cuantitativa discreta con pocos valores</strong> → por valores; <strong style="color:#93c5fd">continua o muchos valores</strong> → por intervalos.</div></li>
+      <li><div class="knum">3</div><div class="kt">Distribución <strong style="color:#93c5fd">no agrupada</strong> (una fila por valor) vs <strong style="color:#93c5fd">agrupada</strong> (una fila por intervalo).</div></li>
+      <li><div class="knum">4</div><div class="kt">Cualquier distribución puede ser <strong style="color:#93c5fd">simple</strong> o <strong style="color:#93c5fd">acumulada</strong> (Fᵢ, Hᵢ).</div></li>
+      <li><div class="knum">5</div><div class="kt">En código: <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">value_counts()/table()</code> = no agrupada &nbsp;·&nbsp; <code style="background:rgba(255,255,255,.1);padding:.1rem .3rem;border-radius:3px">pd.cut()/cut()</code> = agrupada.</div></li>
+    </ul>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.3)"><span>Estadística · ISTER</span><span>Semana 6 · Resumen</span><span>25 may 2026</span></div>
+</div>
+
+<!-- 18 CIERRE -->
+<div class="slide s-title">
+  <div style="font-size:2.8rem;margin-bottom:1.25rem">🎓</div>
+  <div class="tit" style="font-size:1.9rem">¿Preguntas?</div>
+  <div class="sub" style="margin-top:.5rem">Próxima semana:</div>
+  <div style="font-size:1.15rem;font-weight:700;color:#93c5fd;margin-top:.4rem">Semana 7 · Tamaño de Clase e Intervalos</div>
+  <div style="font-size:.88rem;opacity:.65;margin-top:.5rem">Cómo dimensionar los intervalos de una distribución agrupada (Sturges)</div>
+  <div style="margin-top:1.75rem;font-size:.79rem;opacity:.5;border-top:1px solid rgba(255,255,255,.12);padding-top:.85rem">Ing. David Minango, PhD. · Instituto Superior Tecnológico Rumiñahui</div>
+</div>
+
+</div>
+<div id="controls">
+  <span id="counter">1 / 18</span>
+  <div id="dots"></div>
+  <div class="nbtns">
+    <button class="nb p" id="pb" onclick="mv(-1)" disabled>← Anterior</button>
+    <button class="nb n" id="nb2" onclick="mv(1)">Siguiente →</button>
+    <button id="fs" onclick="tFS()">⛶</button>
+  </div>
+</div>
+<script>
+const sl=document.querySelectorAll('.slide'),tot=sl.length;let cur=0;
+const pr=document.getElementById('progress'),ct=document.getElementById('counter'),pb=document.getElementById('pb'),nb=document.getElementById('nb2'),de=document.getElementById('dots');
+for(let i=0;i<tot;i++){const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>go(i);de.appendChild(d);}
+function go(n){sl[cur].classList.remove('on');de.children[cur].classList.remove('on');cur=Math.max(0,Math.min(n,tot-1));sl[cur].classList.add('on');de.children[cur].classList.add('on');pr.style.width=((cur+1)/tot*100)+'%';ct.textContent=(cur+1)+' / '+tot;pb.disabled=cur===0;nb.disabled=cur===tot-1;nb.textContent=cur===tot-1?'✓ Fin':'Siguiente →';}
+function mv(d){go(cur+d);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')mv(1);if(e.key==='ArrowLeft')mv(-1);});
+function tFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+</script>
+</body>
+</html>
