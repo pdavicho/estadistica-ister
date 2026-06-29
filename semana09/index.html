@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Semana 6: Tipos de Distribución de Frecuencias · ISTER</title>
+<title>Semana 9: Medidas de Tendencia Central · ISTER</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
@@ -140,6 +140,10 @@ html.authed #gate{display:none!important}
 .step-ans:empty::before{content:'✏️ Escribe tu respuesta aquí...';color:#94a3b8;font-style:italic;font-size:.82rem;pointer-events:none}
 .taller-hint{background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:.45rem .85rem;margin:.35rem 0;font-size:.78rem;color:#78350f}
 .taller-hint::before{content:'💡 Pista: ';font-weight:700}
+.seq{display:flex;flex-wrap:wrap;gap:.3rem;margin:1rem 0}
+.chip{font-family:'JetBrains Mono',monospace;font-size:.82rem;padding:.3rem .6rem;border-radius:6px;background:var(--bg-alt);border:1px solid var(--border);color:var(--text-mid)}
+.chip.hl{background:var(--blue-pale);border-color:var(--blue);color:var(--blue-dark);font-weight:700}
+.chip.out{background:#fee2e2;border-color:var(--red);color:#991b1b;font-weight:700}
 </style>
 <script>if(localStorage.getItem('ister_auth_2026')==='true')document.documentElement.classList.add('authed');</script>
 </head>
@@ -168,48 +172,50 @@ html.authed #gate{display:none!important}
       <a href="../semana04/index.html" class="sb-link done">Semana 4 · EDA <span class="badge badge-d">Vista</span></a>
       <div class="sb-section">Tema 2 · Frecuencias</div>
       <a href="../semana05/index.html" class="sb-link done">Semana 5 · Frecuencias <span class="badge badge-d">Vista</span></a>
-      <a href="index.html" class="sb-link active">Semana 6 · Tipos de Distribución <span class="badge badge-d">Vista</span></a>
+      <a href="../semana06/index.html" class="sb-link done">Semana 6 · Tipos de Distribución <span class="badge badge-d">Vista</span></a>
       <a href="../semana07/index.html" class="sb-link done">Semana 7 · Clases e Intervalos <span class="badge badge-d">Vista</span></a>
       <a href="../semana08/index.html" class="sb-link done">Semana 8 · Histogramas <span class="badge badge-d">Vista</span></a>
       <div class="sb-section">Tema 3 · Tendencia Central</div>
-      <a href="../semana09/index.html" class="sb-link done">Semana 9 · Tendencia Central <span class="badge badge-d">Vista</span></a><a href="#" class="sb-link locked">Semana 10 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 11 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 12 <span class="badge badge-l">🔒</span></a>
+      <a href="index.html" class="sb-link active">Semana 9 · Tendencia Central <span class="badge badge-d">Vista</span></a>
+      <a href="#" class="sb-link locked">Semana 10 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 11 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 12 <span class="badge badge-l">🔒</span></a>
       <div class="sb-section">Tema 4 · Probabilidad</div>
       <a href="#" class="sb-link locked">Semana 13 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 14 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 15 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 16 <span class="badge badge-l">🔒</span></a>
     </nav>
     <div class="sb-toc-section" id="toc-clase">
       <div class="sb-toc-title">En esta página · Clase</div>
-      <a href="#s1" class="sb-toc-link">1. ¿Cómo se clasifican?</a>
-      <a href="#s2" class="sb-toc-link">2. Según el tipo de variable</a>
-      <a href="#s3" class="sb-toc-link">3. No agrupadas vs agrupadas</a>
-      <a href="#s4" class="sb-toc-link">4. Distribuciones acumuladas</a>
-      <a href="#s5" class="sb-toc-link">5. Código: la tabla correcta</a>
-      <a href="#s6" class="sb-toc-link">6. Puntos clave + Quiz</a>
+      <a href="#s1" class="sb-toc-link">1. ¿Qué es la tendencia central?</a>
+      <a href="#s2" class="sb-toc-link">2. La media aritmética</a>
+      <a href="#s3" class="sb-toc-link">3. La mediana</a>
+      <a href="#s4" class="sb-toc-link">4. La moda</a>
+      <a href="#s5" class="sb-toc-link">5. ¿Cuál usar? + atípicos</a>
+      <a href="#s6" class="sb-toc-link">6. Python y R</a>
+      <a href="#s7" class="sb-toc-link">7. Puntos clave + Quiz</a>
     </div>
     <div class="sb-toc-section" id="toc-taller" style="display:none">
-      <div class="sb-toc-title">En esta página · Taller (APP)</div>
-      <a href="#t1" class="sb-toc-link">APP: Técnicas de muestreo</a>
+      <div class="sb-toc-title">En esta página · Taller</div>
+      <a href="#t1" class="sb-toc-link">Caso: Ventas diarias de la tienda</a>
       <a href="#t2" class="sb-toc-link">Código con blancos: Python + R</a>
     </div>
   </aside>
 
   <div class="content-wrap">
     <div class="content-header">
-      <div class="breadcrumb"><a href="../index.html">🏠 Inicio</a><span>›</span><span>Semana 6</span><span>›</span><span>Tipos de Distribución de Frecuencias</span></div>
+      <div class="breadcrumb"><a href="../index.html">🏠 Inicio</a><span>›</span><span>Semana 9</span><span>›</span><span>Medidas de Tendencia Central</span></div>
       <div class="page-title-row">
-        <span class="week-pill">Semana 6</span>
+        <span class="week-pill">Semana 9</span>
         <div>
-          <div class="page-main-title">Tipos de Distribución de Frecuencias</div>
-          <div class="page-subtitle">Tema 2 · Clasificación de las distribuciones + APP: Técnicas de muestreo (8h)</div>
+          <div class="page-main-title">Medidas de Tendencia Central: Media, Mediana y Moda</div>
+          <div class="page-subtitle">Tema 3 · Resumir toda una distribución en un solo valor representativo</div>
           <div class="page-meta">
             <span class="meta-item">👨‍🏫 Ing. David Minango, PhD.</span>
-            <span class="meta-item">📅 25 de mayo, 2026</span>
-            <span class="meta-item">⏱ ~90 min clase · APP 8h</span>
+            <span class="meta-item">📅 15 de junio, 2026</span>
+            <span class="meta-item">⏱ ~90 min clase · 45 min taller</span>
           </div>
         </div>
       </div>
       <div class="page-tabs">
         <button class="ptab active" data-tab="clase" onclick="switchPTab('clase')">📖 Clase</button>
-        <button class="ptab" data-tab="taller" onclick="switchPTab('taller')">🛠 Taller Práctico (APP)</button>
+        <button class="ptab" data-tab="taller" onclick="switchPTab('taller')">🛠 Taller Práctico</button>
       </div>
     </div>
 
@@ -219,108 +225,123 @@ html.authed #gate{display:none!important}
 
         <div class="slides-wrap">
           <div class="slides-bar">
-            <span>📽 Presentación · 17 diapositivas · ~20 min · usa ← → o teclado</span>
-            <a href="../slides/s06.html" target="_blank">⛶ Pantalla completa</a>
+            <span>📽 Presentación · 18 diapositivas · ~20 min · usa ← → o teclado</span>
+            <a href="../slides/s09.html" target="_blank">⛶ Pantalla completa</a>
           </div>
           <div class="slides-ratio">
-            <iframe src="../slides/s06.html" allowfullscreen></iframe>
+            <iframe src="../slides/s09.html" allowfullscreen></iframe>
           </div>
         </div>
 
         <section class="section" id="s1">
-          <h2>📌 6.1 ¿Cómo se Clasifican las Distribuciones de Frecuencias?</h2>
+          <h2>📌 9.1 ¿Qué es una Medida de Tendencia Central?</h2>
           <div class="callout callout-def">
             <div class="ct">📖 Idea central</div>
-            <div class="cb">En la Semana 5 vimos los <strong>tipos de frecuencia</strong> (las columnas: fᵢ, hᵢ, %ᵢ, Fᵢ). Esta semana vemos los <strong>tipos de distribución</strong>: las distintas <em>formas de estructurar la tabla</em>. No todas las distribuciones se construyen igual.</div>
+            <div class="cb">Una <strong>medida de tendencia central</strong> es un valor que <strong>representa al conjunto</strong> de datos: el punto alrededor del cual estos se agrupan. Resume toda una distribución en un solo número "típico".</div>
           </div>
-          <p>La estructura correcta de una tabla de frecuencias depende de dos decisiones:</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0">
-            <div style="background:#fdf4ff;border-radius:8px;padding:1rem;border-top:3px solid #a855f7"><div style="font-size:1.4rem;margin-bottom:.4rem">①</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Según el tipo de variable</div><div style="font-size:.82rem;color:var(--text-mid)">Cualitativa → por categorías · Cuantitativa → por valores o por intervalos.</div></div>
-            <div style="background:#fefce8;border-radius:8px;padding:1rem;border-top:3px solid var(--amber)"><div style="font-size:1.4rem;margin-bottom:.4rem">②</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Según el agrupamiento</div><div style="font-size:.82rem;color:var(--text-mid)">No agrupada (una fila por valor) · Agrupada (una fila por intervalo).</div></div>
-          </div>
-          <div class="callout callout-tip">
-            <div class="ct">💡 Una mirada transversal: la acumulación</div>
-            <div class="cb">Cualquier distribución, sea del tipo que sea, puede mostrarse de forma <strong>simple</strong> (fᵢ, hᵢ) o <strong>acumulada</strong> (Fᵢ, Hᵢ).</div>
+          <p>Iniciamos el <strong>Tema 3</strong>. En el Tema 2 describimos la <em>forma</em> de los datos (tablas, frecuencias, histogramas). Ahora buscamos su <strong>centro</strong>: ¿cuánto gana "normalmente" un empleado? ¿cuál es la nota "típica" del curso? Las tres medidas clásicas son la <strong>media</strong>, la <strong>mediana</strong> y la <strong>moda</strong>, y cada una mide el centro de forma distinta.</p>
+          <table class="stats-table">
+            <thead><tr><th>Medida</th><th>Símbolo</th><th>Qué es</th><th>Fórmula / regla</th></tr></thead>
+            <tbody>
+              <tr><td><span class="stat-name">Media</span></td><td><span class="stat-formula">x̄</span></td><td>El promedio aritmético</td><td><span class="stat-formula">Σxᵢ / n</span></td></tr>
+              <tr><td><span class="stat-name">Mediana</span></td><td><span class="stat-formula">Me</span></td><td>El valor central (datos ordenados)</td><td><span class="stat-formula">posición (n+1)/2</span></td></tr>
+              <tr><td><span class="stat-name">Moda</span></td><td><span class="stat-formula">Mo</span></td><td>El valor más frecuente</td><td><span class="stat-formula">mayor fᵢ</span></td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warn">
+            <div class="ct">⚠️ No siempre coinciden</div>
+            <div class="cb">Para los mismos datos, media, mediana y moda pueden dar valores muy diferentes. La clave de hoy es saber <strong>cuándo usar cada una</strong>, según la forma de los datos y la presencia de valores atípicos.</div>
           </div>
         </section>
 
         <section class="section" id="s2">
-          <h2>📌 6.2 Según el Tipo de Variable</h2>
-          <p>Recordando la Semana 2: la <strong>naturaleza de la variable</strong> decide cómo se organiza la tabla.</p>
+          <h2>🧮 9.2 La Media Aritmética (x̄)</h2>
+          <div class="callout callout-def">
+            <div class="ct">📖 Definición</div>
+            <div class="cb">La <strong>media</strong> es el resultado de sumar todos los valores y dividir entre el número de datos. Es el "punto de equilibrio" de la distribución y la base de casi toda la estadística posterior (varianza, desviación, etc.).</div>
+          </div>
+          <p style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:1.05rem;background:var(--bg-alt);padding:1rem;border-radius:8px">x̄ = (x₁ + x₂ + … + xₙ) / n = Σxᵢ / n</p>
 
-          <h3>a) Variable cualitativa → por categorías</h3>
-          <p>Una fila por cada categoría. Ejemplo: medio de transporte de 40 estudiantes.</p>
-          <table class="stats-table">
-            <thead><tr><th>Categoría</th><th class="num">fᵢ</th><th class="num">hᵢ</th><th class="num">%ᵢ</th></tr></thead>
-            <tbody>
-              <tr><td>Bus</td><td class="num">16</td><td class="num">0.400</td><td class="num">40.0%</td></tr>
-              <tr><td>Caminando</td><td class="num">9</td><td class="num">0.225</td><td class="num">22.5%</td></tr>
-              <tr><td>Auto propio</td><td class="num">8</td><td class="num">0.200</td><td class="num">20.0%</td></tr>
-              <tr><td>Bicicleta</td><td class="num">4</td><td class="num">0.100</td><td class="num">10.0%</td></tr>
-              <tr><td>Taxi / App</td><td class="num">3</td><td class="num">0.075</td><td class="num">7.5%</td></tr>
-            </tbody>
-            <tfoot><tr><td>Total</td><td class="num">40</td><td class="num">1.000</td><td class="num">100%</td></tr></tfoot>
-          </table>
-
-          <h3>b) Variable cuantitativa discreta (pocos valores) → por valores</h3>
-          <p>Una fila por cada valor numérico. Ejemplo: nº de dispositivos por estudiante (n = 50). Aquí la acumulada SÍ se interpreta.</p>
-          <table class="stats-table">
-            <thead><tr><th>Nº dispositivos</th><th class="num">fᵢ</th><th class="num">hᵢ</th><th class="num">Fᵢ</th><th class="num">Hᵢ %</th></tr></thead>
-            <tbody>
-              <tr><td>1</td><td class="num">6</td><td class="num">0.12</td><td class="num">6</td><td class="num">12%</td></tr>
-              <tr><td>2</td><td class="num">21</td><td class="num">0.42</td><td class="num">27</td><td class="num">54%</td></tr>
-              <tr><td>3</td><td class="num">15</td><td class="num">0.30</td><td class="num">42</td><td class="num">84%</td></tr>
-              <tr><td>4</td><td class="num">8</td><td class="num">0.16</td><td class="num">50</td><td class="num">100%</td></tr>
-            </tbody>
-            <tfoot><tr><td>Total</td><td class="num">50</td><td class="num">1.00</td><td class="num">—</td><td class="num">—</td></tr></tfoot>
-          </table>
-
-          <h3>c) Variable cuantitativa continua → por intervalos</h3>
-          <p>Muchos valores distintos: se agrupa en clases. Cada fila es un intervalo con su marca de clase (xₘ). <strong>Cómo dimensionar esos intervalos es justo el tema de la Semana 7.</strong></p>
+          <h3>Ejemplo de la clase: sueldos de un equipo</h3>
+          <div class="callout callout-example">
+            <div class="ct">📋 Datos</div>
+            <div class="cb">Sueldos mensuales (USD) de <strong>11 empleados</strong>, ordenados. El último es el sueldo del gerente.<br><span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;display:block;margin-top:.4rem">780 · 850 · 850 · 900 · 950 · 1000 · 1000 · 1000 · 1100 · 1200 · 4500</span></div>
+          </div>
+          <p>Sumamos los 11 valores: 780+850+850+900+950+1000+1000+1000+1100+1200+4500 = <strong>14130</strong>. Dividimos entre n = 11:</p>
+          <p style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:1.05rem;background:var(--bg-alt);padding:1rem;border-radius:8px">x̄ = 14130 / 11 = <strong>1284.5 USD</strong></p>
           <div class="callout callout-warn">
-            <div class="ct">⚠️ La acumulada y el tipo de variable</div>
-            <div class="cb">La frecuencia acumulada (Fᵢ) solo se interpreta de forma natural cuando existe un <strong>orden</strong>: en variables cuantitativas y cualitativas ordinales. En nominales (colores, marcas) el orden es arbitrario.</div>
+            <div class="ct">⚠️ La media puede engañar</div>
+            <div class="cb">La media dice 1284.5 USD, pero <strong>9 de los 11 empleados ganan 1100 o menos</strong>. El sueldo del gerente (4500) infla la media: usa <strong>toda</strong> la información, y por eso es <strong>muy sensible a valores atípicos</strong>. Esa es su gran ventaja y su gran debilidad.</div>
           </div>
         </section>
 
         <section class="section" id="s3">
-          <h2>📌 6.3 No Agrupadas vs. Agrupadas</h2>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0">
-            <div style="background:#f0fdf4;border-radius:8px;padding:1rem;border-top:3px solid var(--green)"><div style="font-weight:700;font-size:.9rem;margin-bottom:.4rem">📋 No agrupada</div><div style="font-size:.83rem;color:var(--text-mid)">Una fila por valor o categoría. No se pierde detalle. Ideal para cualitativas o discretas con pocos valores.</div></div>
-            <div style="background:#f0f9ff;border-radius:8px;padding:1rem;border-top:3px solid var(--blue)"><div style="font-weight:700;font-size:.9rem;margin-bottom:.4rem">📊 Agrupada</div><div style="font-size:.83rem;color:var(--text-mid)">Una fila por intervalo. Gana legibilidad y muestra la forma, a costa del detalle. Ideal para continuas o muchos valores.</div></div>
+          <h2>📍 9.3 La Mediana (Me)</h2>
+          <div class="callout callout-def">
+            <div class="ct">📖 Definición</div>
+            <div class="cb">La <strong>mediana</strong> es el valor que ocupa la <strong>posición central</strong> cuando los datos están <strong>ordenados</strong> de menor a mayor. Deja el 50% de los datos por debajo y el 50% por encima.</div>
           </div>
-          <h3>Regla práctica: ¿cuándo agrupar?</h3>
-          <table class="stats-table">
-            <thead><tr><th>Situación</th><th>Tipo de distribución</th></tr></thead>
-            <tbody>
-              <tr><td>Variable cualitativa (nominal u ordinal)</td><td>No agrupada (por categorías)</td></tr>
-              <tr><td>Cuantitativa discreta, pocos valores (≤ ~15)</td><td>No agrupada (por valores)</td></tr>
-              <tr><td>Cuantitativa discreta con muchos valores</td><td>Agrupada (intervalos)</td></tr>
-              <tr><td>Cuantitativa continua</td><td>Agrupada (intervalos)</td></tr>
-            </tbody>
-          </table>
+          <ul>
+            <li><strong>Si n es impar:</strong> la mediana es el dato de la posición <code>(n+1)/2</code>.</li>
+            <li><strong>Si n es par:</strong> es el promedio de los dos datos centrales, posiciones <code>n/2</code> y <code>n/2 + 1</code>.</li>
+          </ul>
+          <h3>Mediana de los sueldos (n = 11, impar)</h3>
+          <p>Posición central = (11+1)/2 = <strong>6ª</strong>. Contamos hasta el 6º dato de la lista ordenada:</p>
+          <div class="seq">
+            <span class="chip">780</span><span class="chip">850</span><span class="chip">850</span><span class="chip">900</span><span class="chip">950</span><span class="chip hl">1000</span><span class="chip">1000</span><span class="chip">1000</span><span class="chip">1100</span><span class="chip">1200</span><span class="chip out">4500</span>
+          </div>
+          <p style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:1.05rem;background:var(--bg-alt);padding:1rem;border-radius:8px">Me = <strong>1000 USD</strong></p>
           <div class="callout callout-tip">
-            <div class="ct">💡 Criterio guía</div>
-            <div class="cb">Si al listar los valores únicos la tabla supera ~15 filas y se vuelve difícil de leer, <strong>agrupa</strong>. El objetivo siempre es resumir sin ocultar el patrón.</div>
+            <div class="ct">💡 Compara con la media</div>
+            <div class="cb">Mediana = 1000 vs media = 1284.5. La mediana <strong>ignora</strong> el sueldo extremo del gerente y describe mucho mejor al empleado "típico". Por eso, para sueldos, precios de vivienda o tiempos, se suele reportar la <strong>mediana</strong>.</div>
+          </div>
+          <div class="callout callout-warn">
+            <div class="ct">⚠️ Caso n par (mini-ejemplo)</div>
+            <div class="cb">Para <code>3, 5, 7, 8</code> (n = 4), los dos centrales son 5 y 7 → Me = (5 + 7) / 2 = <strong>6</strong>. Recuerda siempre <strong>ordenar primero</strong>.</div>
           </div>
         </section>
 
         <section class="section" id="s4">
-          <h2>📌 6.4 Distribuciones de Frecuencias Acumuladas</h2>
-          <p>Cualquier distribución (agrupada o no) puede expresarse en forma <strong>acumulada</strong>: cada fila suma su frecuencia más todas las anteriores. Responde la pregunta "¿cuántos datos hay <em>hasta</em> este punto?".</p>
+          <h2>🔁 9.4 La Moda (Mo)</h2>
           <div class="callout callout-def">
-            <div class="ct">📖 Fórmulas</div>
-            <div class="cb"><strong>Fᵢ = f₁ + f₂ + … + fᵢ</strong> (acumulada absoluta) &nbsp;·&nbsp; <strong>Hᵢ = Fᵢ / n</strong> (acumulada relativa). La última Fᵢ siempre es igual a n, y la última Hᵢ es 100%.</div>
+            <div class="ct">📖 Definición</div>
+            <div class="cb">La <strong>moda</strong> es el valor (o categoría) que aparece con <strong>mayor frecuencia</strong>. Es la única medida de tendencia central que también puede usarse con datos <strong>cualitativos</strong> (ej. el color de camiseta más vendido).</div>
           </div>
-          <div class="callout callout-tip">
-            <div class="ct">🔗 Hacia la Semana 8</div>
-            <div class="cb">La distribución acumulada es la base de la <strong>ojiva</strong> (gráfico de frecuencias acumuladas) que veremos junto a los histogramas en la Semana 8.</div>
+          <h3>Moda de los sueldos</h3>
+          <div class="seq">
+            <span class="chip">780</span><span class="chip">850</span><span class="chip">850</span><span class="chip">900</span><span class="chip">950</span><span class="chip hl">1000</span><span class="chip hl">1000</span><span class="chip hl">1000</span><span class="chip">1100</span><span class="chip">1200</span><span class="chip">4500</span>
+          </div>
+          <p>El valor <strong>1000</strong> aparece 3 veces; ningún otro se repite tanto → <strong>Mo = 1000 USD</strong>.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin:1rem 0">
+            <div style="background:#eff6ff;border-radius:8px;padding:.9rem;border-top:3px solid var(--blue)"><div style="font-weight:700;font-size:.85rem">Unimodal</div><div style="font-size:.8rem;color:var(--text-mid)">Una sola moda (nuestro caso).</div></div>
+            <div style="background:#f0fdf4;border-radius:8px;padding:.9rem;border-top:3px solid var(--green)"><div style="font-weight:700;font-size:.85rem">Bimodal</div><div style="font-size:.8rem;color:var(--text-mid)">Dos valores empatados en frecuencia.</div></div>
+            <div style="background:#fffbeb;border-radius:8px;padding:.9rem;border-top:3px solid var(--amber)"><div style="font-weight:700;font-size:.85rem">Amodal</div><div style="font-size:.8rem;color:var(--text-mid)">Ningún valor se repite → sin moda.</div></div>
           </div>
         </section>
 
         <section class="section" id="s5">
-          <h2>💻 6.5 Código: Elegir la Tabla Correcta según el Tipo</h2>
-          <p>La regla es simple: <code>value_counts()</code> / <code>table()</code> para distribuciones <strong>no agrupadas</strong>, y <code>pd.cut()</code> / <code>cut()</code> para <strong>agrupadas</strong>.</p>
+          <h2>⚖️ 9.5 ¿Cuál Medida Usar? El Efecto de los Atípicos</h2>
+          <table class="stats-table">
+            <thead><tr><th>Medida</th><th>Úsala cuando…</th><th>Ante atípicos</th><th class="num">Nuestro ejemplo</th></tr></thead>
+            <tbody>
+              <tr><td><span class="stat-name">Media x̄</span></td><td>Los datos son simétricos, sin extremos</td><td>Muy sensible</td><td class="num">1284.5</td></tr>
+              <tr><td><span class="stat-name">Mediana Me</span></td><td>Hay sesgo o valores atípicos (sueldos, precios)</td><td>Resistente</td><td class="num">1000</td></tr>
+              <tr><td><span class="stat-name">Moda Mo</span></td><td>Datos cualitativos o el valor más común</td><td>Resistente</td><td class="num">1000</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warn">
+            <div class="ct">⚠️ La media "se va" con el atípico</div>
+            <div class="cb">El sueldo del gerente (4500) arrastró la media hasta 1284.5, pero mediana y moda se quedaron en 1000, fieles al equipo. <strong>Regla práctica:</strong> si la media y la mediana difieren mucho, hay sesgo o valores atípicos → reporta la <strong>mediana</strong>.</div>
+          </div>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Conexión con la forma (Semana 8)</div>
+            <div class="cb">Distribución <strong>simétrica</strong> → media ≈ mediana ≈ moda. <strong>Sesgo a la derecha</strong> → media &gt; mediana &gt; moda. <strong>Sesgo a la izquierda</strong> → media &lt; mediana &lt; moda. La posición relativa de las tres medidas <em>diagnostica</em> la forma sin ver el histograma.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s6">
+          <h2>💻 9.6 Cálculo con Python y R</h2>
+          <p>Las tres medidas se obtienen con funciones directas. Reproducimos el ejemplo de los sueldos.</p>
           <div class="code-block">
             <div class="code-tabs-header">
               <button class="ctab active" onclick="switchCodeTab(this,'py1')">🐍 Python</button>
@@ -328,80 +349,91 @@ html.authed #gate{display:none!important}
             </div>
             <div class="code-panel active" id="py1">
 <pre><code class="language-python">import pandas as pd
+import statistics as st
 
-# --- NO AGRUPADA: cualitativa / discreta con pocos valores ---
-transporte = pd.Series(['Bus']*16 + ['Caminando']*9 + ['Auto']*8 +
-                        ['Bici']*4 + ['Taxi']*3)
-print(transporte.value_counts())             # una fila por categoría
+sueldos = [780,850,850,900,950,1000,1000,1000,1100,1200,4500]
+s = pd.Series(sueldos)
 
-# --- AGRUPADA: continua con muchos valores ---
-tiempos = pd.Series([20,21,23,24,26,27,28,29,31,34,36,39,41])   # ms
-print(pd.cut(tiempos, bins=4).value_counts().sort_index())  # una fila por intervalo</code></pre>
+print("Media  :", round(s.mean(), 2))   # promedio (Σx / n)
+print("Mediana:", s.median())            # valor central
+print("Moda   :", s.mode()[0])           # más frecuente
+
+# Sin pandas, con el módulo statistics de la librería estándar:
+print(st.mean(sueldos), st.median(sueldos), st.mode(sueldos))</code></pre>
             </div>
             <div class="code-panel" id="r1">
-<pre><code class="language-r"># --- NO AGRUPADA: cualitativa / discreta con pocos valores ---
-transporte <- c(rep("Bus",16), rep("Caminando",9), rep("Auto",8),
-                rep("Bici",4), rep("Taxi",3))
-table(transporte)                       # una fila por categoría
+<pre><code class="language-r">sueldos <- c(780,850,850,900,950,1000,1000,1000,1100,1200,4500)
 
-# --- AGRUPADA: continua con muchos valores ---
-tiempos <- c(20,21,23,24,26,27,28,29,31,34,36,39,41)
-table(cut(tiempos, breaks = 4))         # una fila por intervalo</code></pre>
+mean(sueldos)     # 1284.545  -> media
+median(sueldos)   # 1000      -> mediana
+
+# R no trae función de moda: la definimos
+moda <- function(x){
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+moda(sueldos)     # 1000</code></pre>
             </div>
-            <div class="code-output"><div class="out-label">Output (Python)</div>Bus          16<br>Caminando     9<br>Auto          8<br>Bici          4<br>Taxi          3<br><br>(19.979, 25.25]  4<br>(25.25, 30.5]    4<br>(30.5, 35.75]    2<br>(35.75, 41.0]    3</div>
+            <div class="code-output">
+              <div class="out-label">Output</div>
+              Media  : 1284.55<br>
+              Mediana: 1000.0<br>
+              Moda   : 1000<br>
+              (R) mean → 1284.545 · median → 1000 · moda → 1000
+            </div>
           </div>
           <div class="callout callout-tip">
             <div class="ct">💡 Equivalencias Python ↔ R</div>
-            <div class="cb"><code>value_counts()</code> ↔ <code>table()</code> &nbsp;·&nbsp; <code>pd.cut()</code> ↔ <code>cut()</code>. La elección de la función refleja directamente el <strong>tipo de distribución</strong> que quieres construir.</div>
+            <div class="cb"><code>s.mean()</code> ↔ <code>mean()</code> &nbsp;·&nbsp; <code>s.median()</code> ↔ <code>median()</code> &nbsp;·&nbsp; <code>s.mode()</code> existe en pandas, pero en R la moda se programa (no es nativa).</div>
           </div>
         </section>
 
-        <section class="section" id="s6">
-          <h2>🎓 6.6 Puntos Clave y Quiz</h2>
+        <section class="section" id="s7">
+          <h2>🎓 9.7 Puntos Clave y Quiz</h2>
 
           <div class="keypoints">
-            <h4>Puntos Clave Semana 6</h4>
-            <div class="kp-item"><div class="kp-num">1</div><div class="kp-text">La <strong>estructura de la tabla</strong> depende del tipo de variable y de si conviene agrupar.</div></div>
-            <div class="kp-item"><div class="kp-num">2</div><div class="kp-text"><strong>Cualitativa</strong> → por categorías; <strong>discreta con pocos valores</strong> → por valores; <strong>continua o muchos valores</strong> → por intervalos.</div></div>
-            <div class="kp-item"><div class="kp-num">3</div><div class="kp-text">Distribución <strong>no agrupada</strong> (fila por valor) vs <strong>agrupada</strong> (fila por intervalo).</div></div>
-            <div class="kp-item"><div class="kp-num">4</div><div class="kp-text">Toda distribución puede ser <strong>simple</strong> o <strong>acumulada</strong> (Fᵢ, Hᵢ); la acumulada exige un orden.</div></div>
-            <div class="kp-item"><div class="kp-num">5</div><div class="kp-text">En código: <code>value_counts()/table()</code> = no agrupada · <code>pd.cut()/cut()</code> = agrupada.</div></div>
+            <h4>Puntos Clave Semana 9</h4>
+            <div class="kp-item"><div class="kp-num">1</div><div class="kp-text">Una <strong>medida de tendencia central</strong> resume la distribución en un valor "típico": media, mediana o moda.</div></div>
+            <div class="kp-item"><div class="kp-num">2</div><div class="kp-text"><strong>Media x̄ = Σxᵢ/n</strong>: usa todos los datos pero es muy sensible a valores atípicos.</div></div>
+            <div class="kp-item"><div class="kp-num">3</div><div class="kp-text"><strong>Mediana</strong>: valor central de los datos ordenados; resistente a atípicos. n impar → posición (n+1)/2; n par → promedio de los dos centrales.</div></div>
+            <div class="kp-item"><div class="kp-num">4</div><div class="kp-text"><strong>Moda</strong>: el valor más frecuente; la única válida para datos cualitativos.</div></div>
+            <div class="kp-item"><div class="kp-num">5</div><div class="kp-text">Si media y mediana <strong>difieren mucho</strong>, hay sesgo/atípicos → la mediana representa mejor al conjunto.</div></div>
           </div>
 
           <div class="quiz-box">
-            <h3>✅ Quiz Semana 6</h3>
-            <div class="quiz-item"><div class="q-text">1. Para la variable "marca de celular" (Samsung, Apple, Xiaomi…), ¿qué tipo de distribución corresponde?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,true,'q1')">No agrupada, por categorías</button><button class="q-btn" onclick="ansQ(this,false,'q1')">Agrupada, en intervalos</button><button class="q-btn" onclick="ansQ(this,false,'q1')">Acumulada nominal</button></div><div id="q1-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
-            <div class="quiz-item"><div class="q-text">2. Tienes los ingresos mensuales (en USD) de 200 personas, casi todos distintos. ¿Qué conviene?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q2')">Una fila por cada ingreso</button><button class="q-btn" onclick="ansQ(this,true,'q2')">Agrupar en intervalos de clase</button><button class="q-btn" onclick="ansQ(this,false,'q2')">No se puede tabular</button></div><div id="q2-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
-            <div class="quiz-item"><div class="q-text">3. ¿En cuál de estas variables tiene sentido interpretar la frecuencia acumulada?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q3')">Color favorito (nominal)</button><button class="q-btn" onclick="ansQ(this,true,'q3')">Nivel de satisfacción 1–5 (ordinal)</button><button class="q-btn" onclick="ansQ(this,false,'q3')">Ciudad de origen</button></div><div id="q3-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
-            <div class="quiz-item"><div class="q-text">4. En Python, ¿qué función usas para construir una distribución AGRUPADA?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q4')">value_counts()</button><button class="q-btn" onclick="ansQ(this,true,'q4')">pd.cut()</button><button class="q-btn" onclick="ansQ(this,false,'q4')">describe()</button></div><div id="q4-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <h3>✅ Quiz Semana 9</h3>
+            <div class="quiz-item"><div class="q-text">1. ¿Cuál es la media de los datos 4, 6, 8, 10, 12?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q1')">6</button><button class="q-btn" onclick="ansQ(this,true,'q1')">8</button><button class="q-btn" onclick="ansQ(this,false,'q1')">10</button></div><div id="q1-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">2. Para 5, 8, 9, 12 (n par), la mediana es:</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q2')">9</button><button class="q-btn" onclick="ansQ(this,true,'q2')">8.5 (promedio de 8 y 9)</button><button class="q-btn" onclick="ansQ(this,false,'q2')">8</button></div><div id="q2-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">3. Si un conjunto de sueldos tiene un valor atípico muy alto, ¿qué medida lo representa mejor?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q3')">La media</button><button class="q-btn" onclick="ansQ(this,true,'q3')">La mediana</button><button class="q-btn" onclick="ansQ(this,false,'q3')">El valor atípico</button></div><div id="q3-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">4. En 3, 3, 3, 5, 7, 9, la moda es:</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,true,'q4')">3</button><button class="q-btn" onclick="ansQ(this,false,'q4')">5</button><button class="q-btn" onclick="ansQ(this,false,'q4')">No tiene moda</button></div><div id="q4-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
             <div id="quiz-score" class="quiz-score"></div>
           </div>
         </section>
       </div>
     </div>
 
-    <!-- TAB TALLER (APP) -->
+    <!-- TAB TALLER -->
     <div id="ptab-taller" class="ptab-content">
       <div class="taller-hero">
-        <h2>🧪 Taller Práctico (APP) · Técnicas de Muestreo</h2>
-        <p>Actividad Práctica Programada del Tema 2 (8 horas). Aplica el cálculo de técnicas de muestreo probabilístico y no probabilístico sobre un caso real. Esta práctica cuenta para la Evaluación Práctica 1P.</p>
-        <div class="taller-meta"><span>⏱ 8 horas (APP)</span><span>📋 Caso + cálculo</span><span>🐍 Python + 📊 R</span><span>✍️ Desarrollo propio</span></div>
+        <h2>🛠 Taller Práctico · Semana 9</h2>
+        <p>Calcula la media, la mediana y la moda de un conjunto real, interpreta el efecto de un valor atípico y decide qué medida reporta mejor el "centro". Luego completa el código que automatiza el cálculo.</p>
+        <div class="taller-meta"><span>⏱ 45 minutos</span><span>📋 Caso + código guiado</span><span>🐍 Python + 📊 R</span><span>✍️ Desarrollo propio</span></div>
       </div>
       <div class="taller-body">
         <div class="taller-case" id="t1">
           <div class="taller-case-header">
-            <span style="font-size:1.3rem">🎓</span>
-            <h3>Caso: Encuesta de satisfacción en un tecnológico</h3>
-            <span class="taller-case-badge">APP · Desarrollo · probabilístico + no probabilístico</span>
+            <span style="font-size:1.3rem">🛒</span>
+            <h3>Caso: Ventas diarias de una tienda online</h3>
+            <span class="taller-case-badge">Tema 3 · Desarrollo · 25 min</span>
           </div>
           <div class="taller-case-body">
-            <div class="scenario-box"><strong>Escenario:</strong> Un instituto tiene <strong>N = 1500 estudiantes</strong> distribuidos en 4 carreras: <strong>Sistemas = 600</strong>, <strong>Industrial = 450</strong>, <strong>Mecánica = 300</strong> y <strong>Ambiental = 150</strong>. Se desea aplicar una encuesta de satisfacción a una muestra de <strong>n = 150</strong> estudiantes. Diseña el muestreo y responde.</div>
+            <div class="scenario-box"><strong>Escenario:</strong> Una tienda online registró las <strong>unidades vendidas por día</strong> durante <strong>12 días</strong>. El último día fue una campaña tipo "Black Friday". Datos ordenados:<br><span style="font-family:'JetBrains Mono',monospace;font-size:.82rem;display:block;margin-top:.5rem">12 · 15 · 15 · 18 · 20 · 20 · 20 · 22 · 25 · 28 · 30 · 95</span><br><span style="display:block;margin-top:.5rem">Calcula las tres medidas e interpreta el resultado.</span></div>
             <ol class="step-list">
-              <li><div class="step-num">1</div><div class="step-content"><div class="step-q">Calcula la fracción de muestreo f = n/N. ¿Qué porcentaje de la población vas a encuestar?</div><div class="taller-hint">f = n/N. Multiplica por 100 para el porcentaje.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
-              <li><div class="step-num">2</div><div class="step-content"><div class="step-q">Aplica muestreo estratificado proporcional: ¿cuántos estudiantes encuestas de cada carrera? Muestra el cálculo y verifica que sumen 150.</div><div class="taller-hint">nₕ = Nₕ × (n/N). Por ejemplo, Sistemas = 600 × f.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
-              <li><div class="step-num">3</div><div class="step-content"><div class="step-q">Si en lugar de estratificar usaras muestreo sistemático sobre la lista completa, ¿cuál es el intervalo de selección k? ¿Cómo eliges el punto de arranque?</div><div class="taller-hint">k = N/n. El arranque es un número aleatorio entre 1 y k; luego seleccionas cada k-ésimo elemento.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
-              <li><div class="step-num">4</div><div class="step-content"><div class="step-q">El coordinador propone "encuestar solo a los estudiantes que estén en la cafetería al mediodía". Identifica qué técnica es y qué sesgo introduce.</div><div class="taller-hint">¿Es probabilística o no? Piensa en qué estudiantes quedan sistemáticamente excluidos.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
-              <li><div class="step-num">5</div><div class="step-content"><div class="step-q">Justifica: ¿por qué el muestreo estratificado es preferible al aleatorio simple en este caso? ¿Qué garantiza respecto a las carreras pequeñas como Ambiental?</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">1</div><div class="step-content"><div class="step-q">Calcula la MEDIA. Muestra la suma total y la división entre n. (n = 12)</div><div class="taller-hint">x̄ = Σxᵢ / n. Suma los 12 valores y divide entre 12.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">2</div><div class="step-content"><div class="step-q">Calcula la MEDIANA. Como n = 12 es par, identifica los dos valores centrales y promédialos.</div><div class="taller-hint">Posiciones centrales: n/2 = 6ª y n/2+1 = 7ª. Los datos ya están ordenados.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">3</div><div class="step-content"><div class="step-q">Identifica la MODA: ¿qué valor se repite más? ¿Cuántas veces?</div><div class="taller-hint">Busca el valor con mayor frecuencia en la lista.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">4</div><div class="step-content"><div class="step-q">Compara las tres medidas. ¿Por qué la media es mayor que la mediana y la moda? ¿Qué dato es el responsable?</div><div class="taller-hint">Fíjate en el día de campaña (95). ¿A cuál de las tres medidas afecta más?</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">5</div><div class="step-content"><div class="step-q">Decisión: si tuvieras que informar a la gerencia "cuántas unidades vende la tienda en un día normal", ¿qué medida usarías y por qué?</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
             </ol>
           </div>
         </div>
@@ -409,8 +441,8 @@ table(cut(tiempos, breaks = 4))         # una fila por intervalo</code></pre>
         <div class="taller-case" id="t2">
           <div class="taller-case-header">
             <span style="font-size:1.3rem">⌨️</span>
-            <h3>Código: simula el muestreo con Python / R</h3>
-            <span class="taller-case-badge">Python + R · completa los blancos</span>
+            <h3>Código: calcula media, mediana y moda</h3>
+            <span class="taller-case-badge">Python + R · 20 min</span>
           </div>
           <div class="taller-case-body">
             <div class="code-block">
@@ -419,64 +451,47 @@ table(cut(tiempos, breaks = 4))         # una fila por intervalo</code></pre>
                 <button class="ctab" onclick="switchCodeTab(this,'tr1')">📊 R</button>
               </div>
               <div class="code-panel active" id="tp1">
-<pre><code class="language-python">import numpy as np
-rng = np.random.default_rng(42)
+<pre><code class="language-python">import pandas as pd
 
-# Datos del caso — no los modifiques
-N = 1500
-n = 150
-estratos = {'Sistemas': 600, 'Industrial': 450, 'Mecanica': 300, 'Ambiental': 150}
+# Ventas de 12 días — dataset ya dado, no lo modifiques
+ventas = [12,15,15,18,20,20,20,22,25,28,30,95]
+s = pd.Series(ventas)
 
-# ── Fracción de muestreo ──────────────────────────────────
-# Pista: la fracción es n dividido para N
-f = n / _____
-print(f"Fracción de muestreo = {f:.2%}")
+# Pista: el promedio en pandas es el método .mean()
+media   = s._____()
+# Pista: el valor central es .median()
+mediana = s._____()
+# Pista: el valor más frecuente es .mode()  (toma el primero con [0])
+moda    = s.mode()[_____]
 
-# ── Muestreo estratificado proporcional ───────────────────
-print("\nReparto estratificado proporcional:")
-total = 0
-for carrera, Nh in estratos.items():
-    # Pista: nº por estrato = tamaño del estrato * fracción
-    nh = round(Nh * _____)
-    total += nh
-    print(f"  {carrera:12s}: {nh}")
-print(f"  Suma = {total}  (debe ser {n})")
+print("Media  :", round(media, 2))
+print("Mediana:", mediana)
+print("Moda   :", moda)
 
-# ── Muestreo sistemático ──────────────────────────────────
-# Pista: el intervalo k es N dividido para n
-k = N // _____
-arranque = rng.integers(1, k + 1)        # punto de partida aleatorio
-seleccion = list(range(arranque, N + 1, k))
-print(f"\nSistemático: k = {k}, arranque = {arranque}, seleccionados = {len(seleccion)}")</code></pre>
+# Reflexión: ¿media o mediana describe mejor un "día normal"?
+print("Diferencia media - mediana =", round(media - mediana, 2))</code></pre>
               </div>
               <div class="code-panel" id="tr1">
-<pre><code class="language-r">set.seed(42)
+<pre><code class="language-r"># Ventas de 12 días — dataset ya dado, no lo modifiques
+ventas <- c(12,15,15,18,20,20,20,22,25,28,30,95)
 
-# Datos del caso — no los modifiques
-N <- 1500
-n <- 150
-estratos <- c(Sistemas = 600, Industrial = 450, Mecanica = 300, Ambiental = 150)
+# Pista: el promedio en R es mean()
+media   <- _____(ventas)
+# Pista: el valor central es median()
+mediana <- _____(ventas)
 
-# ── Fracción de muestreo ──────────────────────────────────
-# Pista: la fracción es n dividido para N
-f <- n / _____
-cat(sprintf("Fracción de muestreo = %.1f%%\n", f * 100))
+# R no tiene moda nativa: completa la función
+moda <- function(x){
+  ux <- unique(x)
+  # Pista: which.max() devuelve la posición del valor más frecuente
+  ux[_____(tabulate(match(x, ux)))]
+}
 
-# ── Muestreo estratificado proporcional ───────────────────
-# Pista: nº por estrato = tamaño del estrato * fracción
-nh <- round(estratos * _____)
-print(nh)
-cat("Suma =", sum(nh), " (debe ser", n, ")\n")
-
-# ── Muestreo sistemático ──────────────────────────────────
-# Pista: el intervalo k es N dividido para n
-k <- N %/% _____
-arranque <- sample(1:k, 1)
-seleccion <- seq(arranque, N, by = k)
-cat("Sistemático: k =", k, " arranque =", arranque,
-    " seleccionados =", length(seleccion), "\n")</code></pre>
+cat("Media  :", round(media, 2), "\n")
+cat("Mediana:", mediana, "\n")
+cat("Moda   :", moda(ventas), "\n")</code></pre>
               </div>
-              <div class="code-output"><div class="out-label">Output esperado (verifica tu cálculo)</div>Fracción de muestreo = 10.00%<br>Estratos → deben sumar exactamente 150<br>Sistemático → k = 10, y se seleccionan 150 elementos</div>
+              <div class="code-output"><div class="out-label">Output esperado (verifica que tus cálculos coincidan)</div>Media  : 26.67 &nbsp;|&nbsp; Mediana: 20 &nbsp;|&nbsp; Moda: 20<br>Diferencia media − mediana = 6.67 → el día de campaña (95) infló la media.<br>Para "un día normal" conviene reportar la mediana (20 unidades).</div>
             </div>
           </div>
         </div>
@@ -484,8 +499,8 @@ cat("Sistemático: k =", k, " arranque =", arranque,
     </div>
 
     <div class="page-nav">
-      <a href="../semana05/index.html" class="nav-card"><span class="nav-card-arrow">←</span><div><div class="nav-card-label">Anterior</div><div class="nav-card-title">Semana 5: Frecuencias</div></div></a>
-      <a href="../semana07/index.html" class="nav-card next"><span class="nav-card-arrow">→</span><div><div class="nav-card-label">Próximo</div><div class="nav-card-title">Semana 7: Clases e Intervalos</div></div></a>
+      <a href="../semana08/index.html" class="nav-card"><span class="nav-card-arrow">←</span><div><div class="nav-card-label">Anterior</div><div class="nav-card-title">Semana 8: Histogramas</div></div></a>
+      <a href="../index.html" class="nav-card next" style="opacity:.6"><span class="nav-card-arrow">→</span><div><div class="nav-card-label">Próximo</div><div class="nav-card-title">Semana 10: Notación Sumatoria</div></div></a>
     </div>
   </div>
 </div>

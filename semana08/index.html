@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semana 8: Histogramas y Polígonos de Frecuencia · ISTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue-dark:#0d2137;--blue-mid:#1a3a6b;--blue:#2563eb;--blue-light:#3b82f6;--blue-pale:#dbeafe;
+  --text:#0f172a;--text-mid:#334155;--text-light:#64748b;--bg:#ffffff;--bg-alt:#f8fafc;--border:#e2e8f0;
+  --green:#22c55e;--green-pale:#dcfce7;--amber:#f59e0b;--amber-pale:#fef3c7;
+  --red:#ef4444;--red-pale:#fee2e2;--sidebar-w:270px;--radius:8px;
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.7;font-size:15px}
+.hidden{display:none!important}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+#gate{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue-dark),var(--blue-mid));display:flex;align-items:center;justify-content:center;z-index:9999}
+html.authed #gate{display:none!important}
+.gate-card{background:#fff;border-radius:16px;padding:2.5rem;width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.gate-title{font-size:1.4rem;font-weight:700;color:var(--blue-dark);margin-bottom:.25rem}.gate-sub{font-size:.85rem;color:var(--text-light);margin-bottom:1.5rem}
+.gate-input{width:100%;padding:.75rem 1rem;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:.9rem;outline:none;transition:.2s}.gate-input:focus{border-color:var(--blue)}
+.gate-btn{width:100%;margin-top:.75rem;padding:.75rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+.gate-error{color:var(--red);font-size:.82rem;margin-top:.5rem;display:none}
+#app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--blue-dark);color:#cbd5e1;height:100vh;position:fixed;top:0;left:0;overflow-y:auto;display:flex;flex-direction:column;z-index:50}
+.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.sb-header{padding:1.25rem 1rem 1rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;margin-bottom:.75rem}
+.sb-logo-box{background:var(--blue);border-radius:6px;padding:.35rem .55rem;font-size:.7rem;font-weight:700;color:#fff}
+.sb-course{font-size:.82rem;font-weight:600;color:#e2e8f0}.sb-meta{font-size:.72rem;color:#94a3b8;margin-top:.1rem}
+.sb-home{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:6px;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;margin-top:.5rem}
+.sb-home:hover{background:rgba(255,255,255,.08);color:#e2e8f0;text-decoration:none}
+.sb-nav{flex:1;padding:.75rem 0}
+.sb-section{padding:.5rem 1rem .25rem;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-top:.75rem}
+.sb-link{display:block;padding:.45rem 1rem;font-size:.82rem;color:#94a3b8;text-decoration:none;transition:.15s;border-left:2px solid transparent;line-height:1.4}
+.sb-link:hover{background:rgba(255,255,255,.06);color:#e2e8f0;text-decoration:none}
+.sb-link.active{color:#93c5fd;border-left-color:var(--blue-light);background:rgba(59,130,246,.12)}
+.sb-link.done{color:#6ee7b7}.sb-link.locked{color:#475569;pointer-events:none}
+.sb-link .badge{font-size:.65rem;padding:.1rem .35rem;border-radius:3px;margin-left:.35rem}
+.badge-d{background:rgba(110,231,183,.15);color:#6ee7b7}.badge-l{background:rgba(255,255,255,.05);color:#475569}
+.sb-toc-section{padding:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-toc-title{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-bottom:.5rem}
+.sb-toc-link{display:block;font-size:.78rem;color:#94a3b8;padding:.3rem 0 .3rem .6rem;text-decoration:none;transition:.15s;border-left:2px solid transparent}
+.sb-toc-link:hover{color:#e2e8f0;text-decoration:none}.sb-toc-link.toc-active{color:#93c5fd;border-left-color:var(--blue-light)}
+.content-wrap{margin-left:var(--sidebar-w);flex:1;min-width:0;background:var(--bg)}
+.content-header{padding:1.5rem 3rem 0;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:40}
+.breadcrumb{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-light);margin-bottom:.75rem}
+.breadcrumb a{color:var(--text-light);text-decoration:none}.breadcrumb a:hover{color:var(--blue)}
+.page-title-row{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.75rem}
+.week-pill{background:var(--blue);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .7rem;border-radius:4px;margin-top:.2rem;white-space:nowrap}
+.page-main-title{font-size:1.8rem;font-weight:800;color:var(--blue-dark);line-height:1.2;letter-spacing:-.02em}
+.page-subtitle{font-size:.95rem;color:var(--text-mid);margin-top:.4rem}
+.page-meta{display:flex;gap:1rem;margin-top:.5rem;flex-wrap:wrap}.meta-item{font-size:.78rem;color:var(--text-light)}
+.page-tabs{display:flex;border-top:1px solid var(--border);margin-top:.75rem}
+.ptab{padding:.65rem 1.25rem;font-family:inherit;font-size:.85rem;font-weight:600;border:none;background:none;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;display:flex;align-items:center;gap:.4rem;margin-bottom:-1px}
+.ptab:hover{color:var(--text)}.ptab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.ptab-content{display:none}.ptab-content.active{display:block}
+.content-body{padding:2.5rem 3rem;max-width:860px}
+.section{margin-bottom:3.5rem;scroll-margin-top:160px}
+.section h2{font-size:1.35rem;font-weight:700;color:var(--blue-dark);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:2px solid var(--blue-pale)}
+.section h3{font-size:1.05rem;font-weight:600;color:var(--text);margin:1.5rem 0 .75rem}
+.section p{margin-bottom:1rem;color:var(--text-mid)}.section ul{margin:.5rem 0 1rem 1.25rem;color:var(--text-mid)}.section li{margin-bottom:.4rem}
+.callout{border-radius:var(--radius);padding:1.1rem 1.25rem;margin:1.25rem 0;border-left:4px solid}
+.callout-def{background:var(--blue-pale);border-color:var(--blue)}.callout-def .ct{color:var(--blue-dark);font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-def .cb{color:var(--text-mid);font-size:.9rem}
+.callout-tip{background:#f0fdf4;border-color:var(--green)}.callout-tip .ct{color:#166534;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-tip .cb{color:#166534;font-size:.9rem}
+.callout-warn{background:var(--amber-pale);border-color:var(--amber)}.callout-warn .ct{color:#92400e;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-warn .cb{color:#78350f;font-size:.9rem}
+.callout-example{background:#faf5ff;border-color:#a855f7}.callout-example .ct{color:#6b21a8;font-weight:700;font-size:.85rem;margin-bottom:.4rem}.callout-example .cb{color:#581c87;font-size:.9rem}
+.eda-steps{display:flex;gap:0;margin:1.25rem 0;flex-wrap:wrap}
+.eda-step{flex:1;min-width:140px;padding:1rem;text-align:center;position:relative}
+.eda-step::after{content:'→';position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:1.1rem}
+.eda-step:last-child::after{display:none}
+.eda-step-num{width:36px;height:36px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto .5rem;font-size:.9rem}
+.eda-step-title{font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:.25rem}
+.eda-step-desc{font-size:.75rem;color:var(--text-light)}
+.stats-table{width:100%;border-collapse:collapse;margin:1.25rem 0;font-size:.85rem}
+.stats-table th{background:var(--blue-dark);color:#fff;padding:.7rem 1rem;text-align:left;font-weight:600;font-size:.8rem}
+.stats-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:var(--text-mid);vertical-align:top}
+.stats-table tr:hover td{background:var(--bg-alt)}
+.stats-table tfoot td{font-weight:700;color:var(--text);background:var(--bg-alt)}
+.stats-table .stat-name{font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.82rem}
+.stats-table .stat-formula{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--bg-alt);padding:.15rem .4rem;border-radius:3px}
+.stats-table td.num{font-family:'JetBrains Mono',monospace;text-align:right}
+.code-block{margin:1.25rem 0;border-radius:var(--radius);overflow:hidden;border:1px solid #1e293b;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.code-tabs-header{background:#1e293b;display:flex;align-items:center;padding:0 .75rem;gap:.25rem;border-bottom:1px solid #334155}
+.ctab{padding:.65rem .9rem;font-size:.8rem;font-weight:600;border:none;background:none;color:#94a3b8;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;font-family:inherit}
+.ctab:hover{color:#e2e8f0}.ctab.active{color:#93c5fd;border-bottom-color:var(--blue-light)}
+.code-panel{display:none}.code-panel.active{display:block}
+.code-panel pre{margin:0;border-radius:0}.code-panel pre code{font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.6}
+.code-output{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:1rem 1.25rem;border-top:1px solid #1e293b;line-height:1.5}
+.out-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569;margin-bottom:.4rem}
+.error-list{list-style:none;padding:0;margin:1rem 0}
+.error-item{display:flex;gap:.75rem;padding:.75rem;border-radius:var(--radius);margin-bottom:.5rem;background:#fff;border:1px solid var(--border)}
+.error-icon{font-size:1.2rem;flex-shrink:0}
+.error-content .error-title{font-size:.88rem;font-weight:700;color:var(--red)}
+.error-content .error-fix{font-size:.83rem;color:var(--text-mid);margin-top:.2rem}
+.taller-hero{background:linear-gradient(135deg,var(--blue-dark),#1e4a8a);color:#fff;padding:2rem 3rem;border-bottom:3px solid var(--blue)}
+.taller-hero h2{font-size:1.5rem;font-weight:800;margin-bottom:.4rem}.taller-hero p{font-size:.9rem;opacity:.85;max-width:680px}
+.taller-meta{display:flex;gap:1.25rem;margin-top:.9rem;flex-wrap:wrap}.taller-meta span{font-size:.78rem;background:rgba(255,255,255,.12);padding:.3rem .75rem;border-radius:20px}
+.taller-body{padding:2rem 3rem;max-width:860px}
+.taller-case{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:2rem;overflow:hidden}
+.taller-case-header{background:var(--blue-dark);color:#fff;padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem}
+.taller-case-header h3{font-size:1rem;font-weight:700}.taller-case-badge{font-size:.7rem;background:rgba(255,255,255,.15);padding:.2rem .6rem;border-radius:4px}
+.taller-case-body{padding:1.5rem}
+.scenario-box{background:var(--bg-alt);border-left:4px solid var(--blue);border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.9rem;color:var(--text-mid)}
+.step-list{counter-reset:step;list-style:none;margin:0;padding:0}
+.step-list li{counter-increment:step;display:flex;align-items:flex-start;gap:.9rem;padding:1rem 0;border-bottom:1px solid var(--border)}
+.step-list li:last-child{border-bottom:none}
+.step-num{background:var(--blue);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.step-content{flex:1}.step-q{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.35rem}
+.keypoints{background:var(--blue-dark);color:#fff;border-radius:var(--radius);padding:1.5rem;margin:1.25rem 0}
+.keypoints h4{font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;margin-bottom:1rem}
+.kp-item{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.07)}.kp-item:last-child{border-bottom:none}
+.kp-num{background:var(--blue);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kp-text{font-size:.88rem;color:#cbd5e1}
+.quiz-box{background:linear-gradient(135deg,var(--blue-dark),#1a3a6b);border-radius:var(--radius);padding:1.75rem;margin:1.25rem 0;color:#fff}
+.quiz-box h3{font-size:1rem;font-weight:700;margin-bottom:1.25rem;color:#93c5fd}
+.quiz-item{background:rgba(255,255,255,.06);border-radius:6px;padding:1rem;margin-bottom:.75rem}
+.q-text{font-size:.88rem;margin-bottom:.75rem;color:#e2e8f0}.q-opts{display:flex;gap:.5rem;flex-wrap:wrap}
+.q-btn{padding:.4rem .85rem;border:1.5px solid rgba(255,255,255,.2);border-radius:6px;background:rgba(255,255,255,.05);color:#cbd5e1;font-family:inherit;font-size:.8rem;cursor:pointer;transition:.15s}
+.q-btn:hover{border-color:var(--blue-light);color:#fff}.q-btn.q-correct{background:rgba(34,197,94,.15);border-color:var(--green);color:#6ee7b7}.q-btn.q-wrong{background:rgba(239,68,68,.15);border-color:var(--red);color:#fca5a5}
+.quiz-score{font-size:.88rem;color:#93c5fd;margin-top:1rem;text-align:center;display:none}
+.page-nav{display:flex;justify-content:space-between;padding:2rem 3rem;border-top:1px solid var(--border);margin-top:1rem}
+.nav-card{display:flex;align-items:center;gap:.75rem;padding:.9rem 1.25rem;border:1px solid var(--border);border-radius:var(--radius);text-decoration:none;color:var(--text);transition:.2s;max-width:220px}
+.nav-card:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.12);text-decoration:none;color:var(--text)}
+.nav-card.next{flex-direction:row-reverse;text-align:right}
+.nav-card-arrow{font-size:1.1rem;color:var(--text-light)}.nav-card-label{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:.15rem}
+.nav-card-title{font-size:.85rem;font-weight:600;color:var(--blue-dark);line-height:1.3}
+.slides-wrap{margin-bottom:2.5rem;border-radius:10px;overflow:hidden;border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.slides-bar{background:var(--blue-dark);color:#fff;padding:.55rem 1.1rem;display:flex;justify-content:space-between;align-items:center;font-size:.78rem}
+.slides-bar a{color:#93c5fd;font-size:.75rem;text-decoration:none;padding:.2rem .55rem;border:1px solid rgba(255,255,255,.2);border-radius:4px;transition:.15s}
+.slides-bar a:hover{background:rgba(255,255,255,.1);text-decoration:none}
+.slides-ratio{position:relative;width:100%;padding-bottom:56.25%;height:0;background:#0d2137}
+.slides-ratio iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.step-ans{display:block;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:6px;padding:.7rem .95rem;min-height:52px;margin-top:.4rem;font-size:.87rem;line-height:1.6;color:var(--text);outline:none;cursor:text;transition:border-color .15s,background .15s,box-shadow .15s;font-family:'Inter',system-ui,sans-serif}
+.step-ans:focus{border-color:var(--blue);border-style:solid;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.step-ans:empty::before{content:'✏️ Escribe tu respuesta aquí...';color:#94a3b8;font-style:italic;font-size:.82rem;pointer-events:none}
+.taller-hint{background:#fef3c7;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:.45rem .85rem;margin:.35rem 0;font-size:.78rem;color:#78350f}
+.taller-hint::before{content:'💡 Pista: ';font-weight:700}
+.fig{margin:1.5rem 0;border:1px solid var(--border);border-radius:var(--radius);padding:1rem;background:#fff;text-align:center}
+.fig svg{width:100%;max-width:620px;height:auto}
+.fig-cap{font-size:.78rem;color:var(--text-light);margin-top:.5rem}
+.svg-bar{fill:#3b82f6;stroke:#fff;stroke-width:1.5}
+.svg-axis{stroke:#94a3b8;stroke-width:1.5}
+.svg-grid{stroke:#e2e8f0;stroke-width:1}
+.svg-lbl{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#64748b}
+.svg-val{font-family:'JetBrains Mono',monospace;font-size:13px;fill:#1e293b;font-weight:600;text-anchor:middle}
+.svg-poly{fill:none;stroke:#ef4444;stroke-width:2.5}
+.svg-pt{fill:#ef4444;stroke:#fff;stroke-width:1.5}
+.svg-ojiva{fill:none;stroke:#a855f7;stroke-width:2.5}
+.svg-ojpt{fill:#a855f7;stroke:#fff;stroke-width:1.5}
+.svg-title{font-family:'Inter',sans-serif;font-size:14px;fill:#0f172a;font-weight:700;text-anchor:middle}
+</style>
+<script>if(localStorage.getItem('ister_auth_2026')==='true')document.documentElement.classList.add('authed');</script>
+</head>
+<body>
+<div id="gate">
+  <div class="gate-card">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">📊</div>
+    <div class="gate-title">Estadística · ISTER</div>
+    <div class="gate-sub">Ingresa la clave del curso para continuar</div>
+    <input id="pwd" class="gate-input" type="password" placeholder="Clave del curso" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div id="pwd-err" class="gate-error">❌ Clave incorrecta</div>
+    <button class="gate-btn" onclick="checkPwd()">Ingresar</button>
+  </div>
+</div>
+<div id="app" class="hidden">
+  <aside class="sidebar">
+    <div class="sb-header">
+      <a href="../index.html" class="sb-logo"><span class="sb-logo-box">ISTER</span><div><div class="sb-course">Estadística</div><div class="sb-meta">2026-1 · Sistemas & Data</div></div></a>
+      <a href="../index.html" class="sb-home">← Inicio del curso</a>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Tema 1 · Introducción</div>
+      <a href="../semana01/index.html" class="sb-link done">Semana 1 · Introducción <span class="badge badge-d">Vista</span></a>
+      <a href="../semana02/index.html" class="sb-link done">Semana 2 · Muestreo <span class="badge badge-d">Vista</span></a>
+      <a href="../semana03/index.html" class="sb-link done">Semana 3 · Gráficas <span class="badge badge-d">Vista</span></a>
+      <a href="../semana04/index.html" class="sb-link done">Semana 4 · EDA <span class="badge badge-d">Vista</span></a>
+      <div class="sb-section">Tema 2 · Frecuencias</div>
+      <a href="../semana05/index.html" class="sb-link done">Semana 5 · Frecuencias <span class="badge badge-d">Vista</span></a>
+      <a href="../semana06/index.html" class="sb-link done">Semana 6 · Tipos de Distribución <span class="badge badge-d">Vista</span></a>
+      <a href="../semana07/index.html" class="sb-link done">Semana 7 · Clases e Intervalos <span class="badge badge-d">Vista</span></a>
+      <a href="index.html" class="sb-link active">Semana 8 · Histogramas <span class="badge badge-d">Vista</span></a>
+      <div class="sb-section">Tema 3 · Tendencia Central</div>
+      <a href="../semana09/index.html" class="sb-link done">Semana 9 · Tendencia Central <span class="badge badge-d">Vista</span></a>
+      <a href="#" class="sb-link locked">Semana 10 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 11 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 12 <span class="badge badge-l">🔒</span></a>
+      <div class="sb-section">Tema 4 · Probabilidad</div>
+      <a href="#" class="sb-link locked">Semana 13 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 14 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 15 <span class="badge badge-l">🔒</span></a><a href="#" class="sb-link locked">Semana 16 <span class="badge badge-l">🔒</span></a>
+    </nav>
+    <div class="sb-toc-section" id="toc-clase">
+      <div class="sb-toc-title">En esta página · Clase</div>
+      <a href="#s1" class="sb-toc-link">1. ¿Qué es un histograma?</a>
+      <a href="#s2" class="sb-toc-link">2. Histograma, polígono y ojiva</a>
+      <a href="#s3" class="sb-toc-link">3. La forma de la distribución</a>
+      <a href="#s4" class="sb-toc-link">4. Python: matplotlib</a>
+      <a href="#s5" class="sb-toc-link">5. R: hist() y ggplot2</a>
+      <a href="#s6" class="sb-toc-link">6. Errores comunes</a>
+      <a href="#s7" class="sb-toc-link">7. Puntos clave + Quiz</a>
+    </div>
+    <div class="sb-toc-section" id="toc-taller" style="display:none">
+      <div class="sb-toc-title">En esta página · Taller</div>
+      <a href="#t1" class="sb-toc-link">Caso: Calificaciones del curso</a>
+      <a href="#t2" class="sb-toc-link">Código con blancos: Python + R</a>
+    </div>
+  </aside>
+
+  <div class="content-wrap">
+    <div class="content-header">
+      <div class="breadcrumb"><a href="../index.html">🏠 Inicio</a><span>›</span><span>Semana 8</span><span>›</span><span>Histogramas y Polígonos</span></div>
+      <div class="page-title-row">
+        <span class="week-pill">Semana 8</span>
+        <div>
+          <div class="page-main-title">Histogramas y Polígonos de Frecuencia</div>
+          <div class="page-subtitle">Tema 2 · Visualizar la distribución de frecuencias agrupadas · Cierre del Tema 2</div>
+          <div class="page-meta">
+            <span class="meta-item">👨‍🏫 Ing. David Minango, PhD.</span>
+            <span class="meta-item">📅 8 de junio, 2026</span>
+            <span class="meta-item">⏱ ~90 min clase · 45 min taller</span>
+          </div>
+        </div>
+      </div>
+      <div class="page-tabs">
+        <button class="ptab active" data-tab="clase" onclick="switchPTab('clase')">📖 Clase</button>
+        <button class="ptab" data-tab="taller" onclick="switchPTab('taller')">🛠 Taller Práctico</button>
+      </div>
+    </div>
+
+    <!-- TAB CLASE -->
+    <div id="ptab-clase" class="ptab-content active">
+      <div class="content-body">
+
+        <div class="slides-wrap">
+          <div class="slides-bar">
+            <span>📽 Presentación · 18 diapositivas · ~20 min · usa ← → o teclado</span>
+            <a href="../slides/s08.html" target="_blank">⛶ Pantalla completa</a>
+          </div>
+          <div class="slides-ratio">
+            <iframe src="../slides/s08.html" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <section class="section" id="s1">
+          <h2>📌 8.1 ¿Qué es un Histograma?</h2>
+          <div class="callout callout-def">
+            <div class="ct">📖 Idea central</div>
+            <div class="cb">Un <strong>histograma</strong> es la representación gráfica de una tabla de frecuencias <strong>agrupadas</strong>: sobre cada intervalo se levanta una barra cuya <strong>altura es la frecuencia</strong> (fᵢ). Las barras van <strong>pegadas</strong> porque la variable es continua.</div>
+          </div>
+          <p>En la Semana 7 construimos la tabla agrupada de los <strong>tiempos de respuesta de una API</strong> (40 peticiones). Hoy convertimos esa tabla en una imagen que revela de un vistazo dónde se concentran los datos y qué <em>forma</em> tienen. Seguimos con el mismo ejemplo para ver el puente tabla → gráfico.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0">
+            <div style="background:#eff6ff;border-radius:8px;padding:1rem;border-top:3px solid var(--blue)"><div style="font-size:1.4rem;margin-bottom:.4rem">📊</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Histograma</div><div style="font-size:.82rem;color:var(--text-mid)">Variable cuantitativa continua en intervalos. Barras <strong>pegadas</strong>; el eje X es una escala numérica.</div></div>
+            <div style="background:#fffbeb;border-radius:8px;padding:1rem;border-top:3px solid var(--amber)"><div style="font-size:1.4rem;margin-bottom:.4rem">📶</div><div style="font-weight:700;font-size:.85rem;margin-bottom:.3rem">Gráfico de barras</div><div style="font-size:.82rem;color:var(--text-mid)">Variable cualitativa (categorías). Barras <strong>separadas</strong>; el orden puede cambiarse.</div></div>
+          </div>
+          <div class="callout callout-warn">
+            <div class="ct">⚠️ No los confundas</div>
+            <div class="cb">Un gráfico de "colores favoritos" no es un histograma: los colores son categorías, no una escala numérica. El histograma exige una variable <strong>numérica continua</strong> dividida en clases.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s2">
+          <h2>📊 8.2 Tres Gráficos de la Misma Distribución</h2>
+          <p>Partimos de la tabla agrupada de la Semana 7. De sus columnas salen tres gráficos complementarios:</p>
+          <table class="stats-table">
+            <thead><tr><th>Clase (ms)</th><th class="num">xₘ</th><th class="num">fᵢ</th><th class="num">Fᵢ</th></tr></thead>
+            <tbody>
+              <tr><td>19 – 23</td><td class="num">21</td><td class="num">6</td><td class="num">6</td></tr>
+              <tr><td>23 – 27</td><td class="num">25</td><td class="num">9</td><td class="num">15</td></tr>
+              <tr><td>27 – 31</td><td class="num">29</td><td class="num">9</td><td class="num">24</td></tr>
+              <tr><td>31 – 35</td><td class="num">33</td><td class="num">7</td><td class="num">31</td></tr>
+              <tr><td>35 – 39</td><td class="num">37</td><td class="num">4</td><td class="num">35</td></tr>
+              <tr><td>39 – 43</td><td class="num">41</td><td class="num">5</td><td class="num">40</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td><td class="num">—</td><td class="num">40</td><td class="num">—</td></tr></tfoot>
+          </table>
+
+          <h3>① Histograma — una barra por clase (altura = fᵢ)</h3>
+          <div class="fig">
+            <svg viewBox="0 0 660 320" role="img" aria-label="Histograma de tiempos de respuesta">
+              <text x="330" y="22" class="svg-title">Histograma · tiempo de respuesta (ms)</text>
+              <line class="svg-grid" x1="56" y1="55" x2="584" y2="55"/><text x="46" y="60" class="svg-lbl" text-anchor="end">9</text>
+              <line class="svg-grid" x1="56" y1="130" x2="584" y2="130"/><text x="46" y="135" class="svg-lbl" text-anchor="end">6</text>
+              <line class="svg-grid" x1="56" y1="205" x2="584" y2="205"/><text x="46" y="210" class="svg-lbl" text-anchor="end">3</text>
+              <rect class="svg-bar" x="56"  y="130" width="88" height="150"/>
+              <rect class="svg-bar" x="144" y="55"  width="88" height="225"/>
+              <rect class="svg-bar" x="232" y="55"  width="88" height="225"/>
+              <rect class="svg-bar" x="320" y="105" width="88" height="175"/>
+              <rect class="svg-bar" x="408" y="180" width="88" height="100"/>
+              <rect class="svg-bar" x="496" y="155" width="88" height="125"/>
+              <text x="100" y="122" class="svg-val">6</text><text x="188" y="47" class="svg-val">9</text><text x="276" y="47" class="svg-val">9</text><text x="364" y="97" class="svg-val">7</text><text x="452" y="172" class="svg-val">4</text><text x="540" y="147" class="svg-val">5</text>
+              <line class="svg-axis" x1="56" y1="280" x2="600" y2="280"/>
+              <line class="svg-axis" x1="56" y1="55" x2="56" y2="280"/>
+              <text x="56" y="298" class="svg-lbl" text-anchor="middle">19</text><text x="144" y="298" class="svg-lbl" text-anchor="middle">23</text><text x="232" y="298" class="svg-lbl" text-anchor="middle">27</text><text x="320" y="298" class="svg-lbl" text-anchor="middle">31</text><text x="408" y="298" class="svg-lbl" text-anchor="middle">35</text><text x="496" y="298" class="svg-lbl" text-anchor="middle">39</text><text x="584" y="298" class="svg-lbl" text-anchor="middle">43</text>
+            </svg>
+            <div class="fig-cap">Las clases 23–31 ms son las más altas (9 cada una): ahí se concentra la mayoría de las peticiones.</div>
+          </div>
+
+          <h3>② Polígono de frecuencias — une los puntos (xₘ, fᵢ)</h3>
+          <div class="callout callout-def"><div class="ct">📖 Definición</div><div class="cb">El <strong>polígono de frecuencias</strong> une con rectas los puntos <strong>(marca de clase, frecuencia)</strong> y se cierra apoyándose en el eje (frecuencia 0) una clase antes de la primera y una después de la última. Resalta la <em>tendencia</em> y permite comparar dos distribuciones superpuestas.</div></div>
+          <div class="fig">
+            <svg viewBox="0 0 660 300" role="img" aria-label="Histograma con polígono de frecuencias">
+              <line class="svg-grid" x1="56" y1="55" x2="584" y2="55"/><line class="svg-grid" x1="56" y1="130" x2="584" y2="130"/><line class="svg-grid" x1="56" y1="205" x2="584" y2="205"/>
+              <rect class="svg-bar" style="fill:#bfdbfe;stroke:#fff" x="56"  y="130" width="88" height="150"/>
+              <rect class="svg-bar" style="fill:#bfdbfe;stroke:#fff" x="144" y="55"  width="88" height="225"/>
+              <rect class="svg-bar" style="fill:#bfdbfe;stroke:#fff" x="232" y="55"  width="88" height="225"/>
+              <rect class="svg-bar" style="fill:#bfdbfe;stroke:#fff" x="320" y="105" width="88" height="175"/>
+              <rect class="svg-bar" style="fill:#bfdbfe;stroke:#fff" x="408" y="180" width="88" height="100"/>
+              <rect class="svg-bar" style="fill:#bfdbfe;stroke:#fff" x="496" y="155" width="88" height="125"/>
+              <polyline class="svg-poly" points="12,280 100,130 188,55 276,55 364,105 452,180 540,155 628,280"/>
+              <circle class="svg-pt" cx="100" cy="130" r="4"/><circle class="svg-pt" cx="188" cy="55" r="4"/><circle class="svg-pt" cx="276" cy="55" r="4"/><circle class="svg-pt" cx="364" cy="105" r="4"/><circle class="svg-pt" cx="452" cy="180" r="4"/><circle class="svg-pt" cx="540" cy="155" r="4"/>
+              <line class="svg-axis" x1="56" y1="280" x2="600" y2="280"/><line class="svg-axis" x1="56" y1="55" x2="56" y2="280"/>
+              <text x="100" y="298" class="svg-lbl" text-anchor="middle">21</text><text x="188" y="298" class="svg-lbl" text-anchor="middle">25</text><text x="276" y="298" class="svg-lbl" text-anchor="middle">29</text><text x="364" y="298" class="svg-lbl" text-anchor="middle">33</text><text x="452" y="298" class="svg-lbl" text-anchor="middle">37</text><text x="540" y="298" class="svg-lbl" text-anchor="middle">41</text>
+            </svg>
+            <div class="fig-cap">Los puntos rojos están sobre la marca de clase (xₘ), no sobre los bordes del intervalo.</div>
+          </div>
+
+          <h3>③ Ojiva — une los puntos (Lₛ, Fᵢ)</h3>
+          <div class="callout callout-def"><div class="ct">📖 Definición</div><div class="cb">La <strong>ojiva</strong> (polígono de frecuencias <em>acumuladas</em>) une los puntos <strong>(límite superior, Fᵢ)</strong>. Siempre es <strong>creciente</strong> y termina en n. Responde de un vistazo: "¿cuántos datos hay por debajo de X?".</div></div>
+          <div class="fig">
+            <svg viewBox="0 0 660 300" role="img" aria-label="Ojiva de frecuencias acumuladas">
+              <line class="svg-grid" x1="56" y1="55" x2="584" y2="55"/><text x="46" y="60" class="svg-lbl" text-anchor="end">40</text>
+              <line class="svg-grid" x1="56" y1="111" x2="584" y2="111"/><text x="46" y="116" class="svg-lbl" text-anchor="end">30</text>
+              <line class="svg-grid" x1="56" y1="168" x2="584" y2="168"/><text x="46" y="173" class="svg-lbl" text-anchor="end">20</text>
+              <line class="svg-grid" x1="56" y1="224" x2="584" y2="224"/><text x="46" y="229" class="svg-lbl" text-anchor="end">10</text>
+              <polyline class="svg-ojiva" points="56,280 144,246 232,196 320,145 408,106 496,83 584,55"/>
+              <circle class="svg-ojpt" cx="56" cy="280" r="4"/><circle class="svg-ojpt" cx="144" cy="246" r="4"/><circle class="svg-ojpt" cx="232" cy="196" r="4"/><circle class="svg-ojpt" cx="320" cy="145" r="4"/><circle class="svg-ojpt" cx="408" cy="106" r="4"/><circle class="svg-ojpt" cx="496" cy="83" r="4"/><circle class="svg-ojpt" cx="584" cy="55" r="4"/>
+              <line class="svg-axis" x1="56" y1="280" x2="600" y2="280"/><line class="svg-axis" x1="56" y1="55" x2="56" y2="280"/>
+              <text x="56" y="298" class="svg-lbl" text-anchor="middle">19</text><text x="144" y="298" class="svg-lbl" text-anchor="middle">23</text><text x="232" y="298" class="svg-lbl" text-anchor="middle">27</text><text x="320" y="298" class="svg-lbl" text-anchor="middle">31</text><text x="408" y="298" class="svg-lbl" text-anchor="middle">35</text><text x="496" y="298" class="svg-lbl" text-anchor="middle">39</text><text x="584" y="298" class="svg-lbl" text-anchor="middle">43</text>
+            </svg>
+            <div class="fig-cap">En x = 31 ms la ojiva llega a Fᵢ = 24: el 60% de las peticiones responde en menos de 31 ms.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s3">
+          <h2>📐 8.3 La Forma de la Distribución</h2>
+          <p>Lo más valioso del histograma es que revela la <strong>forma</strong> de los datos de un solo vistazo. Estos son los patrones más frecuentes:</p>
+          <table class="stats-table">
+            <thead><tr><th>Forma</th><th>Cómo se ve</th><th>Relación media/mediana</th><th>Ejemplo típico</th></tr></thead>
+            <tbody>
+              <tr><td><span class="stat-name">Simétrica</span></td><td>Las dos mitades son espejo</td><td>media ≈ mediana ≈ moda</td><td>Estaturas, errores de medición</td></tr>
+              <tr><td><span class="stat-name">Sesgo derecho (+)</span></td><td>Cola larga hacia valores altos</td><td>media &gt; mediana</td><td>Ingresos, tiempos de espera</td></tr>
+              <tr><td><span class="stat-name">Sesgo izquierdo (−)</span></td><td>Cola larga hacia valores bajos</td><td>media &lt; mediana</td><td>Edad de jubilación</td></tr>
+              <tr><td><span class="stat-name">Bimodal</span></td><td>Dos picos separados</td><td>—</td><td>Dos grupos mezclados</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Regla rápida del sesgo</div>
+            <div class="cb">La <strong>cola</strong> (el lado largo y bajo del histograma) apunta hacia donde está el sesgo. Cola a la derecha → sesgo a la derecha (positivo).</div>
+          </div>
+          <div class="callout callout-example">
+            <div class="ct">📋 Nuestro ejemplo</div>
+            <div class="cb">El histograma de los tiempos de respuesta sube rápido hasta el pico en 23–31 ms y luego baja gradualmente hacia los tiempos altos. La cola más larga está a la <strong>derecha</strong> → distribución <strong>ligeramente sesgada a la derecha</strong>: la mayoría responde rápido pero unas pocas peticiones tardan bastante más. Cuando hay sesgo, la <strong>media</strong> se desplaza hacia la cola — por eso la próxima semana estudiaremos también la mediana.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s4">
+          <h2>🐍 8.4 Python: Histograma con matplotlib</h2>
+          <p><code>plt.hist()</code> dibuja el histograma directamente desde los datos crudos usando los mismos bordes de la Semana 7. Encima superponemos el polígono uniendo las marcas de clase.</p>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'py1')">histograma + polígono</button>
+            </div>
+            <div class="code-panel active" id="py1">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+
+datos = [20,20,20,20,21,22,23,23,23,24,24,25,26,26,26,27,27,27,28,28,
+         28,29,29,30,31,32,32,34,34,34,34,36,36,36,36,39,39,39,41,41]
+bordes = [19,23,27,31,35,39,43]          # mismos intervalos de la S7
+
+# Histograma  (right=False -> [Li, Ls), igual que pd.cut)
+fi, _, _ = plt.hist(datos, bins=bordes, color="#3b82f6",
+                    edgecolor="white", rwidth=1.0)
+
+# Polígono de frecuencias: marcas de clase (xm) vs fi, con extremos en 0
+xm = [(bordes[i] + bordes[i+1]) / 2 for i in range(len(bordes)-1)]
+plt.plot([xm[0]-4] + xm + [xm[-1]+4], [0] + list(fi) + [0],
+         marker="o", color="#ef4444", label="Polígono")
+
+plt.xlabel("Tiempo de respuesta (ms)")
+plt.ylabel("Frecuencia (fi)")
+plt.title("Histograma de tiempos de respuesta")
+plt.legend()
+plt.show()</code></pre>
+            </div>
+            <div class="code-output">
+              <div class="out-label">Output</div>
+              fi por clase → [6. 9. 9. 7. 4. 5.]   (Σ = 40)<br>
+              Se abre la figura: histograma azul (barras pegadas) con el polígono rojo encima.
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Histograma de frecuencia relativa</div>
+            <div class="cb">Pasa <code>density=True</code> a <code>plt.hist()</code> para que el eje Y muestre densidad (área total = 1) en lugar de frecuencias absolutas. Útil para comparar muestras de distinto tamaño.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s5">
+          <h2>📊 8.5 R: hist() base y ggplot2</h2>
+          <div class="code-block">
+            <div class="code-tabs-header">
+              <button class="ctab active" onclick="switchCodeTab(this,'r1')">R base</button>
+              <button class="ctab" onclick="switchCodeTab(this,'r2')">ggplot2</button>
+            </div>
+            <div class="code-panel active" id="r1">
+<pre><code class="language-r">datos <- c(20,20,20,20,21,22,23,23,23,24,24,25,26,26,26,27,27,27,28,28,
+           28,29,29,30,31,32,32,34,34,34,34,36,36,36,36,39,39,39,41,41)
+bordes <- seq(19, 43, by = 4)            # 19 23 27 31 35 39 43
+
+h <- hist(datos, breaks = bordes, right = FALSE,
+          col = "#3b82f6", border = "white",
+          main = "Histograma de tiempos de respuesta",
+          xlab = "Tiempo (ms)", ylab = "Frecuencia")
+
+# Polígono de frecuencias superpuesto (marca de clase vs conteo)
+lines(h$mids, h$counts, type = "o", col = "#ef4444", lwd = 2)
+
+print(h$counts)   # 6 9 9 7 4 5
+print(h$mids)     # 21 25 29 33 37 41</code></pre>
+            </div>
+            <div class="code-panel" id="r2">
+<pre><code class="language-r">library(ggplot2)
+
+datos <- c(20,20,20,20,21,22,23,23,23,24,24,25,26,26,26,27,27,27,28,28,
+           28,29,29,30,31,32,32,34,34,34,34,36,36,36,36,39,39,39,41,41)
+bordes <- seq(19, 43, by = 4)
+
+ggplot(data.frame(t = datos), aes(x = t)) +
+  geom_histogram(breaks = bordes, fill = "#3b82f6", color = "white") +
+  labs(title = "Histograma de tiempos de respuesta",
+       x = "Tiempo (ms)", y = "Frecuencia") +
+  theme_minimal()</code></pre>
+            </div>
+            <div class="code-output"><div class="out-label">Output</div>
+            h$counts → 6 9 9 7 4 5 &nbsp;·&nbsp; h$mids → 21 25 29 33 37 41<br>
+            R base dibuja el histograma y <code>lines()</code> superpone el polígono rojo; ggplot produce la versión estilizada.
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <div class="ct">💡 Equivalencias Python ↔ R</div>
+            <div class="cb"><code>plt.hist(x, bins)</code> ↔ <code>hist(x, breaks)</code> &nbsp;·&nbsp; <code>density=True</code> ↔ <code>freq=FALSE</code> &nbsp;·&nbsp; el polígono se superpone con <code>plt.plot</code> / <code>lines()</code> sobre las marcas de clase.</div>
+          </div>
+        </section>
+
+        <section class="section" id="s6">
+          <h2>⚠️ 8.6 Errores Comunes al Graficar</h2>
+          <ul class="error-list">
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Dejar espacio entre las barras</div><div class="error-fix">✅ En un histograma las barras van <strong>pegadas</strong>; el hueco es propio del gráfico de barras (datos categóricos).</div></div></li>
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Clases de distinto ancho con altura = fᵢ</div><div class="error-fix">✅ Si los intervalos tienen anchos distintos, la altura debe ser la <strong>densidad</strong> (fᵢ/ancho); de lo contrario el área engaña.</div></div></li>
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Trazar el polígono sobre los límites</div><div class="error-fix">✅ El polígono usa la <strong>marca de clase xₘ</strong> (punto medio), no los bordes del intervalo.</div></div></li>
+            <li class="error-item"><div class="error-icon">❌</div><div class="error-content"><div class="error-title">Elegir mal el número de clases</div><div class="error-fix">✅ Demasiadas barras → "ruido"; muy pocas → se pierde la forma. Usa la regla de Sturges (5–12 clases) de la Semana 7.</div></div></li>
+          </ul>
+        </section>
+
+        <section class="section" id="s7">
+          <h2>🎓 8.7 Puntos Clave y Quiz</h2>
+
+          <div class="keypoints">
+            <h4>Puntos Clave Semana 8</h4>
+            <div class="kp-item"><div class="kp-num">1</div><div class="kp-text">El <strong>histograma</strong> grafica una tabla agrupada: una barra por clase, altura = fᵢ, barras <strong>pegadas</strong> (variable continua).</div></div>
+            <div class="kp-item"><div class="kp-num">2</div><div class="kp-text">El <strong>polígono de frecuencias</strong> une los puntos (xₘ, fᵢ) y cierra en 0; resalta la tendencia y permite comparar distribuciones.</div></div>
+            <div class="kp-item"><div class="kp-num">3</div><div class="kp-text">La <strong>ojiva</strong> une (Lₛ, Fᵢ): siempre creciente, responde "¿cuántos datos hay por debajo de X?".</div></div>
+            <div class="kp-item"><div class="kp-num">4</div><div class="kp-text">La <strong>forma</strong> puede ser simétrica, sesgada (la cola marca el lado) o bimodal. Nuestro ejemplo está ligeramente sesgado a la derecha.</div></div>
+            <div class="kp-item"><div class="kp-num">5</div><div class="kp-text">En código: <code>plt.hist()</code> (Python) y <code>hist()</code> / <code>geom_histogram()</code> (R) dibujan el histograma en una línea.</div></div>
+          </div>
+
+          <div class="quiz-box">
+            <h3>✅ Quiz Semana 8</h3>
+            <div class="quiz-item"><div class="q-text">1. ¿Qué diferencia principal hay entre un histograma y un gráfico de barras?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q1')">El color de las barras</button><button class="q-btn" onclick="ansQ(this,true,'q1')">El histograma es para variables continuas y sus barras van pegadas</button><button class="q-btn" onclick="ansQ(this,false,'q1')">No hay diferencia</button></div><div id="q1-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">2. El polígono de frecuencias se traza uniendo los puntos:</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q2')">(límite inferior, fᵢ)</button><button class="q-btn" onclick="ansQ(this,true,'q2')">(marca de clase xₘ, fᵢ)</button><button class="q-btn" onclick="ansQ(this,false,'q2')">(Lₛ, Fᵢ)</button></div><div id="q2-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">3. Una distribución con una cola larga hacia los valores altos está:</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,false,'q3')">Sesgada a la izquierda</button><button class="q-btn" onclick="ansQ(this,true,'q3')">Sesgada a la derecha (positiva)</button><button class="q-btn" onclick="ansQ(this,false,'q3')">Es simétrica</button></div><div id="q3-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div class="quiz-item"><div class="q-text">4. En la ojiva del ejemplo, Fᵢ = 24 en x = 31 ms. ¿Qué significa?</div><div class="q-opts"><button class="q-btn" onclick="ansQ(this,true,'q4')">24 de 40 peticiones responden en menos de 31 ms</button><button class="q-btn" onclick="ansQ(this,false,'q4')">24 peticiones tardan exactamente 31 ms</button><button class="q-btn" onclick="ansQ(this,false,'q4')">El 24% responde en 31 ms</button></div><div id="q4-fb" style="font-size:.82rem;margin-top:.5rem;display:none"></div></div>
+            <div id="quiz-score" class="quiz-score"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- TAB TALLER -->
+    <div id="ptab-taller" class="ptab-content">
+      <div class="taller-hero">
+        <h2>🛠 Taller Práctico · Semana 8</h2>
+        <p>Toma una tabla de frecuencias agrupadas, conviértela en histograma, dibuja su polígono y describe la forma de la distribución. Luego completa el código que genera los gráficos con matplotlib y R.</p>
+        <div class="taller-meta"><span>⏱ 45 minutos</span><span>📋 Caso + código guiado</span><span>🐍 Python + 📊 R</span><span>✍️ Desarrollo propio</span></div>
+      </div>
+      <div class="taller-body">
+        <div class="taller-case" id="t1">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">🎓</span>
+            <h3>Caso: Calificaciones finales del curso</h3>
+            <span class="taller-case-badge">Tema 2 · Desarrollo · 25 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="scenario-box"><strong>Escenario:</strong> Un docente agrupó las <strong>calificaciones finales (0–20)</strong> de sus <strong>50 estudiantes</strong> en la siguiente tabla. A partir de ella resuelve los pasos.<br>
+              <table class="stats-table" style="margin-top:.75rem">
+                <thead><tr><th>Clase</th><th class="num">xₘ</th><th class="num">fᵢ</th><th class="num">Fᵢ</th></tr></thead>
+                <tbody>
+                  <tr><td>6 – 8</td><td class="num">7</td><td class="num">3</td><td class="num">3</td></tr>
+                  <tr><td>8 – 10</td><td class="num">9</td><td class="num">6</td><td class="num">9</td></tr>
+                  <tr><td>10 – 12</td><td class="num">11</td><td class="num">11</td><td class="num">20</td></tr>
+                  <tr><td>12 – 14</td><td class="num">13</td><td class="num">14</td><td class="num">34</td></tr>
+                  <tr><td>14 – 16</td><td class="num">15</td><td class="num">9</td><td class="num">43</td></tr>
+                  <tr><td>16 – 18</td><td class="num">17</td><td class="num">5</td><td class="num">48</td></tr>
+                  <tr><td>18 – 20</td><td class="num">19</td><td class="num">2</td><td class="num">50</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <ol class="step-list">
+              <li><div class="step-num">1</div><div class="step-content"><div class="step-q">Dibuja a mano (o describe con precisión) el histograma: ¿qué va en cada eje? ¿Cuál es la barra más alta y cuánto mide? Verifica que Σfᵢ = 50.</div><div class="taller-hint">Eje X = clases (calificación), eje Y = fᵢ. Barras pegadas. La altura de cada barra es su frecuencia.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">2</div><div class="step-content"><div class="step-q">Lista los puntos (xₘ, fᵢ) que usarías para el polígono de frecuencias, incluidos los dos extremos donde el polígono toca el eje (frecuencia 0).</div><div class="taller-hint">Antes de la primera clase: una marca imaginaria en 5 con fᵢ = 0. Después de la última: marca en 21 con fᵢ = 0.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">3</div><div class="step-content"><div class="step-q">Usando la columna Fᵢ, ¿cuántos estudiantes tienen menos de 14 puntos? ¿Qué porcentaje del total representa? (este es el dato que da la ojiva).</div><div class="taller-hint">Busca la Fᵢ de la clase 12–14. Porcentaje = Fᵢ / 50 × 100.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">4</div><div class="step-content"><div class="step-q">Describe la FORMA de esta distribución: ¿es simétrica o sesgada? ¿Hacia qué lado apunta la cola? ¿Dónde está la clase modal (la más frecuente)?</div><div class="taller-hint">Compara cómo suben y bajan las barras a cada lado del pico. La cola larga marca el sentido del sesgo.</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+              <li><div class="step-num">5</div><div class="step-content"><div class="step-q">Conclusión para el docente: en una frase, ¿cómo describirías el desempeño general del curso a partir del histograma?</div><div class="step-ans" contenteditable="true" spellcheck="false"></div></div></li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="taller-case" id="t2">
+          <div class="taller-case-header">
+            <span style="font-size:1.3rem">⌨️</span>
+            <h3>Código: genera el histograma y el polígono</h3>
+            <span class="taller-case-badge">Python + R · 20 min</span>
+          </div>
+          <div class="taller-case-body">
+            <div class="code-block">
+              <div class="code-tabs-header">
+                <button class="ctab active" onclick="switchCodeTab(this,'tp1')">🐍 Python</button>
+                <button class="ctab" onclick="switchCodeTab(this,'tr1')">📊 R</button>
+              </div>
+              <div class="code-panel active" id="tp1">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+
+# Calificaciones de 50 estudiantes — dataset ya dado, no lo modifiques
+notas = [6,7,7,8,8,9,9,9,9,10,10,10,10,10,11,11,11,11,11,11,
+         12,12,12,12,12,12,12,13,13,13,13,13,13,13,14,14,14,14,14,
+         15,15,15,15,16,16,16,17,17,18,19]
+bordes = [6,8,10,12,14,16,18,20]
+
+# ── Histograma ─────────────────────────────────────────────
+# Pista: el argumento que recibe los límites de las clases se llama bins
+fi, _, _ = plt.hist(notas, _____=bordes, color="#3b82f6", edgecolor="white")
+
+# ── Polígono de frecuencias ────────────────────────────────
+# Pista: la marca de clase es el promedio de los dos bordes -> (a+b)/2
+xm = [(bordes[i] + bordes[i+1]) / _____ for i in range(len(bordes)-1)]
+# Pista: el polígono cierra en frecuencia 0 antes y después
+plt.plot([xm[0]-2] + xm + [xm[-1]+2], [_____] + list(fi) + [0],
+         marker="o", color="#ef4444")
+
+plt.xlabel("Calificación"); plt.ylabel("Frecuencia")
+plt.title("Histograma de calificaciones")
+plt.show()
+print("fi por clase:", fi, " | suma =", fi.sum())</code></pre>
+              </div>
+              <div class="code-panel" id="tr1">
+<pre><code class="language-r"># Calificaciones de 50 estudiantes — dataset ya dado, no lo modifiques
+notas <- c(6,7,7,8,8,9,9,9,9,10,10,10,10,10,11,11,11,11,11,11,
+           12,12,12,12,12,12,12,13,13,13,13,13,13,13,14,14,14,14,14,
+           15,15,15,15,16,16,16,17,17,18,19)
+bordes <- seq(6, 20, by = 2)
+
+# ── Histograma  [Li, Ls) ───────────────────────────────────
+# Pista: el argumento que recibe los límites se llama breaks
+h <- hist(notas, _____ = bordes, right = FALSE,
+          col = "#3b82f6", border = "white",
+          main = "Histograma de calificaciones",
+          xlab = "Calificación", ylab = "Frecuencia")
+
+# ── Polígono: marca de clase (h$mids) vs conteo (h$counts) ──
+# Pista: para unir puntos con líneas y marcadores usa type = "o"
+lines(h$mids, h$counts, type = "_____", col = "#ef4444", lwd = 2)
+
+print(h$counts)   # frecuencias por clase
+cat("suma =", sum(h$counts), "\n")</code></pre>
+              </div>
+              <div class="code-output"><div class="out-label">Output esperado (verifica que tu gráfico coincida)</div>fi por clase → 3 6 11 14 9 5 2 &nbsp;|&nbsp; suma = 50 ✓<br>La barra más alta es la clase 12–14 (fᵢ = 14). El polígono rojo une las 7 marcas de clase y cierra en 0.<br>La distribución es aproximadamente simétrica con una ligera cola hacia las notas bajas.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-nav">
+      <a href="../semana07/index.html" class="nav-card"><span class="nav-card-arrow">←</span><div><div class="nav-card-label">Anterior</div><div class="nav-card-title">Semana 7: Clases e Intervalos</div></div></a>
+      <a href="../semana09/index.html" class="nav-card next"><span class="nav-card-arrow">→</span><div><div class="nav-card-label">Próximo</div><div class="nav-card-title">Semana 9: Medidas de Tendencia Central</div></div></a>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/r.min.js"></script>
+<script>
+const PWD='Ister_Estadistica2026',KEY='ister_auth_2026';
+function activarTaller(){document.querySelectorAll('.step-ans').forEach(el=>{el.textContent='';el.setAttribute('contenteditable','true');el.setAttribute('spellcheck','false');});}
+function checkPwd(){if(document.getElementById('pwd').value===PWD){localStorage.setItem(KEY,'true');document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}else{document.getElementById('pwd-err').style.display='block';document.getElementById('pwd').value='';}}
+window.onload=function(){if(localStorage.getItem(KEY)==='true'){document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');hljs.highlightAll();activarTaller();handleHash();}};
+function handleHash(){if(window.location.hash==='#taller')switchPTab('taller');}
+function switchPTab(id){document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.ptab-content').forEach(c=>c.classList.remove('active'));document.querySelector(`.ptab[data-tab="${id}"]`).classList.add('active');document.getElementById('ptab-'+id).classList.add('active');document.getElementById('toc-clase').style.display=id==='clase'?'':'none';document.getElementById('toc-taller').style.display=id==='taller'?'':'none';history.replaceState(null,null,id==='taller'?'#taller':'#');}
+function switchCodeTab(btn,id){const b=btn.closest('.code-block');b.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));b.querySelectorAll('.code-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');b.querySelector('#'+id).classList.add('active');}
+const qA={};
+function ansQ(btn,ok,id){const item=btn.closest('.quiz-item');if(item.querySelector('.q-btn.q-correct')||item.querySelector('.q-btn.q-wrong'))return;btn.classList.add(ok?'q-correct':'q-wrong');if(!ok)item.querySelectorAll('.q-btn').forEach(b=>{if(b!==btn)b.classList.add('q-correct');});qA[id]=ok;const fb=document.getElementById(id+'-fb');if(fb){fb.style.display='block';fb.style.color=ok?'#6ee7b7':'#fca5a5';fb.textContent=ok?'✅ ¡Correcto!':'❌ Revisa la respuesta.';}if(Object.keys(qA).length===4){const s=Object.values(qA).filter(Boolean).length;const el=document.getElementById('quiz-score');el.style.display='block';el.textContent=`Resultado: ${s}/4 — ${s===4?'🎉 ¡Excelente!':s>=3?'👍 ¡Muy bien!':'📚 Repasa los conceptos.'}`;}};
+</script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S9 · Medidas de Tendencia Central</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bd:#0d2137;--bm:#1a3a6b;--bl:#2563eb;--bll:#3b82f6;--blp:#dbeafe;--w:#fff;--wa:#f8fafc;--t:#0f172a;--tm:#334155;--tl:#64748b;--gr:#22c55e;--am:#f59e0b;--rd:#ef4444;--pu:#a855f7}
+html,body{width:100%;height:100%;overflow:hidden;background:#0d2137}
+body{font-family:'Inter',sans-serif}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--bll);transition:width .3s;z-index:999}
+.deck{width:100%;height:100vh;position:relative}
+.slide{position:absolute;inset:0;flex-direction:column}
+.slide:not(.on){display:none!important}
+.slide.on{display:flex;animation:fi .25s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.s-title{background:linear-gradient(135deg,var(--bd),var(--bm) 60%,#1e4080);color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-title .tit{font-size:2.4rem;font-weight:800;line-height:1.15;margin-bottom:.5rem;letter-spacing:-.03em}
+.s-title .sub{font-size:1.05rem;opacity:.8;margin-bottom:1.5rem}
+.s-title .meta{font-size:.82rem;opacity:.6;border-top:1px solid rgba(255,255,255,.15);padding-top:1rem;margin-top:1rem}
+.s-title .meta span{margin:0 .75rem}
+.s-section{background:linear-gradient(135deg,var(--bl),var(--bm));color:var(--w);align-items:center;justify-content:center;text-align:center;padding:3rem}
+.s-section .num{font-size:1rem;opacity:.7;font-weight:600;text-transform:uppercase;letter-spacing:.15em;margin-bottom:.75rem}
+.s-section .tit{font-size:2rem;font-weight:800;letter-spacing:-.02em}
+.s-section .desc{font-size:.92rem;opacity:.75;margin-top:.75rem;max-width:600px}
+.s-body{background:var(--w);display:flex;flex-direction:column}
+.sh{background:var(--bm);color:var(--w);padding:.55rem 2rem;display:flex;justify-content:space-between;align-items:center;font-size:.82rem;font-weight:600}
+.sh .sn{opacity:.6;font-size:.72rem}
+.sc{flex:1;padding:1.4rem 2.5rem;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.sf{background:var(--bd);color:#64748b;font-size:.65rem;padding:.25rem 2rem;display:flex;justify-content:space-between}
+.s-dark{background:var(--bd);color:var(--w);display:flex;flex-direction:column}
+.s-dark .sh{background:rgba(255,255,255,.08);color:var(--w)}
+.s-code{background:#0f172a;color:var(--w);display:flex;flex-direction:column}
+.s-code .sh{background:rgba(255,255,255,.06);color:#93c5fd}
+.def-box{background:var(--blp);border-left:4px solid var(--bl);border-radius:0 8px 8px 0;padding:.9rem 1.2rem;margin:.6rem 0}
+.def-box .dl{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bl);margin-bottom:.3rem}
+.def-box .dt{font-size:.9rem;color:var(--t);font-weight:500;line-height:1.5}
+.warn-box{background:#fef3c7;border-left:4px solid var(--am);border-radius:0 8px 8px 0;padding:.85rem 1.2rem;margin:.6rem 0}
+.warn-box .dl{color:#92400e;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.warn-box .dt{color:#78350f;font-size:.86rem}
+.tip-box{background:#f0fdf4;border-left:4px solid var(--gr);border-radius:0 8px 8px 0;padding:.8rem 1.2rem;margin:.6rem 0}
+.tip-box .dl{color:#166534;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.3rem}
+.tip-box .dt{color:#14532d;font-size:.85rem}
+h1.t{font-size:1.45rem;font-weight:800;color:var(--t);margin-bottom:.8rem;letter-spacing:-.02em}
+ul.b{list-style:none;padding:0;margin:.4rem 0}
+ul.b li{padding:.38rem 0 .38rem 1.4rem;position:relative;font-size:.87rem;color:var(--tm);border-bottom:1px solid #f1f5f9}
+ul.b li:last-child{border-bottom:none}
+ul.b li::before{content:'›';position:absolute;left:0;color:var(--bl);font-weight:700;font-size:1rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin:.6rem 0}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin:.6rem 0}
+.card{border-radius:8px;padding:.9rem;border:1px solid #e2e8f0;background:#fff}
+.card-b{border-top:3px solid var(--bl);background:#f0f9ff}
+.card-g{border-top:3px solid var(--gr);background:#f0fdf4}
+.card-a{border-top:3px solid var(--am);background:#fefce8}
+.card-p{border-top:3px solid var(--pu);background:#fdf4ff}
+.card-r{border-top:3px solid var(--rd);background:#fff1f2}
+.card h4{font-size:.83rem;font-weight:700;margin-bottom:.3rem}
+.card p{font-size:.77rem;color:var(--tm);line-height:1.4;margin-bottom:.25rem}
+.card code{font-family:'JetBrains Mono',monospace;font-size:.74rem;background:rgba(0,0,0,.06);padding:.1rem .35rem;border-radius:3px}
+table.st{width:100%;border-collapse:collapse;font-size:.8rem}
+table.st th{background:var(--bm);color:#fff;padding:.5rem .85rem;text-align:left;font-weight:600}
+table.st td{padding:.45rem .85rem;border-bottom:1px solid #e2e8f0;color:var(--tm)}
+table.st tr:hover td{background:var(--wa)}
+table.st code{font-family:'JetBrains Mono',monospace;font-size:.76rem;background:var(--wa);padding:.1rem .35rem;border-radius:3px}
+table.st td.num{font-family:'JetBrains Mono',monospace;text-align:right}
+table.st tfoot td{font-weight:700;color:var(--t);background:var(--wa)}
+pre{background:#1e293b;color:#e2e8f0;padding:.9rem 1.1rem;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.74rem;line-height:1.55;overflow-x:auto;margin:.5rem 0}
+.out{background:#0f172a;color:#86efac;font-family:'JetBrains Mono',monospace;font-size:.71rem;padding:.6rem 1rem;border-radius:8px;margin:.35rem 0;line-height:1.4}
+.kp-list{list-style:none;padding:0;margin:.4rem 0}
+.kp-list li{display:flex;align-items:flex-start;gap:.65rem;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.kp-list li:last-child{border-bottom:none}
+.knum{background:var(--bll);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.kt{font-size:.87rem;color:#cbd5e1;line-height:1.45}
+.formula-box{background:#1e293b;border-radius:8px;padding:.9rem 1.2rem;text-align:center;margin:.5rem 0}
+.formula-box .fx{font-family:'JetBrains Mono',monospace;font-size:1.05rem;color:#93c5fd;font-weight:600}
+.formula-box .fl{font-size:.72rem;color:#94a3b8;margin-top:.35rem}
+.seq{display:flex;flex-wrap:wrap;gap:.3rem;justify-content:center;margin:.6rem 0}
+.chip{font-family:'JetBrains Mono',monospace;font-size:.82rem;padding:.3rem .6rem;border-radius:6px;background:var(--wa);border:1px solid #e2e8f0;color:var(--tm)}
+.chip.hl{background:var(--blp);border-color:var(--bl);color:var(--bd);font-weight:700}
+.chip.out{background:#fee2e2;border-color:var(--rd);color:#991b1b;font-weight:700}
+#controls{position:fixed;bottom:0;left:0;right:0;background:rgba(13,33,55,.95);padding:.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between;z-index:100;backdrop-filter:blur(8px)}
+#counter{font-size:.75rem;color:#64748b;font-family:'JetBrains Mono',monospace}
+.nbtns{display:flex;gap:.5rem;align-items:center}
+.nb{height:34px;padding:0 1rem;border:none;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.79rem;font-weight:600;transition:.15s}
+.nb.p{background:rgba(255,255,255,.08);color:#94a3b8}.nb.p:hover{background:rgba(255,255,255,.15);color:#fff}
+.nb.n{background:var(--bl);color:#fff}.nb.n:hover{background:var(--bll)}
+.nb:disabled{opacity:.3;cursor:not-allowed}
+#fs{background:none;border:1px solid rgba(255,255,255,.15);color:#64748b;height:34px;width:34px;border-radius:6px;cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center;transition:.15s}
+#fs:hover{border-color:var(--bll);color:var(--bll)}
+#dots{display:flex;gap:.28rem;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:.15s}
+.dot.on{background:var(--bll);width:16px;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="deck">
+
+<!-- 1 TITLE -->
+<div class="slide s-title on">
+  <div style="font-size:2.8rem;margin-bottom:1.25rem">🎯</div>
+  <div style="font-size:.82rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin-bottom:.65rem">Instituto Superior Tecnológico Rumiñahui</div>
+  <div class="tit">Semana 9</div>
+  <div class="sub">Medidas de Tendencia Central</div>
+  <div style="font-size:.88rem;opacity:.6;margin-bottom:1.75rem">Tema 3 · Media, mediana y moda · Resumir la distribución en un número</div>
+  <div class="meta"><span>👨‍🏫 Ing. David Minango, PhD.</span><span>📅 15 de junio, 2026</span><span>⏱ ~20 minutos</span></div>
+</div>
+
+<!-- 2 ¿QUÉ ES TENDENCIA CENTRAL? -->
+<div class="slide s-body">
+  <div class="sh">¿Qué es una Medida de Tendencia Central? <span class="sn">2 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">Una <strong>medida de tendencia central</strong> es un valor que <strong>representa al conjunto</strong> de datos: el punto alrededor del cual se agrupan. Resume toda una distribución en un solo número "típico".</div></div>
+    <ul class="b">
+      <li>En el Tema 2 vimos la <strong>forma</strong> de los datos (tablas, histogramas). Ahora buscamos su <strong>centro</strong>.</li>
+      <li>Responde preguntas como: ¿cuánto gana "normalmente" un empleado? ¿cuál es la nota "típica"?</li>
+      <li>Las tres clásicas: <strong>media</strong>, <strong>mediana</strong> y <strong>moda</strong>. Cada una mide el centro de forma distinta.</li>
+    </ul>
+    <div class="tip-box"><div class="dl">💡 Idea clave de la semana</div><div class="dt">No siempre coinciden. Elegir la medida correcta depende de la <strong>forma</strong> de los datos y de si hay <strong>valores atípicos</strong>.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 9 · ¿Qué es?</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 3 LAS TRES MEDIDAS -->
+<div class="slide s-body">
+  <div class="sh">Las Tres Medidas de un Vistazo <span class="sn">3 / 18</span></div>
+  <div class="sc">
+    <div class="g3">
+      <div class="card card-b"><h4>x̄ Media</h4><p>El <strong>promedio</strong>: suma de todos los datos dividida entre cuántos son.</p><p><code>x̄ = Σxᵢ / n</code></p></div>
+      <div class="card card-g"><h4>Me Mediana</h4><p>El valor <strong>central</strong> al ordenar los datos: deja 50% a cada lado.</p><p><code>posición (n+1)/2</code></p></div>
+      <div class="card card-a"><h4>Mo Moda</h4><p>El valor que <strong>más se repite</strong> en el conjunto.</p><p><code>mayor frecuencia</code></p></div>
+    </div>
+    <div class="warn-box"><div class="dl">⚠️ Un mismo conjunto, tres respuestas</div><div class="dt">Para los mismos datos, media, mediana y moda pueden dar valores muy diferentes. Hoy aprendemos a calcular las tres y, sobre todo, <strong>cuándo usar cada una</strong>.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 9 · Las tres medidas</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 4 SECTION MEDIA -->
+<div class="slide s-section">
+  <div class="num">9.1</div>
+  <div class="tit">La Media Aritmética (x̄)</div>
+  <div class="desc">El promedio: la medida más conocida y la base de casi toda la estadística posterior.</div>
+</div>
+
+<!-- 5 MEDIA DEF -->
+<div class="slide s-body">
+  <div class="sh">Media Aritmética: Definición y Fórmula <span class="sn">5 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">La <strong>media</strong> es el resultado de <strong>sumar todos los valores</strong> y dividir entre el número de datos. Es el "punto de equilibrio" de la distribución.</div></div>
+    <div class="formula-box"><div class="fx">x̄ = (x₁ + x₂ + … + xₙ) / n = Σxᵢ / n</div><div class="fl">Σ (sigma) significa "suma de todos"; n es el tamaño de la muestra</div></div>
+    <div class="g2">
+      <div class="card card-b"><h4>✅ Ventajas</h4><p>Usa <strong>toda</strong> la información; es la base de la varianza, la desviación y casi todo lo que sigue.</p></div>
+      <div class="card card-r"><h4>⚠️ Desventaja</h4><p>Es <strong>muy sensible a valores atípicos</strong>: un solo dato extremo la desplaza mucho.</p></div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 9 · Media def</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 6 MEDIA EJEMPLO -->
+<div class="slide s-body">
+  <div class="sh">Ejemplo: Sueldos de un Equipo (11 personas) <span class="sn">6 / 18</span></div>
+  <div class="sc">
+    <div class="card card-b" style="margin-bottom:.4rem"><h4>📋 Sueldos mensuales (USD), ordenados — los usaremos toda la clase</h4><p style="font-family:'JetBrains Mono',monospace;font-size:.78rem">780 · 850 · 850 · 900 · 950 · 1000 · 1000 · 1000 · 1100 · 1200 · 4500</p><p style="font-size:.74rem;color:var(--tl)">n = 11 · el último (4500) es el sueldo del gerente</p></div>
+    <div class="formula-box"><div class="fx">x̄ = 14130 / 11 = 1284.5 USD</div><div class="fl">Suma = 780+850+850+900+950+1000+1000+1000+1100+1200+4500 = 14130</div></div>
+    <div class="warn-box"><div class="dl">⚠️ Mira el resultado</div><div class="dt">La media dice <strong>1284.5 USD</strong>, pero <strong>9 de los 11 empleados ganan 1100 o menos</strong>. El sueldo del gerente (4500) "infla" la media y la vuelve poco representativa del equipo.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 9 · Media ejemplo</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 7 SECTION MEDIANA -->
+<div class="slide s-section">
+  <div class="num">9.2</div>
+  <div class="tit">La Mediana (Me)</div>
+  <div class="desc">El valor del medio: divide los datos ordenados en dos mitades iguales y resiste a los atípicos.</div>
+</div>
+
+<!-- 8 MEDIANA DEF -->
+<div class="slide s-body">
+  <div class="sh">Mediana: el Valor Central <span class="sn">8 / 18</span></div>
+  <div class="sc">
+    <div class="def-box"><div class="dl">📖 Definición</div><div class="dt">La <strong>mediana</strong> es el valor que ocupa la <strong>posición central</strong> cuando los datos están <strong>ordenados</strong>. Deja el 50% de los datos por debajo y el 50% por encima.</div></div>
+    <div class="g2">
+      <div class="card card-b"><h4>🔢 Si n es impar</h4><p>La mediana es el dato de la posición <code>(n+1)/2</code>. Es un valor real del conjunto.</p></div>
+      <div class="card card-g"><h4>🔢 Si n es par</h4><p>Es el <strong>promedio de los dos centrales</strong>: posiciones <code>n/2</code> y <code>n/2 + 1</code>.</p></div>
+    </div>
+    <div class="tip-box"><div class="dl">💡 Paso imprescindible</div><div class="dt">Siempre <strong>ordena los datos</strong> de menor a mayor antes de buscar la mediana. Sin ordenar, el valor central no significa nada.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 9 · Mediana def</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 9 MEDIANA EJEMPLO -->
+<div class="slide s-body">
+  <div class="sh">Mediana del Ejemplo de Sueldos <span class="sn">9 / 18</span></div>
+  <div class="sc">
+    <div class="def-box" style="margin:.2rem 0 .4rem"><div class="dl">📖 n = 11 (impar) → posición (11+1)/2 = 6ª</div><div class="dt">Contamos hasta el 6º dato de la lista ordenada:</div></div>
+    <div class="seq">
+      <span class="chip">780</span><span class="chip">850</span><span class="chip">850</span><span class="chip">900</span><span class="chip">950</span><span class="chip hl">1000</span><span class="chip">1000</span><span class="chip">1000</span><span class="chip">1100</span><span class="chip">1200</span><span class="chip out">4500</span>
+    </div>
+    <div class="formula-box"><div class="fx">Me = 1000 USD</div><div class="fl">El 6º valor; 5 sueldos quedan por debajo y 5 por encima</div></div>
+    <div class="tip-box"><div class="dl">💡 Compara con la media</div><div class="dt">Mediana = <strong>1000</strong> vs media = <strong>1284.5</strong>. La mediana <strong>ignora</strong> el sueldo extremo del gerente y describe mucho mejor al empleado "típico". Por eso para sueldos se suele reportar la mediana.</div></div>
+    <div class="warn-box" style="margin-top:.3rem"><div class="dl">⚠️ Caso n par (mini-ejemplo)</div><div class="dt">Para <code>3, 5, 7, 8</code> (n = 4): los dos centrales son 5 y 7 → Me = (5+7)/2 = <strong>6</strong>.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 9 · Mediana ejemplo</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 10 SECTION MODA -->
+<div class="slide s-section">
+  <div class="num">9.3</div>
+  <div class="tit">La Moda (Mo)</div>
+  <div class="desc">El valor más frecuente: la única medida que también sirve para datos cualitativos.</div>
+</div>
+
+<!-- 11 MODA DEF + EJEMPLO -->
+<div class="slide s-body">
+  <div class="sh">Moda: el Valor Más Frecuente <span class="sn">11 / 18</span></div>
+  <div class="sc">
+    <div class="def-box" style="margin:.2rem 0 .4rem"><div class="dl">📖 Definición</div><div class="dt">La <strong>moda</strong> es el valor (o categoría) que aparece con <strong>mayor frecuencia</strong>. Es la única medida que se puede usar con datos <strong>cualitativos</strong> (ej. el color más vendido).</div></div>
+    <div class="seq">
+      <span class="chip">780</span><span class="chip">850</span><span class="chip">850</span><span class="chip">900</span><span class="chip">950</span><span class="chip hl">1000</span><span class="chip hl">1000</span><span class="chip hl">1000</span><span class="chip">1100</span><span class="chip">1200</span><span class="chip">4500</span>
+    </div>
+    <div class="formula-box"><div class="fx">Mo = 1000 USD</div><div class="fl">El valor 1000 aparece 3 veces; ningún otro se repite tanto</div></div>
+    <div class="g3">
+      <div class="card card-b"><h4>1️⃣ Unimodal</h4><p>Una sola moda (nuestro caso).</p></div>
+      <div class="card card-g"><h4>2️⃣ Bimodal</h4><p>Dos valores empatados en frecuencia.</p></div>
+      <div class="card card-a"><h4>0️⃣ Amodal</h4><p>Ningún valor se repite → sin moda.</p></div>
+    </div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 9 · Moda</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 12 SECTION ¿CUÁL USAR? -->
+<div class="slide s-section">
+  <div class="num">9.4</div>
+  <div class="tit">¿Cuál Medida Usar?</div>
+  <div class="desc">Media, mediana y moda no compiten: cada una responde mejor según la forma de los datos.</div>
+</div>
+
+<!-- 13 COMPARACIÓN + OUTLIERS -->
+<div class="slide s-body">
+  <div class="sh">Comparación y Efecto de los Atípicos <span class="sn">13 / 18</span></div>
+  <div class="sc">
+    <table class="st">
+      <thead><tr><th>Medida</th><th>Úsala cuando…</th><th class="num">Atípicos</th><th class="num">Nuestro ej.</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Media x̄</strong></td><td>Los datos son simétricos, sin extremos</td><td class="num">Muy sensible</td><td class="num">1284.5</td></tr>
+        <tr><td><strong>Mediana Me</strong></td><td>Hay sesgo o valores atípicos (sueldos, precios)</td><td class="num">Resistente</td><td class="num">1000</td></tr>
+        <tr><td><strong>Moda Mo</strong></td><td>Datos cualitativos o el valor más común</td><td class="num">Resistente</td><td class="num">1000</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box"><div class="dl">⚠️ La media "se va" con el atípico</div><div class="dt">El sueldo del gerente (4500) arrastró la media a 1284.5, pero mediana y moda se quedaron en 1000, fieles al equipo. <strong>Regla práctica:</strong> si media y mediana difieren mucho, hay sesgo o atípicos → reporta la mediana.</div></div>
+    <div class="tip-box"><div class="dl">💡 Relación con la forma (Semana 8)</div><div class="dt">Simétrica → media ≈ mediana ≈ moda. Sesgo a la derecha → media &gt; mediana &gt; moda. Sesgo a la izquierda → al revés.</div></div>
+  </div>
+  <div class="sf"><span>Estadística · ISTER</span><span>Semana 9 · Comparación</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 14 SECTION CÓDIGO -->
+<div class="slide s-section">
+  <div class="num">9.5</div>
+  <div class="tit">Cálculo con Python y R</div>
+  <div class="desc">Las tres medidas se obtienen con funciones directas en ambos lenguajes.</div>
+</div>
+
+<!-- 15 PYTHON CODE -->
+<div class="slide s-code">
+  <div class="sh">🐍 Python: media, mediana y moda <span class="sn" style="color:#475569">15 / 18</span></div>
+  <div class="sc">
+<pre>import pandas as pd
+import statistics as st
+
+sueldos = [780,850,850,900,950,1000,1000,1000,1100,1200,4500]
+s = pd.Series(sueldos)
+
+print("Media  :", round(s.mean(), 2))   # promedio
+print("Mediana:", s.median())            # valor central
+print("Moda   :", s.mode()[0])           # más frecuente
+
+# Sin pandas, con el módulo statistics:
+print(st.mean(sueldos), st.median(sueldos), st.mode(sueldos))</pre>
+    <div class="out">Media  : 1284.55<br>Mediana: 1000.0<br>Moda   : 1000<br>1284.5454545454545 1000 1000</div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 9 · Python</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 16 R CODE -->
+<div class="slide s-code">
+  <div class="sh" style="color:#86efac">📊 R: mean(), median() y la moda <span class="sn" style="color:#475569">16 / 18</span></div>
+  <div class="sc">
+<pre>sueldos &lt;- c(780,850,850,900,950,1000,1000,1000,1100,1200,4500)
+
+mean(sueldos)     # 1284.545  -> media
+median(sueldos)   # 1000      -> mediana
+
+# R no trae una función de moda: la definimos
+moda &lt;- function(x){
+  ux &lt;- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+moda(sueldos)     # 1000</pre>
+    <div class="out">&gt; mean(sueldos)<br>[1] 1284.545<br>&gt; median(sueldos)<br>[1] 1000<br>&gt; moda(sueldos)<br>[1] 1000</div>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.4);color:#475569"><span>Estadística · ISTER</span><span>Semana 9 · R</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 17 PUNTOS CLAVE -->
+<div class="slide s-dark">
+  <div class="sh">Puntos Clave de la Semana 9 <span class="sn" style="color:#475569">17 / 18</span></div>
+  <div class="sc">
+    <ul class="kp-list">
+      <li><div class="knum">1</div><div class="kt">Una <strong style="color:#93c5fd">medida de tendencia central</strong> resume la distribución en un valor "típico": media, mediana o moda.</div></li>
+      <li><div class="knum">2</div><div class="kt"><strong style="color:#93c5fd">Media x̄ = Σxᵢ/n</strong>: usa todos los datos pero es muy sensible a valores atípicos.</div></li>
+      <li><div class="knum">3</div><div class="kt"><strong style="color:#93c5fd">Mediana</strong>: valor central de los datos ordenados; resistente a atípicos. n impar → posición (n+1)/2; n par → promedio de los dos centrales.</div></li>
+      <li><div class="knum">4</div><div class="kt"><strong style="color:#93c5fd">Moda</strong>: el valor más frecuente; la única válida para datos cualitativos.</div></li>
+      <li><div class="knum">5</div><div class="kt">Si media y mediana <strong style="color:#93c5fd">difieren mucho</strong> hay sesgo/atípicos → la mediana representa mejor al conjunto.</div></li>
+    </ul>
+  </div>
+  <div class="sf" style="background:rgba(0,0,0,.3)"><span>Estadística · ISTER</span><span>Semana 9 · Resumen</span><span>15 jun 2026</span></div>
+</div>
+
+<!-- 18 CIERRE -->
+<div class="slide s-title">
+  <div style="font-size:2.8rem;margin-bottom:1.25rem">🎓</div>
+  <div class="tit" style="font-size:1.9rem">¿Preguntas?</div>
+  <div class="sub" style="margin-top:.5rem">Próxima semana:</div>
+  <div style="font-size:1.15rem;font-weight:700;color:#93c5fd;margin-top:.4rem">Semana 10 · Notación Sumatoria (Σ)</div>
+  <div style="font-size:.88rem;opacity:.65;margin-top:.5rem">El lenguaje matemático detrás de la media y todo lo que viene</div>
+  <div style="margin-top:1.75rem;font-size:.79rem;opacity:.5;border-top:1px solid rgba(255,255,255,.12);padding-top:.85rem">Ing. David Minango, PhD. · Instituto Superior Tecnológico Rumiñahui</div>
+</div>
+
+</div>
+<div id="controls">
+  <span id="counter">1 / 18</span>
+  <div id="dots"></div>
+  <div class="nbtns">
+    <button class="nb p" id="pb" onclick="mv(-1)" disabled>← Anterior</button>
+    <button class="nb n" id="nb2" onclick="mv(1)">Siguiente →</button>
+    <button id="fs" onclick="tFS()">⛶</button>
+  </div>
+</div>
+<script>
+const sl=document.querySelectorAll('.slide'),tot=sl.length;let cur=0;
+const pr=document.getElementById('progress'),ct=document.getElementById('counter'),pb=document.getElementById('pb'),nb=document.getElementById('nb2'),de=document.getElementById('dots');
+for(let i=0;i<tot;i++){const d=document.createElement('div');d.className='dot'+(i===0?' on':'');d.onclick=()=>go(i);de.appendChild(d);}
+function go(n){sl[cur].classList.remove('on');de.children[cur].classList.remove('on');cur=Math.max(0,Math.min(n,tot-1));sl[cur].classList.add('on');de.children[cur].classList.add('on');pr.style.width=((cur+1)/tot*100)+'%';ct.textContent=(cur+1)+' / '+tot;pb.disabled=cur===0;nb.disabled=cur===tot-1;nb.textContent=cur===tot-1?'✓ Fin':'Siguiente →';}
+function mv(d){go(cur+d);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')mv(1);if(e.key==='ArrowLeft')mv(-1);});
+function tFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen();else document.exitFullscreen();}
+</script>
+</body>
+</html>
